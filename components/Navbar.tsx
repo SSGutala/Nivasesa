@@ -36,7 +36,6 @@ export default function Navbar({ session }: { session?: any }) {
             <nav className={styles.navRow}>
                 <Link href="/about" className={styles.navLink}>Our Story</Link>
                 <Link href="/find-a-realtor" className={styles.navLink}>Find a Realtor</Link>
-                <Link href="#" className={styles.navLink}>Cities</Link>
                 <Link href="/join-the-network" className={styles.navLink}>Join Network</Link>
             </nav>
         </header>

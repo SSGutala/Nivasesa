@@ -27,7 +27,6 @@ export default function Footer() {
                             <h4>Service</h4>
                             <Link href="/find-a-realtor" className={styles.link}>Find a Realtor</Link>
                             <Link href="/join-the-network" className={styles.link}>Join as Partner</Link>
-                            <Link href="#" className={styles.link}>Cities</Link>
                         </div>
                         <div className={styles.linkGroup}>
                             <h4>Support</h4>
