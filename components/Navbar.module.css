@@ -1,0 +1,111 @@
+.header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: transparent;
+    /* Default transparent */
+    padding-top: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Home Theme: White Text */
+.headerHome {
+    color: white;
+}
+
+.headerHome .logo {
+    color: white;
+}
+
+.headerHome .navLink {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.headerHome .navLink:hover {
+    color: white;
+}
+
+.headerHome .topRow {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Light Theme (Our Story, etc.): Black Text */
+.headerLight {
+    color: var(--color-primary);
+    /* Dark Charcoal */
+    position: relative;
+    /* Not absolute on other pages to push content down? Or absolute + padding */
+    /* User requested "Style as home page" so likely absolute overlay or just same layout. 
+     If absolute, page content needs top padding. Our Story has 120px paddingTop so absolute works. */
+}
+
+.headerLight .logo {
+    color: var(--color-primary);
+}
+
+.headerLight .logo:hover {
+    color: black;
+    /* "Turn black on hover" - technically it's already dark, but maybe darker? */
+}
+
+.headerLight .navLink {
+    color: var(--color-text-muted);
+}
+
+.headerLight .navLink:hover {
+    color: var(--color-primary);
+}
+
+.headerLight .topRow {
+    border-bottom: 1px solid var(--color-border);
+}
+
+
+/* Shared Layout */
+.topRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    height: 60px;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: var(--font-family);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: color 0.2s;
+}
+
+.userActions {
+    display: flex;
+    gap: 20px;
+}
+
+.navRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    height: 50px;
+}
+
+.navLink {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: color 0.2s;
+}

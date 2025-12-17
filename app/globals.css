@@ -1,27 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* ... existing vars ... */
+  --font-serif: 'Playfair Display', serif;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+  /* Nivaesa / Nivasa.com Inspired Palette */
+  --color-primary: #222222;
+  /* Warm Charcoal - Headlines */
+  --color-primary-hover: #111111;
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+  --color-secondary: #7C8A6A;
+  /* Soft Olive / Sage - Accent */
+  --color-secondary-hover: #5A6A4B;
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-bg-base: #FAFAF8;
+  /* Warm Off-White */
+  --color-bg-element: #FFFFFF;
+  /* Clean White */
+  --color-bg-subtle: #F0F0EE;
+  /* Slightly darker warm gray for backgrounds */
+
+  --color-text-main: #2E2E2E;
+  /* Soft Graphite */
+  --color-text-muted: #666666;
+  /* Warmer gray */
+  --color-text-light: #999999;
+
+  --color-border: #D6D3CE;
+  /* Muted Stone */
+  --color-border-subtle: #EDEDED;
+  /* Light Ash */
+
+  --color-error: #B91C1C;
+  /* Slightly muted red */
+  --color-success: #15803D;
+
+  /* Typography - Editorial Feel */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --font-size-h1: 48px;
+  --font-size-h2: 36px;
+  --font-size-h3: 24px;
+  --font-size-body: 16px;
+  --font-size-sm: 14px;
+
+  /* Spacing */
+  --spacing-base: 8px;
+  --container-width: 1200px;
+  --radius-md: 4px;
+  /* Minimal radius */
+  --radius-lg: 8px;
+
+  /* Shadows - Minimal/Soft */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
 }
 
 * {
@@ -30,13 +64,163 @@ body {
   margin: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg-base);
+  color: var(--color-text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 500;
+  /* Lighter weights for elegance */
+  line-height: 1.2;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--color-text-main);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+}
+
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Structural Utilities */
+.section {
+  padding: 100px 0;
+  /* More generous spacing */
+}
+
+.section-subtle {
+  background-color: var(--color-bg-subtle);
+}
+
+/* Button System (Refined) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  font-weight: 500;
+  font-size: 16px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-family);
+  letter-spacing: -0.01em;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  /* Black/Charcoal */
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  /* Sage */
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  background-color: transparent;
+}
+
+/* Card System - Nivasa style */
+.card {
+  background: var(--color-bg-element);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--color-text-muted);
+  /* Darker border on hover instead of shadow */
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Elements - Editorial/Clean */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-top: 6px;
+  margin-bottom: 20px;
+  color: var(--color-text-main);
+  background: var(--color-bg-element);
+  transition: border-color 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-text-main);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
 }

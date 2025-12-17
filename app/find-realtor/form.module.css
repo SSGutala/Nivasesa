@@ -1,0 +1,169 @@
+/* Page Layout */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.header h1 {
+    font-size: 42px;
+    margin-bottom: 12px;
+    font-weight: 400;
+    /* Editorial */
+}
+
+.header p {
+    color: var(--color-text-muted);
+    font-size: 18px;
+    font-weight: 300;
+}
+
+/* Form Styles */
+.form {
+    background: white;
+    padding: 40px;
+    /* More padding */
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+    /* Very subtle */
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 80px;
+}
+
+.formGroup {
+    margin-bottom: 24px;
+}
+
+.formGroup label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Inherits input styles from globals */
+
+.disclaimer {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--color-text-light);
+    /* Lighter disclaimer */
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Results Section */
+.resultsSection {
+    margin-top: 80px;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: 60px;
+}
+
+.resultGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+    margin-top: 40px;
+}
+
+/* Realtor Card (Nivasa x Zillow style) */
+.card {
+    background: white;
+    border: 1px solid var(--color-border-subtle);
+    /* Very soft border */
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-border);
+    transform: translateY(-4px);
+}
+
+.cardContent {
+    padding: 32px;
+    /* Generous padding */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar {
+    width: 72px;
+    /* Larger avatar */
+    height: 72px;
+    background-color: var(--color-bg-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+.realtorInfo h3 {
+    font-size: 20px;
+    margin-bottom: 4px;
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.brokerage {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    letter-spacing: 0.02em;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--color-text-main);
+    margin-top: 8px;
+}
+
+.detailRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detailIcon {
+    color: var(--color-secondary);
+    /* Accent color icons */
+    width: 18px;
+    height: 18px;
+}
+
+.cardFooter {
+    padding: 20px 32px;
+    background-color: var(--color-bg-base);
+    /* Warm footer */
+    border-top: 1px solid var(--color-border-subtle);
+}
+
+.contactBtn {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+}

@@ -1,0 +1,174 @@
+.container {
+    max-width: 1000px;
+    /* Wider to accommodate images */
+    margin: 0 auto;
+    padding: 120px 24px 80px;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-base);
+}
+
+.heroHeading {
+    font-family: var(--font-serif);
+    font-size: 64px;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 80px;
+    letter-spacing: -0.02em;
+    font-style: italic;
+    color: var(--color-primary);
+}
+
+.introSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 120px;
+}
+
+.introTextContainer {
+    text-align: left;
+}
+
+.leadText {
+    font-family: var(--font-family);
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 32px;
+    color: var(--color-primary);
+}
+
+.imageContainer {
+    position: relative;
+    height: 500px;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.imageContainer:hover .img {
+    transform: scale(1.03);
+}
+
+.section {
+    margin-bottom: 120px;
+    position: relative;
+}
+
+.sectionHeading {
+    font-family: var(--font-family);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin-bottom: 48px;
+    color: var(--color-text-muted);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sectionHeading::before,
+.sectionHeading::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 0 24px;
+}
+
+.gridContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+/* Reverse order for visual variety */
+.gridContent.reverse .textCol {
+    order: 2;
+}
+
+.gridContent.reverse .imageCol {
+    order: 1;
+}
+
+.content {
+    font-family: var(--font-serif);
+    /* Switch to serif for body copy warmth */
+    font-size: 19px;
+    line-height: 1.8;
+    color: var(--color-text-main);
+}
+
+.content p {
+    margin-bottom: 24px;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 32px 0;
+}
+
+.listItem {
+    font-family: var(--font-family);
+    /* Clean sans for list items */
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.listItem::before {
+    content: "—";
+    color: var(--color-secondary);
+}
+
+.divider {
+    width: 1px;
+    height: 100px;
+    background-color: var(--color-border);
+    margin: 0 auto 100px;
+}
+
+.footerQuote {
+    text-align: center;
+    max-width: 600px;
+    margin: 80px auto 0;
+    padding: 60px;
+    background-color: white;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+}
+
+.quoteText {
+    font-family: var(--font-serif);
+    font-size: 36px;
+    font-style: italic;
+    margin-bottom: 32px;
+    color: var(--color-primary);
+}
+
+.logoEnd {
+    display: block;
+    font-family: var(--font-family);
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: 14px;
+    margin-top: 40px;
+    color: var(--color-text-muted);
+}

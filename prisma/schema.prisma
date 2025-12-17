@@ -1,0 +1,107 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("BUYER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  realtorProfile RealtorProfile?
+  buyerRequests  BuyerRequest[]
+  accounts       Account[]
+  sessions       Session[]
+}
+
+model RealtorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licenseNumber   String
+  brokerage       String
+  languages       String   // Comma-separated
+  experienceYears Int
+  states          String   // Comma-separated
+  cities          String   // Comma-separated
+  buyerTypes      String?  // Comma-separated (e.g. First-time, Investor)
+  propertyTypes   String?  // Comma-separated (e.g. Single Family, Condo)
+  bio             String?
+  isVerified      Boolean  @default(false)
+  referrals       Referral[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BuyerRequest {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  name           String
+  email          String
+  phone          String
+  budgetMin      Int?
+  budgetMax      Int?
+  timeframe      String?
+  locations      String   
+  languages      String?
+  createdAt      DateTime @default(now())
+  
+  referrals      Referral[]
+}
+
+model Referral {
+  id             String         @id @default(cuid())
+  buyerRequestId String
+  buyerRequest   BuyerRequest   @relation(fields: [buyerRequestId], references: [id])
+  realtorId      String
+  realtor        RealtorProfile @relation(fields: [realtorId], references: [id])
+  status         String         @default("SENT")
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

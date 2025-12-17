@@ -1,66 +1,68 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from 'next/link';
+import styles from './page.module.css';
+import { Search, MapPin, ShieldCheck, Languages } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      {/* Hero Section */}
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <span className={styles.world}>HOME</span>
+          <span className={styles.of}>starts with</span>
+          <span className={styles.nivaesa}>TRUST</span>
+            
+          <Link href="/find-a-realtor" className={styles.ctaButton}>
+               Find a Realtor
+          </Link>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Trust Factors / Value Props */}
+      <section className={styles.features}>
+        <div className="container">
+          <div className={styles.featureGrid}>
+            <div className={styles.featureCard}>
+              <Languages className={styles.featureIcon} />
+              <h3 className={styles.featureTitle}>Language Match</h3>
+              <p className={styles.featureDesc}>
+                Connect with agents who speak Hindi, Gujarati, Telugu, Punjabi, and more. A shared language builds deeper trust.
+              </p>
+            </div>
+            <div className={styles.featureCard}>
+              <ShieldCheck className={styles.featureIcon} />
+              <h3 className={styles.featureTitle}>Verified Partners</h3>
+              <p className={styles.featureDesc}>
+                Every realtor is rigorously vetted for license validity and community reputation. Peace of mind is standard.
+              </p>
+            </div>
+            <div className={styles.featureCard}>
+              <MapPin className={styles.featureIcon} />
+              <h3 className={styles.featureTitle}>Local Experts</h3>
+              <p className={styles.featureDesc}>
+                Agents who truly understand the neighborhood nuances, school districts, and community vibes you're looking for.
+              </p>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* Popular Cities */}
+      <section className={styles.citiesSection}>
+        <div className="container">
+          <h2 style={{ fontWeight: 400, letterSpacing: '-0.02em' }}>Current Locations</h2>
+          <div className={styles.cityGrid}>
+            <Link href="/find-realtor?location=Frisco" className={styles.cityCard}>Frisco, TX</Link>
+            <Link href="/find-realtor?location=Dallas" className={styles.cityCard}>Dallas, TX</Link>
+            <Link href="/find-realtor?location=Irving" className={styles.cityCard}>Irving, TX</Link>
+            <Link href="/find-realtor?location=Jersey City" className={styles.cityCard}>Jersey City, NJ</Link>
+            <Link href="/find-realtor?location=Edison" className={styles.cityCard}>Edison, NJ</Link>
+            <Link href="/find-realtor?location=Fremont" className={styles.cityCard}>Fremont, CA</Link>
+            <Link href="/find-realtor?location=San Jose" className={styles.cityCard}>San Jose, CA</Link>
+            <Link href="/find-realtor?location=Alpharetta" className={styles.cityCard}>Alpharetta, GA</Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
