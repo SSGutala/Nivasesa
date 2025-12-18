@@ -14,6 +14,7 @@ model User {
   emailVerified DateTime?
   image         String?
   role          String    @default("BUYER")
+  balance       Float     @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -21,6 +22,8 @@ model User {
   buyerRequests  BuyerRequest[]
   accounts       Account[]
   sessions       Session[]
+  unlockedLeads UnlockedLead[]
+  transactions  Transaction[]
 }
 
 model RealtorProfile {
@@ -104,4 +107,73 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+model RealtorApplication {
+  id                      String   @id @default(cuid())
+  fullName                String
+  email                   String
+  phone                   String
+  preferredContactMethod  String?
+  brokerageName           String
+  licenseNumber           String
+  statesLicensed          String   // Comma-separated
+  experienceYears         String
+  primaryMarkets          String   // Comma-separated
+  acceptingNewClients     String?
+  buyerSpecializations    String   // Comma-separated
+  languages               String   // Comma-separated
+  otherLanguage           String?
+  referralAcknowledgement Boolean
+  additionalContext       String?
+  status                  String   @default("pending")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model Lead {
+  id                 String   @id @default(cuid())
+  buyerName          String
+  buyerContact       String
+  city               String
+  zipcode            String
+  lat                Float?
+  lng                Float?
+  buyerType          String
+  languagePreference String
+  timeline           String
+  price              Float    @default(30)
+  status             String   @default("locked")
+  unlockedBy         UnlockedLead[]
+  createdAt          DateTime @default(now())
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  realtorId String
+  amount    Float
+  purpose   String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
+
+model UnlockedLead {
+  id        String   @id @default(cuid())
+  userId    String
+  leadId    String
+  user      User     @relation(fields: [userId], references: [id])
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, leadId])
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  amount          Float
+  type            String   // DEPOSIT, WITHDRAWAL
+  stripeSessionId String?
+  status          String   @default("completed")
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
 }
