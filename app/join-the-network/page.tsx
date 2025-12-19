@@ -17,13 +17,16 @@ export default function JoinNetworkPage() {
 
     useEffect(() => {
         if (state.success) {
-            // Give a short delay to show the success message before redirecting
             const timer = setTimeout(() => {
-                router.push('/dashboard');
+                if ((state as any).redirectTo) {
+                    router.push((state as any).redirectTo);
+                } else {
+                    router.push('/dashboard');
+                }
             }, 2000);
             return () => clearTimeout(timer);
         }
-    }, [state.success, router]);
+    }, [state.success, (state as any).redirectTo, router]);
 
     // Professional, warm imagery
     const imgMeeting = "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"; // Professional handshake/meeting
@@ -96,7 +99,7 @@ export default function JoinNetworkPage() {
                     {state.success ? (
                         <div className={styles.successMessage}>
                             <h3 className={styles.successTitle}>Application Received</h3>
-                            <p>Thank you for applying. Our team will review your details and follow up shortly.</p>
+                            <p>{state.message || "Thank you for applying. Redirecting to account setup..."}</p>
                         </div>
                     ) : (
                         <>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import styles from './profile.module.css';
-import { User, MapPin, Globe, Award, Briefcase, Hash } from 'lucide-react';
+import { User, Hash, Briefcase, Star } from 'lucide-react';
 import ContactAgentForm from '@/components/ContactAgentForm';
 
 interface PageProps {
@@ -22,73 +22,89 @@ export default async function AgentProfilePage({ params }: PageProps) {
         notFound();
     }
 
-    const realtor = agent as any; // Cast for now if Prisma types are lagging
+    const realtor = agent as any;
     const name = realtor.user?.name || 'Real Estate Professional';
 
     return (
         <div className={styles.container}>
             {/* LEFT COLUMN: AGENT INFO */}
             <div className={styles.leftCol}>
-                <header className={styles.header}>
-                    <h1 className={styles.name}>{name}</h1>
-                    <span className={styles.brokerage}>{realtor.brokerage}</span>
-                </header>
+                <div className={styles.mainInfoSection}>
+                    <div className={styles.agentPhotoContainer}>
+                        {realtor.user?.image ? (
+                            <img src={realtor.user.image} alt={name} className={styles.agentPhoto} />
+                        ) : (
+                            <div className={styles.agentPhoto}>
+                                <User size={80} />
+                            </div>
+                        )}
+                    </div>
 
-                {/* MOCK PHOTO CONTAINER */}
-                <div className={styles.agentPhoto}>
-                    <User size={120} />
-                </div>
+                    <div className={styles.detailsArea}>
+                        <h1 className={styles.name}>{name}</h1>
+                        <div className={styles.metadata}>
+                            <span><strong>License #:</strong> {realtor.licenseNumber || "21384848"}</span>
+                            <span><strong>Issued by:</strong> {realtor.states.split(',')[0] || "VA"}</span>
+                        </div>
 
-                <div className={styles.detailsGrid}>
-                    <div className={styles.detailItem}>
-                        <h4>License Number</h4>
-                        <p><Hash size={14} style={{ display: 'inline', marginRight: '4px' }} /> {agent.licenseNumber} ({agent.states})</p>
-                    </div>
-                    <div className={styles.detailItem}>
-                        <h4>Experience</h4>
-                        <p><Briefcase size={14} style={{ display: 'inline', marginRight: '4px' }} /> {realtor.experienceYears} Years</p>
-                    </div>
-                    <div className={styles.detailItem}>
-                        <h4>Price Range</h4>
-                        <p>{realtor.priceRange || 'Contact for details'}</p>
-                    </div>
-                    <div className={styles.detailItem}>
-                        <h4>Languages</h4>
-                        <div className={styles.chips}>
-                            {agent.languages.split(',').map((lang) => (
-                                <span key={lang} className={styles.chip}>{lang.trim()}</span>
+                        <span className={styles.sectionLabel}>Service Area(s):</span>
+                        <div className={styles.areaTags}>
+                            {realtor.cities.split(',').map((city: string) => (
+                                <span key={city} className={styles.areaTag}>{city.trim()}, {realtor.states.split(',')[0]}</span>
                             ))}
                         </div>
-                    </div>
-                    <div className={styles.detailItem}>
-                        <h4>Service Areas</h4>
-                        <div className={styles.chips}>
-                            {agent.cities.split(',').map((city) => (
-                                <span key={city} className={styles.chip}>{city.trim()}</span>
-                            ))}
+
+                        <span className={styles.brokerageLabel}>{realtor.brokerage}</span>
+
+                        <div className={styles.priceRangeSection}>
+                            <span className={styles.sectionLabel}>Home Price Range:</span>
+                            <div className={styles.priceDisplay}>
+                                <span className={styles.priceValue}>$300K</span>
+                                <span className={styles.priceTo}>to</span>
+                                <span className={styles.priceValue}>$1M+</span>
+                            </div>
                         </div>
-                    </div>
-                    <div className={styles.detailItem}>
-                        <h4>Specialties</h4>
-                        <div className={styles.chips}>
-                            {(agent.buyerTypes || 'Buyer Agent, Listing Agent').split(',').map((spec) => (
-                                <span key={spec} className={styles.chip}>{spec.trim()}</span>
-                            ))}
+
+                        <div className={styles.specialtiesSection}>
+                            <span className={styles.sectionLabel}>Specialties:</span>
+                            <div className={styles.specialtiesList}>
+                                {(realtor.buyerTypes || "Buyer's Agent, Listing Agent, Relocation").split(',').map((spec: string) => (
+                                    <span key={spec} className={styles.specialtyTag}>{spec.trim()}</span>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div className={styles.bioSection}>
-                    <h3>About {name.split(' ')[0]}</h3>
                     <div className={styles.bioText}>
                         {realtor.bio || `${name} is a dedicated real estate professional serving the ${realtor.cities} area. With ${realtor.experienceYears} years of experience, they specialize in helping families navigate the complexities of the local market with transparency and care.`}
                     </div>
                 </div>
+
+                <div className={styles.resultsSection}>
+                    <h2 className={styles.resultsHeader}>Real results from real customers</h2>
+                    <div className={styles.statsGrid}>
+                        <div className={styles.statItem}>
+                            <span className={styles.statValue}>0</span>
+                            <span className={styles.statLabel}>Total reviews</span>
+                        </div>
+                        <div className={styles.statItem}>
+                            <div className={styles.ratingRow}>
+                                <Star size={18} fill="#111827" />
+                                <span>0 Average rating</span>
+                            </div>
+                        </div>
+                        <button className={styles.writeReviewBtn}>Write review</button>
+                    </div>
+                </div>
             </div>
 
-            {/* RIGHT COLUMN: STICKY CONTACT FORM */}
+            {/* RIGHT COLUMN: CONTACT FORM */}
             <div className={styles.rightCol}>
-                <div className={styles.stickyWrapper}>
+                <div className={styles.contactCard}>
+                    <h2 className={styles.contactHeader}>Connect with</h2>
+                    <span className={styles.contactName}>{name}</span>
                     <ContactAgentForm agentId={realtor.id} agentName={name} />
                 </div>
             </div>

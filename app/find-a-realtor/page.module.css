@@ -215,66 +215,101 @@
 }
 
 .resultsHeader {
-  margin-bottom: 24px;
-  font-size: 14px;
-  color: var(--color-text-muted);
+  margin-bottom: 32px;
+  font-size: 16px;
+  color: var(--color-text-main);
+  font-weight: 500;
+}
+
+.resultsHeader span {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 32px;
 }
 
 .agentCard {
-  display: grid;
-  grid-template-columns: 180px 1fr 200px;
-  /* Photo | Info | Actions */
-  gap: 24px;
   background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  margin-bottom: 16px;
-  transition: box-shadow 0.2s;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
 }
 
 .agentCard:hover {
+  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-text-muted);
+  border-color: var(--color-border);
 }
 
-/* Photo Column */
-.photoCol {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+/* Image/Photo Area */
+.photoWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--color-bg-subtle);
+  overflow: hidden;
+}
+
+.agentImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  background-color: var(--color-bg-subtle);
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text-muted);
+  color: var(--color-text-light);
 }
 
-/* Info Column */
+/* Info Section */
 .infoCol {
+  padding: 24px;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
-.agentHeader {
-  margin-bottom: 8px;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--color-primary);
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+.badgeIcon {
+  color: var(--color-secondary);
 }
 
 .agentName {
-  font-size: 20px;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
-  margin-bottom: 4px;
-  display: block;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .agentName:hover {
@@ -284,78 +319,96 @@
 .brokerage {
   font-size: 14px;
   color: var(--color-text-muted);
+  margin-bottom: 20px;
 }
 
-.statsRow {
+/* Local Areas */
+.areaTags {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.areaTag {
+  background: var(--color-bg-subtle);
   color: var(--color-text-main);
-}
-
-.rating {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 2px;
 }
 
-.stars {
-  color: #F59E0B;
-  /* Gold for stars */
+/* Specialties */
+.specialtiesSection {
+  margin-top: auto;
 }
 
-.reviewCount {
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--color-text-muted);
-  font-weight: 400;
-}
-
-.bioSnippet {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  margin-bottom: 16px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin-bottom: 8px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .tags {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 6px;
 }
 
 .tag {
-  font-size: 12px;
-  background: var(--color-bg-subtle);
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: white;
+  border: 1px solid var(--color-border-subtle);
   color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 4px;
 }
 
-/* Action Column */
+/* Action Strip */
 .actionCol {
+  padding: 0 24px 24px 24px;
   display: flex;
-  flex-direction: column;
   gap: 12px;
-  justify-content: center;
-  border-left: 1px solid var(--color-border-subtle);
-  padding-left: 24px;
 }
 
 .primaryBtn {
-  width: 100%;
+  flex: 1.5;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.primaryBtn:hover {
+  opacity: 0.9;
 }
 
 .secondaryBtn {
-  width: 100%;
+  flex: 1;
+  background: white;
   color: var(--color-primary);
-  border-color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
 }
+
+
 
 @media (max-width: 768px) {
   .heroTitle {

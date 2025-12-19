@@ -1,0 +1,181 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-base);
+    padding: 20px;
+}
+
+.setupCard {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    padding: 60px;
+    border-radius: 4px;
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-md);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.icon {
+    color: var(--color-primary);
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-bottom: 12px;
+}
+
+.header p {
+    color: var(--color-text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formGroup label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-main);
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.fieldIcon {
+    position: absolute;
+    left: 14px;
+    color: var(--color-text-muted);
+}
+
+.inputWrapper input,
+.formGroup input {
+    width: 100%;
+    padding: 14px 16px;
+    padding-left: 44px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--color-bg-base);
+}
+
+.formGroup input:not(.inputWrapper input) {
+    padding-left: 16px;
+}
+
+.inputWrapper input:focus,
+.formGroup input:focus {
+    border-color: var(--color-primary);
+}
+
+.statusIcon {
+    position: absolute;
+    right: 14px;
+}
+
+.spinner {
+    animation: rotate 2s linear infinite;
+    color: var(--color-text-muted);
+}
+
+.available {
+    color: #16a34a;
+}
+
+.unavailable {
+    color: #dc2626;
+}
+
+.helperTextSuccess {
+    font-size: 12px;
+    color: #16a34a;
+    margin-top: 4px;
+}
+
+.helperTextError {
+    font-size: 12px;
+    color: #dc2626;
+    margin-top: 4px;
+}
+
+.errorMessage {
+    padding: 12px;
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #dc2626;
+    font-size: 14px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.submitBtn {
+    padding: 16px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.submitBtn:hover {
+    opacity: 0.9;
+}
+
+.submitBtn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.loading {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 640px) {
+    .setupCard {
+        padding: 40px 24px;
+    }
+}

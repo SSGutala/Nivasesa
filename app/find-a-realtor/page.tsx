@@ -157,62 +157,59 @@ export default function FindRealtorPage() {
 
         {hasSearched ? (
           <h2 className={styles.resultsHeader}>
-            {results.length} Professionals found in &quot;{query}&quot;
+            Showing <span>{results.length}</span> Professionals in &quot;{query}&quot;
           </h2>
         ) : (
-          // Empty State / Default Content when no search yet
           <div style={{ textAlign: 'center', margin: '40px 0', color: 'var(--color-text-muted)' }}>
-            {/* Could put "Featured Agents" here if desired */}
           </div>
         )}
 
-        {results.map((realtor) => {
-          const stats = getMockStats(realtor.id);
-          return (
-            <div key={realtor.id} className={styles.agentCard}>
-              <div className={styles.photoCol}>
-                <div className={styles.avatar}>
-                  <User size={48} />
+        <div className={styles.resultsGrid}>
+          {results.map((realtor) => {
+            return (
+              <div key={realtor.id} className={styles.agentCard}>
+                <div className={styles.photoWrapper}>
+                  {realtor.user.image ? (
+                    <img src={realtor.user.image} alt={realtor.user.name} className={styles.agentImage} />
+                  ) : (
+                    <div className={styles.avatar}>
+                      <User size={64} />
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div className={styles.infoCol}>
-                <div className={styles.agentHeader}>
+                <div className={styles.infoCol}>
+                  <div className={styles.badge}>
+                    <Search size={14} className={styles.badgeIcon} /> Premier Agent
+                  </div>
+
                   <a href={`/find-a-realtor/${realtor.id}`} className={styles.agentName}>{realtor.user.name}</a>
                   <span className={styles.brokerage}>{realtor.brokerage}</span>
+
+                  <div className={styles.areaTags}>
+                    {realtor.cities.split(',').slice(0, 3).map((city: string) => (
+                      <span key={city} className={styles.areaTag}>{city.trim()}, {realtor.states.split(',')[0]}</span>
+                    ))}
+                  </div>
+
+                  <div className={styles.specialtiesSection}>
+                    <span className={styles.sectionLabel}>Specialties:</span>
+                    <div className={styles.tags}>
+                      {(realtor.buyerTypes || "Buyer's Agent, Listing Agent").split(',').map((spec: string) => (
+                        <span key={spec} className={styles.tag}>{spec.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className={styles.statsRow}>
-                  <span className={styles.rating}>
-                    {stats.rating} <span className={styles.stars}>★★★★★</span>
-                  </span>
-                  <span className={styles.reviewCount}>({stats.reviews} reviews)</span>
-                  <span style={{ color: 'var(--color-border)' }}>|</span>
-                  <span>{stats.sales} Recent Sales</span>
-                  <span style={{ color: 'var(--color-border)' }}>|</span>
-                  <span>{realtor.experienceYears} Yrs Exp</span>
-                </div>
-
-                <p className={styles.bioSnippet}>
-                  {realtor.bio || `Specializing in ${realtor.cities}, I help families find their perfect home. Fluent in ${realtor.languages}, I bridge cultural gaps.`}
-                </p>
-
-                <div className={styles.tags}>
-                  <span className={styles.tag}>Buyer&apos;s Agent</span>
-                  <span className={styles.tag}>Listing Agent</span>
-                  {realtor.languages.split(',').slice(0, 3).map((lang: string) => (
-                    <span key={lang} className={styles.tag}>{lang.trim()}</span>
-                  ))}
+                <div className={styles.actionCol}>
+                  <button className={styles.primaryBtn}>Contact Agent</button>
+                  <button className={styles.secondaryBtn}>{realtor.phone || "(555) 000-0000"}</button>
                 </div>
               </div>
-
-              <div className={styles.actionCol}>
-                <button className={`btn btn-primary ${styles.primaryBtn}`}>Contact Agent</button>
-                <button className={`btn btn-outline ${styles.secondaryBtn}`}>{realtor.phone}</button>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
