@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
-    getLeadCountAction,
+    addBalanceAction,
+    updateRealtorProfile,
+    getCurrentUserAction,
+    getInboundLeadsAction,
+    getRealtorProfileByEmail,
+    getUserBalanceAction,
     getUnlockedLeadsAction,
     unlockLeadsBulkAction,
-    getUserBalanceAction,
-    addBalanceAction,
-    updateRealtorProfile
+    getLeadCountAction
 } from '@/actions/dashboard';
 
 export default function Dashboard() {
@@ -23,14 +26,25 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchUserData = async () => {
             setLoading(true);
-            const user = await getUserBalanceAction(userEmail);
-            setUserData(user);
-            const unlocked = await getUnlockedLeadsAction(user?.id);
+            const user = await getCurrentUserAction();
+            if (!user) {
+                // If no session, wait or redirect? For now just handle null
+                setLoading(false);
+                return;
+            }
+
+            const fullUser = await getUserBalanceAction(user.email!);
+            setUserData(fullUser);
+
+            const profile = await getRealtorProfileByEmail(user.email!);
+            if (profile) setRealtorData({ fullName: profile.user.name, status: profile.isVerified ? 'Active' : 'Pending', id: profile.id });
+
+            const unlocked = await getUnlockedLeadsAction(fullUser?.id);
             setUnlockedLeads(unlocked);
             setLoading(false);
         };
         fetchUserData();
-    }, [userEmail]);
+    }, []);
 
     const refreshData = async () => {
         const user = await getUserBalanceAction(userEmail);
@@ -51,8 +65,9 @@ export default function Dashboard() {
                 </div>
 
                 <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <SidebarItem icon={<Search size={20} />} label="Search Leads" active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
-                    <SidebarItem icon={<Users size={20} />} label="My Leads" active={activeTab === 'my-leads'} onClick={() => setActiveTab('my-leads')} />
+                    <SidebarItem icon={<Search size={20} />} label="Marketplace" active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
+                    <SidebarItem icon={<Clock size={20} />} label="Inbound Leads" active={activeTab === 'inbound'} onClick={() => setActiveTab('inbound')} />
+                    <SidebarItem icon={<Users size={20} />} label="My Clients" active={activeTab === 'my-leads'} onClick={() => setActiveTab('my-leads')} />
                     <SidebarItem icon={<Home size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
                     <SidebarItem icon={<CreditCard size={20} />} label="Payments" active={activeTab === 'payments'} onClick={() => setActiveTab('payments')} />
                 </nav>
@@ -73,6 +88,7 @@ export default function Dashboard() {
             {/* Main Content */}
             <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
                 {activeTab === 'leads' && <LeadsSearchSection userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} />}
+                {activeTab === 'inbound' && <InboundLeadsSection agentId={realtorData?.id} userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} />}
                 {activeTab === 'my-leads' && <MyLeadsSection leads={unlockedLeads} />}
                 {activeTab === 'profile' && <ProfileSection realtorData={{ ...realtorData, id: userData?.id }} />}
                 {activeTab === 'payments' && <PaymentsSection userId={userData?.id} balance={userData?.balance} onPaymentComplete={refreshData} />}
@@ -373,3 +389,88 @@ function ProfileSection({ realtorData }: { realtorData: any }) {
         </div>
     );
 }
+function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: { agentId: string, userId: string, balance: number, onPurchaseComplete: () => void }) {
+    const [leads, setLeads] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [unlocking, setUnlocking] = useState<string | null>(null);
+
+    const fetchLeads = async () => {
+        if (!agentId) return;
+        setLoading(true);
+        const data = await getInboundLeadsAction(agentId);
+        setLeads(data);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchLeads();
+    }, [agentId]);
+
+    const handleUnlock = async (leadId: string) => {
+        if (balance < 30) {
+            alert('Insufficient balance. Please add funds.');
+            return;
+        }
+
+        setUnlocking(leadId);
+        const res = await unlockLeadsBulkAction([leadId], userId, 30);
+        if (res.success) {
+            onPurchaseComplete();
+            fetchLeads();
+            alert('Lead unlocked! You can now view contact details in "My Clients".');
+        } else {
+            alert(res.message);
+        }
+        setUnlocking(null);
+    };
+
+    if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading inquiries...</div>;
+
+    const lockedLeads = leads.filter(l => !l.unlockedBy.some((u: any) => u.userId === userId));
+
+    return (
+        <div>
+            <div style={{ marginBottom: '32px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Inbound Inquiries</h1>
+                <p style={{ color: '#6b7280' }}>Buyers who reached out specifically to you through your profile.</p>
+            </div>
+
+            {lockedLeads.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '80px 0', backgroundColor: 'white', borderRadius: '12px', border: '1px dashed #d1d5db' }}>
+                    <MessageSquare size={48} style={{ color: '#d1d5db', marginBottom: '16px' }} />
+                    <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#374151' }}>No new inquiries</h3>
+                    <p style={{ color: '#6b7280' }}>When buyers contact you through your profile, they will appear here.</p>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                    {lockedLeads.map((lead) => (
+                        <div key={lead.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#3b82f6', backgroundColor: '#eff6ff', padding: '2px 8px', borderRadius: '4px' }}>{lead.interest || 'New Lead'}</span>
+                                    <span style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(lead.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>Interested Buyer in {lead.zipcode}</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                                    <p style={{ fontSize: '14px', color: '#6b7280' }}>
+                                        A buyer is interested in <strong>{lead.interest?.toLowerCase()}</strong> in the {lead.city} area. Unlock to see their contact info and full message.
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={() => handleUnlock(lead.id)}
+                                    disabled={!!unlocking}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                >
+                                    {unlocking === lead.id ? 'Unlocking...' : <><Lock size={16} /> Unlock for $30</>}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+import { MessageSquare } from 'lucide-react';

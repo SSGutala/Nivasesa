@@ -160,17 +160,22 @@ export async function addBalanceAction(userId: string, amount: number) {
     }
 }
 
+import { auth } from '@/auth';
+
+export async function getCurrentUserAction() {
+    const session = await auth();
+    return session?.user;
+}
+
 export async function updateRealtorProfile(realtorId: string, data: any) {
     try {
         const client = prisma as any;
-        if (!client.realtorApplication) return { success: false };
-
-        await client.realtorApplication.update({
+        // Check if we should update RealtorProfile or RealtorApplication
+        await client.realtorProfile.update({
             where: { id: realtorId },
             data: {
-                fullName: data.fullName,
-                additionalContext: data.description,
-                primaryMarkets: data.citiesZipcodesServed,
+                bio: data.bio,
+                cities: data.citiesZipcodesServed,
             }
         });
         revalidatePath('/dashboard');
@@ -178,5 +183,34 @@ export async function updateRealtorProfile(realtorId: string, data: any) {
     } catch (error) {
         console.error('STABILIZATION: Failed to update profile:', error);
         return { success: false, message: 'Failed to update profile' };
+    }
+}
+
+export async function getInboundLeadsAction(agentId: string) {
+    try {
+        const leads = await prisma.lead.findMany({
+            where: { agentId },
+            include: {
+                unlockedBy: true
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        return leads;
+    } catch (error) {
+        console.error('Failed to fetch inbound leads:', error);
+        return [];
+    }
+}
+
+export async function getRealtorProfileByEmail(email: string) {
+    try {
+        const profile = await prisma.realtorProfile.findFirst({
+            where: { user: { email } },
+            include: { user: true }
+        });
+        return profile;
+    } catch (error) {
+        console.error('Failed to get realtor profile:', error);
+        return null;
     }
 }

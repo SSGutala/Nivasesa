@@ -178,7 +178,7 @@ export default function FindRealtorPage() {
 
               <div className={styles.infoCol}>
                 <div className={styles.agentHeader}>
-                  <a href="#" className={styles.agentName}>{realtor.user.name}</a>
+                  <a href={`/find-a-realtor/${realtor.id}`} className={styles.agentName}>{realtor.user.name}</a>
                   <span className={styles.brokerage}>{realtor.brokerage}</span>
                 </div>
 

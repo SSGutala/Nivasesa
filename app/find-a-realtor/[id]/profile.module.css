@@ -1,0 +1,203 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    display: flex;
+    gap: 60px;
+    font-family: var(--font-sans);
+    color: var(--color-text-main);
+}
+
+.leftCol {
+    flex: 2;
+}
+
+.rightCol {
+    flex: 1;
+}
+
+.stickyWrapper {
+    position: sticky;
+    top: 100px;
+}
+
+/* LEFT COLUMN STYLES */
+.header {
+    margin-bottom: 40px;
+}
+
+.name {
+    font-family: var(--font-serif);
+    font-size: 48px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-primary);
+}
+
+.brokerage {
+    font-size: 18px;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 24px;
+}
+
+.agentPhoto {
+    width: 100%;
+    max-width: 400px;
+    height: 500px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 60px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 32px;
+}
+
+.detailItem h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+}
+
+.detailItem p {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.chip {
+    background-color: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+.bioSection h3 {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.bioText {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #444;
+    white-space: pre-wrap;
+}
+
+/* RIGHT COLUMN / FORM STYLES */
+.contactCard {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.contactCard h2 {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.contactCard p {
+    color: var(--color-text-muted);
+    margin-bottom: 32px;
+    font-size: 15px;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formGroup label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-text-main);
+}
+
+.input,
+.select,
+.textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+    border-color: var(--color-primary);
+}
+
+.textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.submitBtn {
+    width: 100%;
+    padding: 16px;
+    background-color: var(--color-navbar-bg);
+    /* Navy/Black */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 12px;
+}
+
+.submitBtn:hover {
+    opacity: 0.9;
+}
+
+.confirmation {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.confirmation h3 {
+    color: #16a34a;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        padding: 40px 20px;
+    }
+
+    .rightCol {
+        order: -1;
+        margin-bottom: 40px;
+    }
+}
