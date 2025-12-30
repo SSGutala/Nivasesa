@@ -343,6 +343,19 @@ function ProfileSection({ realtorData }: { realtorData: any }) {
         citiesZipcodesServed: realtorData?.citiesZipcodesServed || '',
     });
     const [saving, setSaving] = useState(false);
+    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [uploadingPhoto, setUploadingPhoto] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            const profile = await getRealtorProfileAction();
+            if (profile?.image) {
+                setProfileImage(profile.image);
+            }
+        };
+        loadProfile();
+    }, []);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -356,9 +369,106 @@ function ProfileSection({ realtorData }: { realtorData: any }) {
         setSaving(false);
     };
 
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingPhoto(true);
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        const res = await uploadRealtorPhotoAction(formData);
+        if (res.success && res.imageUrl) {
+            setProfileImage(res.imageUrl);
+            alert('Profile photo uploaded successfully!');
+        } else {
+            alert(res.message || 'Failed to upload photo');
+        }
+        setUploadingPhoto(false);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleRemovePhoto = async () => {
+        if (!confirm('Are you sure you want to remove your profile photo?')) return;
+
+        setUploadingPhoto(true);
+        const res = await removeRealtorPhotoAction();
+        if (res.success) {
+            setProfileImage(null);
+            alert('Profile photo removed successfully!');
+        } else {
+            alert(res.message || 'Failed to remove photo');
+        }
+        setUploadingPhoto(false);
+    };
+
     return (
         <div style={{ maxWidth: '800px' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#111827', marginBottom: '32px' }}>Public Profile</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#111827', margin: 0 }}>Public Profile</h1>
+                {realtorData?.isVerified && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', backgroundColor: '#dcfce7', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+                        <CheckCircle size={18} style={{ color: '#16a34a' }} />
+                        <span style={{ fontSize: '14px', fontWeight: 600, color: '#16a34a' }}>Verified Realtor</span>
+                    </div>
+                )}
+            </div>
+
+            <div style={{ padding: '24px', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>Profile Photo</h3>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                    <div style={{ position: 'relative' }}>
+                        {profileImage ? (
+                            <div style={{ position: 'relative' }}>
+                                <img
+                                    src={profileImage}
+                                    alt="Profile"
+                                    style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #e5e7eb' }}
+                                />
+                                {!uploadingPhoto && (
+                                    <button
+                                        onClick={handleRemovePhoto}
+                                        style={{ position: 'absolute', top: '-8px', right: '-8px', width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px dashed #d1d5db' }}>
+                                <Camera size={40} style={{ color: '#9ca3af' }} />
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '12px' }}>
+                            Upload a professional photo to help buyers connect with you. Recommended size: 400x400px. Max 5MB.
+                        </p>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                            onChange={handlePhotoUpload}
+                            style={{ display: 'none' }}
+                        />
+
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingPhoto}
+                            style={{ padding: '10px 20px', borderRadius: '6px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', opacity: uploadingPhoto ? 0.5 : 1 }}
+                        >
+                            <Upload size={18} />
+                            {uploadingPhoto ? 'Uploading...' : profileImage ? 'Change Photo' : 'Upload Photo'}
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div style={{ padding: '24px', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
