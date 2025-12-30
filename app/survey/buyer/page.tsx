@@ -11,13 +11,44 @@ export default function BuyerSurveyPage() {
     const [budgetRange, setBudgetRange] = useState('');
     const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
     const [preApproved, setPreApproved] = useState('');
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const getExtraData = () => ({
-        buyerType,
-        budgetRange,
-        propertyTypes,
-        preApproved,
-    });
+    const validateBuyerFields = (): boolean => {
+        const newErrors: Record<string, string> = {};
+
+        if (!buyerType) {
+            newErrors.buyerType = 'Please select a buyer type';
+        }
+
+        if (!budgetRange) {
+            newErrors.budgetRange = 'Please select your budget range';
+        }
+
+        if (propertyTypes.length === 0) {
+            newErrors.propertyTypes = 'Please select at least one property type';
+        }
+
+        if (!preApproved) {
+            newErrors.preApproved = 'Please indicate your pre-approval status';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const getExtraData = () => {
+        // Validate before returning data
+        if (!validateBuyerFields()) {
+            return null;
+        }
+
+        return {
+            buyerType,
+            budgetRange,
+            propertyTypes,
+            preApproved,
+        };
+    };
 
     return (
         <main style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px 80px' }}>
@@ -50,13 +81,19 @@ export default function BuyerSurveyPage() {
 
                     <div className={styles.formGroup}>
                         <label className={styles.label} htmlFor="buyerType">
-                            What type of buyer are you?
+                            What type of buyer are you? <span className={styles.required}>*</span>
                         </label>
                         <select
-                            className={styles.select}
+                            className={`${styles.select} ${errors.buyerType ? styles.inputError : ''}`}
                             id="buyerType"
                             value={buyerType}
-                            onChange={(e) => setBuyerType(e.target.value)}
+                            onChange={(e) => {
+                                setBuyerType(e.target.value);
+                                if (errors.buyerType) {
+                                    setErrors({ ...errors, buyerType: '' });
+                                }
+                            }}
+                            required
                         >
                             <option value="">Select...</option>
                             <option value="First-time buyer">First-time home buyer</option>
@@ -66,17 +103,26 @@ export default function BuyerSurveyPage() {
                             <option value="Investor">Investor / Rental property</option>
                             <option value="New to US">New to US (H1B/F1 visa)</option>
                         </select>
+                        {errors.buyerType && (
+                            <div className={styles.errorText}>{errors.buyerType}</div>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>
                         <label className={styles.label} htmlFor="budgetRange">
-                            Budget range
+                            Budget range <span className={styles.required}>*</span>
                         </label>
                         <select
-                            className={styles.select}
+                            className={`${styles.select} ${errors.budgetRange ? styles.inputError : ''}`}
                             id="budgetRange"
                             value={budgetRange}
-                            onChange={(e) => setBudgetRange(e.target.value)}
+                            onChange={(e) => {
+                                setBudgetRange(e.target.value);
+                                if (errors.budgetRange) {
+                                    setErrors({ ...errors, budgetRange: '' });
+                                }
+                            }}
+                            required
                         >
                             <option value="">Select budget</option>
                             <option value="Under $300K">Under $300K</option>
@@ -86,10 +132,18 @@ export default function BuyerSurveyPage() {
                             <option value="$1M - $1.5M">$1M - $1.5M</option>
                             <option value="$1.5M+">$1.5M+</option>
                         </select>
+                        {errors.budgetRange && (
+                            <div className={styles.errorText}>{errors.budgetRange}</div>
+                        )}
                     </div>
 
                     <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                        <label className={styles.label}>Property types interested in (Select all that apply)</label>
+                        <label className={styles.label}>
+                            Property types interested in (Select all that apply) <span className={styles.required}>*</span>
+                        </label>
+                        {errors.propertyTypes && (
+                            <div className={styles.errorText}>{errors.propertyTypes}</div>
+                        )}
                         <div className={styles.languageGrid}>
                             {[
                                 'Single family home',
@@ -109,6 +163,9 @@ export default function BuyerSurveyPage() {
                                             } else {
                                                 setPropertyTypes(propertyTypes.filter((p) => p !== option));
                                             }
+                                            if (errors.propertyTypes) {
+                                                setErrors({ ...errors, propertyTypes: '' });
+                                            }
                                         }}
                                     />
                                     <span>{option}</span>
@@ -118,7 +175,12 @@ export default function BuyerSurveyPage() {
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Are you pre-approved for a mortgage?</label>
+                        <label className={styles.label}>
+                            Are you pre-approved for a mortgage? <span className={styles.required}>*</span>
+                        </label>
+                        {errors.preApproved && (
+                            <div className={styles.errorText}>{errors.preApproved}</div>
+                        )}
                         <div className={styles.radioGroup}>
                             {[
                                 { value: 'Yes', label: 'Yes, I have pre-approval' },
@@ -132,7 +194,12 @@ export default function BuyerSurveyPage() {
                                         name="preApproved"
                                         value={option.value}
                                         checked={preApproved === option.value}
-                                        onChange={(e) => setPreApproved(e.target.value)}
+                                        onChange={(e) => {
+                                            setPreApproved(e.target.value);
+                                            if (errors.preApproved) {
+                                                setErrors({ ...errors, preApproved: '' });
+                                            }
+                                        }}
                                     />
                                     <span>{option.label}</span>
                                 </label>
