@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield, X, Camera, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
     addBalanceAction,
@@ -14,6 +14,7 @@ import {
     unlockLeadsBulkAction,
     getLeadCountAction
 } from '@/actions/dashboard';
+import { getRealtorProfileAction, uploadRealtorPhotoAction, removeRealtorPhotoAction } from '@/actions/realtor-profile';
 
 export default function Dashboard() {
     const [userEmail, setUserEmail] = useState('test@example.com');
