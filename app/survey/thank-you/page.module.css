@@ -1,0 +1,159 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: linear-gradient(135deg, var(--color-primary-light, #eff6ff) 0%, #f8fafc 100%);
+}
+
+.card {
+    max-width: 600px;
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 16px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--color-text-muted, #6b7280);
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.nextSteps {
+    background: var(--color-background-subtle, #f9fafb);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: left;
+    margin-bottom: 32px;
+}
+
+.nextStepsTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 16px;
+}
+
+.stepsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.stepsList li {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.stepsList li:last-child {
+    margin-bottom: 0;
+}
+
+.stepNumber {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--color-primary, #2563eb);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.stepsList strong {
+    display: block;
+    font-size: 14px;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 4px;
+}
+
+.stepsList p {
+    font-size: 13px;
+    color: var(--color-text-muted, #6b7280);
+    margin: 0;
+}
+
+.share {
+    margin-bottom: 24px;
+}
+
+.share p {
+    font-size: 14px;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 12px;
+}
+
+.shareButtons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.shareButton {
+    padding: 10px 20px;
+    background: var(--color-primary, #2563eb);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.shareButton:hover {
+    background: var(--color-primary-dark, #1d4ed8);
+}
+
+.homeLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary, #2563eb);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.homeLink:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .card {
+        padding: 32px 24px;
+    }
+
+    .title {
+        font-size: 24px;
+    }
+
+    .shareButtons {
+        flex-direction: column;
+    }
+
+    .shareButton {
+        width: 100%;
+    }
+}

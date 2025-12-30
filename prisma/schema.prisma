@@ -15,7 +15,7 @@ model User {
   emailVerified  DateTime?
   password       String?
   image          String?
-  role           String          @default("BUYER")
+  role           String          @default("BUYER") // BUYER | REALTOR | ADMIN
   balance        Float           @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -25,6 +25,13 @@ model User {
   sessions       Session[]
   transactions   Transaction[]
   unlockedLeads  UnlockedLead[]
+
+  // Phase 2: Groups & Roommates
+  roommateProfile RoommateProfile?
+  createdGroups   Group[]
+
+  // Phase 4: Room Listings
+  roomListings    RoomListing[]
 }
 
 model RealtorProfile {
@@ -46,6 +53,11 @@ model RealtorProfile {
   leads           Lead[]
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   referrals       Referral[]
+
+  // Phase 2: Groups
+  acceptsGroups   Boolean              @default(true)
+  assignedGroups  Group[]
+  groupRequests   GroupRealtorRequest[]
 }
 
 model BuyerRequest {
@@ -184,4 +196,287 @@ model Transaction {
   status          String   @default("completed")
   createdAt       DateTime @default(now())
   user            User     @relation(fields: [userId], references: [id])
+}
+
+// Phase 0: Pre-launch validation survey responses
+model SurveyResponse {
+  id String @id @default(cuid())
+
+  // User Type: "roommate_seeker", "host", "buyer", "seller", "agent"
+  userType String
+
+  // Contact Info
+  email String
+  phone String?
+  name  String?
+
+  // Location
+  city    String?
+  state   String?
+  zipcode String?
+
+  // Timeline: "ASAP", "1-3 months", "3-6 months", "6+ months"
+  timeline String?
+
+  // Languages (CSV)
+  languages String?
+
+  // Pain Points (open text)
+  biggestChallenge String?
+  currentSolution  String?
+
+  // User-type specific fields (JSON blob for flexibility)
+  surveyData String?
+
+  // Follow-up tracking
+  calledAt      DateTime?
+  callNotes     String?
+  interviewedAt DateTime?
+  // Status: "new", "contacted", "scheduled", "interviewed", "converted"
+  status        String    @default("new")
+
+  // Referral source: "google", "facebook", "friend", "other"
+  referralSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// PHASE 2: Groups & Roommate Profiles
+// =============================================================================
+
+model RoommateProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Location preferences
+  preferredCities   String   // CSV: "Frisco, Plano, Irving"
+  preferredStates   String   // CSV: "TX, CA, NJ"
+  maxBudget         Int
+  minBudget         Int?
+
+  // Dietary Preferences
+  dietaryPreference String   // "Strict Vegetarian", "Vegetarian", "Jain", "Pescatarian",
+                             // "Chicken & Fish", "All Meat", "Halal", "No Preference"
+
+  // Substance Preferences
+  smokingPreference   String  // "No Smoking", "Cigarettes OK", "Outside Only", "No Preference"
+  cannabisPreference  String  // "Cannabis Friendly", "420 Friendly", "No Cannabis", "Outside Only", "No Preference"
+  alcoholPreference   String  // "Alcohol Friendly", "Social Drinking", "No Alcohol", "No Preference"
+  substancePreference String? // "420+ Friendly", "Sober Friendly", "No Preference"
+
+  // Identity & Lifestyle
+  lgbtqFriendly      String  // "LGBTQ+ Friendly", "LGBTQ+ Household", "No Preference"
+  relationshipStatus String? // "Single", "Coupled (visits)", "Coupled (lives here)"
+  guestPolicy        String? // "Occasional OK", "Frequent OK", "No Overnight", "No Preference"
+
+  // Living Style
+  cleanlinessLevel String  // "Very Clean", "Clean", "Average", "Relaxed"
+  sleepSchedule    String  // "Early Bird", "Night Owl", "Flexible"
+  workStyle        String  // "Work From Home", "Hybrid", "Office"
+  noiseLevel       String? // "Quiet", "Social", "Very Social"
+
+  // Pets
+  petsPreference String  // "No Pets", "Cats OK", "Dogs OK", "All Pets", "I Have Pets", "Allergies"
+  hasPets        String? // Description if they have pets
+
+  // Demographics
+  gender     String?
+  ageRange   String? // "18-24", "25-30", "31-40", "40+"
+  occupation String?
+
+  // Languages spoken
+  languages String // CSV: "Hindi, Telugu, Tamil, English"
+
+  // Status
+  isLookingForRoom     Boolean   @default(true)
+  isLookingForRoommate Boolean   @default(false)
+  moveInDate           DateTime?
+  leaseDuration        String?   // "3 months", "6 months", "12 months", "Flexible"
+
+  bio      String?
+  isActive Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  groupMemberships GroupMember[]
+  roomApplications RoomApplication[]
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+
+  // Housing Preferences
+  targetCity      String
+  targetState     String
+  targetBudgetMin Int?
+  targetBudgetMax Int?
+  targetMoveIn    DateTime?
+  propertyType    String?  // "Apartment", "House", "Condo", "Any"
+  bedroomsNeeded  Int?
+
+  // Group status
+  status    String  @default("forming") // "forming", "searching", "matched", "closed"
+  isPublic  Boolean @default(true)
+  maxMembers Int    @default(4)
+
+  // Realtor Connection
+  assignedRealtorId String?
+  assignedRealtor   RealtorProfile? @relation(fields: [assignedRealtorId], references: [id])
+
+  // Audit
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members         GroupMember[]
+  realtorRequests GroupRealtorRequest[]
+}
+
+model GroupMember {
+  id        String          @id @default(cuid())
+  groupId   String
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   RoommateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  role     String   @default("member") // "admin", "member"
+  status   String   @default("active") // "active", "pending", "left"
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, profileId])
+}
+
+model GroupRealtorRequest {
+  id        String         @id @default(cuid())
+  groupId   String
+  group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  realtorId String
+  realtor   RealtorProfile @relation(fields: [realtorId], references: [id])
+
+  message   String?
+  status    String   @default("pending") // "pending", "accepted", "rejected"
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, realtorId])
+}
+
+// =============================================================================
+// PHASE 4: Room Listings & Freedom Score
+// =============================================================================
+
+model RoomListing {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Location
+  city        String
+  state       String
+  zipcode     String
+  neighborhood String?
+  address     String?  // Optional, shown after application
+
+  // Room Details
+  title       String
+  description String
+  roomType    String   // "Private Room", "Shared Room", "Master Bedroom", "Studio"
+  propertyType String  // "Apartment", "House", "Condo", "Townhouse"
+  totalBedrooms Int
+  totalBathrooms Float
+
+  // Amenities
+  furnished   Boolean  @default(false)
+  parking     Boolean  @default(false)
+  laundryInUnit Boolean @default(false)
+  utilities   String?  // CSV of included utilities: "Water, Electricity, Internet"
+  amenities   String?  // CSV: "AC, Dishwasher, Gym, Pool"
+
+  // Pricing
+  rent        Int      // Monthly rent
+  deposit     Int?     // Security deposit
+  utilitiesIncluded Boolean @default(false)
+
+  // === FREEDOM SCORE FACTORS ===
+  // Guests & Visitors (max 20 points)
+  overnightGuests    String  @default("No Preference")  // "No Overnight", "Occasional", "Regular", "Anytime OK"
+  extendedStays      String  @default("Not Allowed")    // "Not Allowed", "Up to 1 week", "Up to 2 weeks", "Up to 1 month", "Flexible"
+  oppositeGenderVisitors String @default("No Preference") // "Not Comfortable", "Daytime Only", "Anytime OK"
+
+  // Romantic Partners (max 20 points)
+  partnerVisits      String  @default("No Preference")  // "Not Allowed", "Occasional OK", "Regular OK", "Overnight OK", "Anytime OK"
+  unmarriedCouplesOk Boolean @default(true)
+  sameSexCouplesWelcome Boolean @default(true)
+
+  // Social Life (max 20 points)
+  partiesAllowed     String  @default("Small OK")  // "No Parties", "Small OK", "Medium OK", "Large OK"
+  curfew             String?  // null = no curfew, or "10pm", "11pm", "12am"
+  nightOwlFriendly   Boolean @default(true)
+
+  // Substances (max 20 points)
+  smokingPolicy      String  @default("No Smoking")  // "No Smoking", "Outside Only", "Smoking OK"
+  cannabisPolicy     String  @default("No Cannabis") // "No Cannabis", "Outside Only", "420 Friendly"
+  alcoholPolicy      String  @default("No Preference") // "No Alcohol", "Social OK", "No Preference"
+
+  // Diet & Cooking (max 10 points)
+  dietaryPreference  String  @default("No Preference") // "Vegetarian Only", "Halal Only", "No Preference"
+  beefPorkCookingOk  Boolean @default(true)
+  noSmellRestrictions Boolean @default(true)
+  fullKitchenAccess  Boolean @default(true)
+
+  // Independence (max 10 points)
+  landlordOnSite     Boolean @default(false)
+  privateEntrance    Boolean @default(false)
+  nonJudgmental      Boolean @default(true)
+
+  // Calculated Freedom Score (0-100)
+  freedomScore       Int     @default(50)
+
+  // === END FREEDOM SCORE ===
+
+  // Household preferences
+  lgbtqFriendly    Boolean @default(true)
+  petsPolicy       String  @default("No Pets")  // "No Pets", "Cats OK", "Dogs OK", "All Pets"
+
+  // Demographics
+  preferredGender  String? // "Male", "Female", "Non-Binary", "Any"
+  preferredAge     String? // "Students", "Young Professionals", "Any"
+
+  // Languages spoken in household
+  languages        String?  // CSV: "Hindi, Telugu"
+
+  // Availability
+  availableFrom    DateTime
+  minLease         String?  // "3 months", "6 months", "12 months"
+
+  // Status & Metrics
+  status           String   @default("active") // "active", "rented", "expired"
+  viewCount        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  applications     RoomApplication[]
+}
+
+model RoomApplication {
+  id          String      @id @default(cuid())
+  listingId   String
+  listing     RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   RoommateProfile @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  message     String?
+  status      String      @default("pending") // "pending", "accepted", "rejected", "withdrawn"
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([listingId, applicantId])
 }
