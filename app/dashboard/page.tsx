@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase } from 'lucide-react';
+import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
     addBalanceAction,
@@ -70,6 +70,7 @@ export default function Dashboard() {
                     <SidebarItem icon={<Users size={20} />} label="My Clients" active={activeTab === 'my-leads'} onClick={() => setActiveTab('my-leads')} />
                     <SidebarItem icon={<Home size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
                     <SidebarItem icon={<CreditCard size={20} />} label="Payments" active={activeTab === 'payments'} onClick={() => setActiveTab('payments')} />
+                    <SidebarItem icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
                 </nav>
 
                 <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid #f3f4f6' }}>
@@ -92,6 +93,7 @@ export default function Dashboard() {
                 {activeTab === 'my-leads' && <MyLeadsSection leads={unlockedLeads} />}
                 {activeTab === 'profile' && <ProfileSection realtorData={{ ...realtorData, id: userData?.id }} />}
                 {activeTab === 'payments' && <PaymentsSection userId={userData?.id} balance={userData?.balance} onPaymentComplete={refreshData} />}
+                {activeTab === 'security' && <SecuritySection />}
             </main>
         </div>
     );
@@ -474,3 +476,204 @@ function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: {
 }
 
 import { MessageSquare } from 'lucide-react';
+import {
+    setupTwoFactorAction,
+    enableTwoFactorAction,
+    disableTwoFactorAction,
+    getCurrentUserTwoFactorStatusAction,
+} from '@/actions/two-factor';
+
+function SecuritySection() {
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const [setupMode, setSetupMode] = useState(false);
+    const [qrCode, setQrCode] = useState('');
+    const [secret, setSecret] = useState('');
+    const [verifyCode, setVerifyCode] = useState('');
+    const [disableCode, setDisableCode] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    useEffect(() => {
+        const checkStatus = async () => {
+            const status = await getCurrentUserTwoFactorStatusAction();
+            setTwoFactorEnabled(status.enabled);
+            setLoading(false);
+        };
+        checkStatus();
+    }, []);
+
+    const handleSetup = async () => {
+        setLoading(true);
+        setError('');
+        const result = await setupTwoFactorAction();
+        if (result.success && result.qrCode && result.secret) {
+            setQrCode(result.qrCode);
+            setSecret(result.secret);
+            setSetupMode(true);
+        } else {
+            setError(result.error || 'Failed to setup 2FA');
+        }
+        setLoading(false);
+    };
+
+    const handleEnable = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        const result = await enableTwoFactorAction(verifyCode);
+        if (result.success) {
+            setTwoFactorEnabled(true);
+            setSetupMode(false);
+            setSuccess('Two-factor authentication enabled successfully!');
+            setVerifyCode('');
+        } else {
+            setError(result.error || 'Failed to verify code');
+        }
+        setLoading(false);
+    };
+
+    const handleDisable = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+        const result = await disableTwoFactorAction(disableCode);
+        if (result.success) {
+            setTwoFactorEnabled(false);
+            setSuccess('Two-factor authentication disabled.');
+            setDisableCode('');
+        } else {
+            setError(result.error || 'Failed to disable 2FA');
+        }
+        setLoading(false);
+    };
+
+    if (loading && !setupMode) {
+        return <div style={{ padding: '40px', textAlign: 'center' }}>Loading security settings...</div>;
+    }
+
+    return (
+        <div style={{ maxWidth: '600px' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Security Settings</h1>
+            <p style={{ color: '#6b7280', marginBottom: '32px' }}>Manage your account security and two-factor authentication.</p>
+
+            {error && (
+                <div style={{ padding: '12px 16px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#dc2626', marginBottom: '24px' }}>
+                    {error}
+                </div>
+            )}
+
+            {success && (
+                <div style={{ padding: '12px 16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', color: '#16a34a', marginBottom: '24px' }}>
+                    {success}
+                </div>
+            )}
+
+            <div style={{ padding: '24px', backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', backgroundColor: twoFactorEnabled ? '#dcfce7' : '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Shield size={24} style={{ color: twoFactorEnabled ? '#16a34a' : '#6b7280' }} />
+                    </div>
+                    <div>
+                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#111827', margin: 0 }}>Two-Factor Authentication</h3>
+                        <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+                            {twoFactorEnabled ? 'Enabled - Your account is protected' : 'Add an extra layer of security to your account'}
+                        </p>
+                    </div>
+                    <div style={{ marginLeft: 'auto' }}>
+                        <span style={{
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            padding: '4px 12px',
+                            borderRadius: '9999px',
+                            backgroundColor: twoFactorEnabled ? '#dcfce7' : '#f3f4f6',
+                            color: twoFactorEnabled ? '#16a34a' : '#6b7280'
+                        }}>
+                            {twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
+                    </div>
+                </div>
+
+                {!twoFactorEnabled && !setupMode && (
+                    <button
+                        onClick={handleSetup}
+                        disabled={loading}
+                        style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                    >
+                        {loading ? 'Setting up...' : 'Enable Two-Factor Authentication'}
+                    </button>
+                )}
+
+                {setupMode && (
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>1. Scan this QR code with your authenticator app</h4>
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={qrCode} alt="2FA QR Code" style={{ maxWidth: '200px', margin: '0 auto' }} />
+                        </div>
+
+                        <div style={{ marginBottom: '24px', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Or enter this secret manually:</p>
+                            <code style={{ fontSize: '14px', fontFamily: 'monospace', color: '#111827', wordBreak: 'break-all' }}>{secret}</code>
+                        </div>
+
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>2. Enter the 6-digit code from your app</h4>
+                        <form onSubmit={handleEnable} style={{ display: 'flex', gap: '12px' }}>
+                            <input
+                                type="text"
+                                value={verifyCode}
+                                onChange={e => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                placeholder="000000"
+                                maxLength={6}
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '18px', textAlign: 'center', letterSpacing: '8px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={loading || verifyCode.length !== 6}
+                                style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: '#16a34a', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', opacity: verifyCode.length !== 6 ? 0.5 : 1 }}
+                            >
+                                {loading ? 'Verifying...' : 'Verify & Enable'}
+                            </button>
+                        </form>
+                        <button
+                            onClick={() => { setSetupMode(false); setQrCode(''); setSecret(''); }}
+                            style={{ marginTop: '16px', padding: '8px', backgroundColor: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: '14px' }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                )}
+
+                {twoFactorEnabled && (
+                    <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+                        <h4 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>Disable Two-Factor Authentication</h4>
+                        <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>Enter your current 2FA code to disable two-factor authentication.</p>
+                        <form onSubmit={handleDisable} style={{ display: 'flex', gap: '12px' }}>
+                            <input
+                                type="text"
+                                value={disableCode}
+                                onChange={e => setDisableCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                placeholder="000000"
+                                maxLength={6}
+                                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '18px', textAlign: 'center', letterSpacing: '8px', fontFamily: 'monospace' }}
+                            />
+                            <button
+                                type="submit"
+                                disabled={loading || disableCode.length !== 6}
+                                style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: '#dc2626', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', opacity: disableCode.length !== 6 ? 0.5 : 1 }}
+                            >
+                                {loading ? 'Disabling...' : 'Disable 2FA'}
+                            </button>
+                        </form>
+                    </div>
+                )}
+            </div>
+
+            <div style={{ marginTop: '24px', padding: '16px', backgroundColor: '#fffbeb', borderRadius: '8px', border: '1px solid #fef3c7' }}>
+                <p style={{ fontSize: '14px', color: '#92400e', margin: 0 }}>
+                    <strong>Tip:</strong> Use apps like Google Authenticator, Authy, or 1Password to generate your 2FA codes.
+                </p>
+            </div>
+        </div>
+    );
+}

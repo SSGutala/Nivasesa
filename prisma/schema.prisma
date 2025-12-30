@@ -19,6 +19,11 @@ model User {
   balance        Float           @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+
+  // Two-Factor Authentication
+  twoFactorEnabled Boolean       @default(false)
+  twoFactorSecret  String?       // Encrypted TOTP secret
+
   accounts       Account[]
   buyerRequests  BuyerRequest[]
   realtorProfile RealtorProfile?
