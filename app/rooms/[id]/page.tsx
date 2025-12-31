@@ -26,6 +26,7 @@ import {
     Heart,
     MessageSquare,
     Shield,
+    Image as ImageIcon,
 } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -127,6 +128,9 @@ export default function RoomDetailPage() {
     const availableDate = new Date(listing.availableFrom);
     const isAvailableNow = availableDate <= new Date();
 
+    // Parse photos from JSON
+    const photos: string[] = listing.photos ? JSON.parse(listing.photos) : [];
+
     return (
         <main className={styles.container}>
             {/* Breadcrumb */}
@@ -140,6 +144,23 @@ export default function RoomDetailPage() {
             {feedback && (
                 <div className={`${styles.feedback} ${styles[feedback.type]}`}>
                     {feedback.message}
+                </div>
+            )}
+
+            {/* Photo Gallery */}
+            {photos.length > 0 ? (
+                <div className={styles.photoGallery}>
+                    <div className={styles.photoGrid}>
+                        {photos.slice(0, 5).map((photo, index) => (
+                            <div key={index} className={styles.photoItem}>
+                                <img src={photo} alt={`Room photo ${index + 1}`} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <div className={styles.photoPlaceholder}>
+                    <ImageIcon size={120} color="#d97706" />
                 </div>
             )}
 

@@ -479,6 +479,9 @@ model RoomListing {
   availableFrom    DateTime
   minLease         String?  // "3 months", "6 months", "12 months"
 
+  // Photos
+  photos           String?  // JSON array of photo URLs
+
   // Status & Metrics
   status           String   @default("active") // "active", "rented", "expired"
   viewCount        Int      @default(0)

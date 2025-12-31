@@ -24,6 +24,8 @@ interface CreateRoomListingData {
     propertyType: string;
     totalBedrooms: number;
     totalBathrooms: number;
+    // Photos
+    photos?: string[];
     // Amenities
     furnished?: boolean;
     parking?: boolean;
@@ -97,6 +99,7 @@ export async function createRoomListing(data: CreateRoomListingData) {
             data: {
                 ownerId: session.user.id,
                 ...data,
+                photos: data.photos ? JSON.stringify(data.photos) : null,
                 freedomScore,
             },
         });
@@ -160,6 +163,7 @@ export async function updateRoomListing(
             where: { id: listingId },
             data: {
                 ...data,
+                photos: data.photos ? JSON.stringify(data.photos) : undefined,
                 freedomScore,
             },
         });
