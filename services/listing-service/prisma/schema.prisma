@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  hostId      String
+
+  // Basic info
+  title       String
+  description String
+  type        String   // PRIVATE_ROOM, SHARED_ROOM, ENTIRE_PLACE, MASTER_BEDROOM
+  status      String   @default("DRAFT") // DRAFT, PENDING_REVIEW, ACTIVE, PAUSED, RENTED, EXPIRED, REMOVED
+
+  // Location
+  address      String?
+  city         String
+  state        String
+  zipCode      String?
+  neighborhood String?
+  lat          Float?
+  lng          Float?
+
+  // Pricing
+  price             Int
+  currency          String  @default("USD")
+  depositAmount     Int?
+  utilitiesIncluded Boolean @default(false)
+
+  // Room details
+  bedrooms    Int
+  bathrooms   Float
+  squareFeet  Int?
+  furnished   Boolean @default(false)
+
+  // Lifestyle & preferences
+  freedomScore      Int     @default(50)
+  smokingAllowed    Boolean @default(false)
+  petsAllowed       Boolean @default(false)
+  partyFriendly     Boolean @default(false)
+  dietaryPreference String?
+
+  // Media
+  virtualTourUrl String?
+
+  // Availability
+  availableFrom  DateTime
+  availableUntil DateTime?
+  minStay        Int?
+  maxStay        Int?
+  instantBook    Boolean  @default(false)
+
+  // Features (stored as JSON strings)
+  amenities   String @default("[]")
+  houseRules  String @default("[]")
+
+  // Stats
+  viewCount     Int @default(0)
+  favoriteCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  photos       Photo[]
+  roommates    Roommate[]
+  availability Availability[]
+
+  @@index([hostId])
+  @@index([city, status])
+  @@index([status, freedomScore])
+}
+
+model Photo {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  url       String
+  caption   String?
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+}
+
+model Roommate {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  name       String
+  age        Int?
+  occupation String?
+  bio        String?
+  image      String?
+  languages  String  @default("[]") // JSON array
+  moveInDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([listingId])
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  date          DateTime
+  available     Boolean  @default(true)
+  priceOverride Int?
+  minStay       Int?
+  note          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, date])
+  @@index([listingId, date])
+}
