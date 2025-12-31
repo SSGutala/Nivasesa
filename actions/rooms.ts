@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { calculateFreedomScore } from '@/lib/freedom-score';
+import { getOrCreateConversationAction } from '@/actions/messaging';
 
 // =============================================================================
 // ROOM LISTING ACTIONS
@@ -344,6 +345,11 @@ export async function respondToApplication(
             where: { id: applicationId },
             include: {
                 listing: true,
+                applicant: {
+                    include: {
+                        user: true,
+                    },
+                },
             },
         });
 
@@ -360,8 +366,25 @@ export async function respondToApplication(
             data: { status },
         });
 
+        // If accepted, create a conversation between host and applicant
+        let conversationId: string | undefined;
+        if (status === 'accepted') {
+            const result = await getOrCreateConversationAction(
+                application.applicant.userId,
+                'room_application',
+                applicationId
+            );
+            if (result.success && result.conversationId) {
+                conversationId = result.conversationId;
+            }
+        }
+
         revalidatePath(`/rooms/${application.listingId}`);
-        return { success: true, message: `Application ${status}` };
+        return {
+            success: true,
+            message: `Application ${status}`,
+            conversationId
+        };
     } catch (error) {
         console.error('Error responding to application:', error);
         return { success: false, message: 'Failed to respond to application' };
@@ -388,11 +411,110 @@ export async function getMyApplications() {
             listing: {
                 include: {
                     owner: {
-                        select: { name: true, image: true },
+                        select: { id: true, name: true, image: true },
                     },
                 },
             },
         },
         orderBy: { createdAt: 'desc' },
     });
+}
+
+// Helper function to start or get a conversation for a room application
+export async function getOrCreateApplicationConversation(
+    applicationId: string
+): Promise<{ success: boolean; conversationId?: string; message?: string }> {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { success: false, message: 'You must be logged in' };
+    }
+
+    try {
+        const application = await prisma.roomApplication.findUnique({
+            where: { id: applicationId },
+            include: {
+                listing: {
+                    select: { ownerId: true },
+                },
+                applicant: {
+                    select: { userId: true },
+                },
+            },
+        });
+
+        if (!application) {
+            return { success: false, message: 'Application not found' };
+        }
+
+        // Verify user is either the host or the applicant
+        const userId = session.user.id;
+        const isHost = application.listing.ownerId === userId;
+        const isApplicant = application.applicant.userId === userId;
+
+        if (!isHost && !isApplicant) {
+            return { success: false, message: 'You are not authorized to message this application' };
+        }
+
+        // Only allow messaging if application is accepted
+        if (application.status !== 'accepted') {
+            return { success: false, message: 'You can only message accepted applications' };
+        }
+
+        // Determine the other user ID
+        const otherUserId = isHost ? application.applicant.userId : application.listing.ownerId;
+
+        // Get or create conversation
+        const result = await getOrCreateConversationAction(
+            otherUserId,
+            'room_application',
+            applicationId
+        );
+
+        return result;
+    } catch (error) {
+        console.error('Error getting application conversation:', error);
+        return { success: false, message: 'Failed to create conversation' };
+    }
+}
+
+// Get current user's application for a listing
+export async function getMyApplicationForListing(listingId: string) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return null;
+    }
+
+    try {
+        const profile = await prisma.roommateProfile.findUnique({
+            where: { userId: session.user.id },
+        });
+
+        if (!profile) {
+            return null;
+        }
+
+        const application = await prisma.roomApplication.findUnique({
+            where: {
+                listingId_applicantId: {
+                    listingId,
+                    applicantId: profile.id,
+                },
+            },
+            include: {
+                listing: {
+                    select: {
+                        ownerId: true,
+                        owner: {
+                            select: { id: true, name: true, image: true },
+                        },
+                    },
+                },
+            },
+        });
+
+        return application;
+    } catch (error) {
+        console.error('Error getting user application:', error);
+        return null;
+    }
 }
