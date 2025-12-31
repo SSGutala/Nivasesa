@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   extend schema
-    @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable", "@external"])
+    @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@shareable"])
 
   """
   User entity - the core identity in the system
@@ -17,7 +17,7 @@ export const typeDefs = gql`
     phoneVerified: Boolean!
     emailVerified: Boolean!
     profile: Profile
-    verification: VerificationStatus
+    verification: UserVerificationSummary
     trustScore: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -74,17 +74,17 @@ export const typeDefs = gql`
   }
 
   """
-  Verification status summary
+  Verification status summary for user (owned by user-service)
   """
-  type VerificationStatus {
-    identity: VerificationState!
-    background: VerificationState!
-    visa: VerificationState
-    license: VerificationState
-    overallStatus: VerificationState!
+  type UserVerificationSummary {
+    identity: UserVerificationState!
+    background: UserVerificationState!
+    visa: UserVerificationState
+    license: UserVerificationState
+    overallStatus: UserVerificationState!
   }
 
-  enum VerificationState {
+  enum UserVerificationState {
     NOT_STARTED
     PENDING
     IN_REVIEW
@@ -183,7 +183,7 @@ export const typeDefs = gql`
     pageInfo: PageInfo!
   }
 
-  type PageInfo {
+  type PageInfo @shareable {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
     startCursor: String

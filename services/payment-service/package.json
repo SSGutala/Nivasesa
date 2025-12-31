@@ -1,5 +1,5 @@
 {
-  "name": "@niv/listing-service",
+  "name": "@niv/payment-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,8 @@
     "@apollo/subgraph": "^2.9.3",
     "@prisma/client": "^5.22.0",
     "graphql": "^16.10.0",
-    "graphql-tag": "^2.12.6"
+    "graphql-tag": "^2.12.6",
+    "stripe": "^14.11.0"
   },
   "devDependencies": {
     "@types/node": "^20",

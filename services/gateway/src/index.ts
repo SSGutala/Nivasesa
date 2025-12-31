@@ -1,6 +1,18 @@
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
+import cors from 'cors';
+import {
+  RateLimiter,
+  createRateLimitPlugin,
+  createComplexityPlugin,
+  createErrorMaskingPlugin,
+  createIntrospectionPlugin,
+  createRequestSizeLimitPlugin,
+  getSecurityHeaders,
+  getCorsOptions,
+  getClientIp,
+} from './security.js';
 
 /**
  * Nivasesa GraphQL Federation Gateway
@@ -13,26 +25,36 @@ import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from '@a
  * - Verification Service: Identity, background, visa
  * - Messaging Service: Real-time chat
  * - Review Service: Ratings and reviews
+ *
+ * Security Features:
+ * - Rate limiting per IP (100 req/min default)
+ * - Query depth limiting (max 10 levels)
+ * - Query complexity analysis (max 1000)
+ * - Request size limiting (100KB)
+ * - CORS protection
+ * - Security headers (CSP, XSS, etc.)
+ * - Introspection disabled in production
+ * - Error masking in production
  */
+
+// Initialize security components
+const isDevelopment = process.env.NODE_ENV === 'development';
+const rateLimiter = new RateLimiter();
 
 // Custom data source for authentication propagation
 class AuthenticatedDataSource extends RemoteGraphQLDataSource {
-  override willSendRequest({
-    request,
-    context,
-  }: {
-    request: { http?: { headers: Map<string, string> } };
-    context: { userId?: string; userRole?: string; authToken?: string };
-  }) {
+  override willSendRequest(options: any) {
+    const { request, context } = options;
+
     // Forward authentication headers to subgraphs
-    if (context.userId) {
-      request.http?.headers.set('x-user-id', context.userId);
+    if (context?.userId && request.http?.headers) {
+      request.http.headers.set('x-user-id', context.userId);
     }
-    if (context.userRole) {
-      request.http?.headers.set('x-user-role', context.userRole);
+    if (context?.userRole && request.http?.headers) {
+      request.http.headers.set('x-user-role', context.userRole);
     }
-    if (context.authToken) {
-      request.http?.headers.set('authorization', `Bearer ${context.authToken}`);
+    if (context?.authToken && request.http?.headers) {
+      request.http.headers.set('authorization', `Bearer ${context.authToken}`);
     }
   }
 }
@@ -73,6 +95,17 @@ async function getAvailableSubgraphs() {
 
 async function startGateway() {
   console.log('\n🚀 Starting Nivasesa GraphQL Gateway...\n');
+
+  // Log security configuration
+  console.log('🔒 Security Configuration:');
+  console.log(`   - Environment: ${isDevelopment ? 'development' : 'production'}`);
+  console.log(`   - Rate Limiting: ${process.env.RATE_LIMIT_MAX || '100'} requests per ${parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000') / 1000}s per IP`);
+  console.log(`   - Query Depth Limit: ${process.env.QUERY_MAX_DEPTH || '10'} levels`);
+  console.log(`   - Query Complexity Limit: ${process.env.QUERY_MAX_COMPLEXITY || '1000'}`);
+  console.log(`   - Max Request Size: ${(parseInt(process.env.MAX_REQUEST_SIZE_BYTES || '100000') / 1024).toFixed(0)}KB`);
+  console.log(`   - Introspection: ${isDevelopment ? 'enabled' : 'disabled'}`);
+  console.log(`   - Error Masking: ${isDevelopment ? 'disabled' : 'enabled'}`);
+  console.log(`   - CORS Origins: ${process.env.ALLOWED_ORIGINS || 'all (dev mode)'}\n`);
 
   // Check which subgraphs are available
   const availableSubgraphs = await getAvailableSubgraphs();
@@ -121,9 +154,34 @@ async function startGateway() {
       },
     };
 
-    const devServer = new DevServer({ typeDefs, resolvers });
+    const devServer = new DevServer({
+      typeDefs,
+      resolvers,
+      plugins: [
+        createRateLimitPlugin(rateLimiter),
+        createComplexityPlugin(),
+        createErrorMaskingPlugin(),
+        createIntrospectionPlugin(),
+        createRequestSizeLimitPlugin(),
+      ],
+      introspection: isDevelopment,
+    });
+
     const { url } = await startStandaloneServer(devServer, {
       listen: { port: parseInt(process.env.GATEWAY_PORT || '4000') },
+      context: async ({ req }) => {
+        const ip = getClientIp(req);
+        const authToken = req.headers.authorization?.replace('Bearer ', '');
+        const userId = req.headers['x-user-id'];
+        const userRole = req.headers['x-user-role'];
+
+        return {
+          ip,
+          authToken,
+          userId,
+          userRole,
+        };
+      },
     });
 
     console.log(`\n🚀 Gateway ready at ${url}`);
@@ -147,6 +205,11 @@ async function startGateway() {
   const server = new ApolloServer({
     gateway,
     plugins: [
+      createRateLimitPlugin(rateLimiter),
+      createComplexityPlugin(),
+      createErrorMaskingPlugin(),
+      createIntrospectionPlugin(),
+      createRequestSizeLimitPlugin(),
       {
         async requestDidStart() {
           return {
@@ -159,6 +222,7 @@ async function startGateway() {
         },
       },
     ],
+    introspection: isDevelopment,
   });
 
   interface RequestContext {
@@ -174,12 +238,16 @@ async function startGateway() {
   const { url } = await startStandaloneServer(server, {
     listen: { port: parseInt(process.env.GATEWAY_PORT || '4000') },
     context: async ({ req }: RequestContext) => {
+      // Extract client IP for rate limiting
+      const ip = getClientIp(req);
+
       // Extract auth info from headers
       const authToken = req.headers.authorization?.replace('Bearer ', '');
       const userId = req.headers['x-user-id'];
       const userRole = req.headers['x-user-role'];
 
       return {
+        ip,
         authToken,
         userId,
         userRole,

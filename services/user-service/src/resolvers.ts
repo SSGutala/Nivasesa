@@ -135,7 +135,7 @@ export const resolvers = {
           role: input.role,
           profile: {
             create: {
-              languages: [],
+              languages: '[]', // Store as JSON string
             },
           },
           verification: {
@@ -219,7 +219,10 @@ export const resolvers = {
       if (input.bio !== undefined) profileData.bio = input.bio;
       if (input.occupation !== undefined) profileData.occupation = input.occupation;
       if (input.company !== undefined) profileData.company = input.company;
-      if (input.languages !== undefined) profileData.languages = input.languages;
+      if (input.languages !== undefined) {
+        // Convert languages array to JSON string for storage
+        profileData.languages = JSON.stringify(input.languages);
+      }
       if (input.dietaryPreference !== undefined)
         profileData.dietaryPreference = input.dietaryPreference;
       if (input.smokingAllowed !== undefined)
@@ -239,7 +242,7 @@ export const resolvers = {
         update: profileData,
         create: {
           userId,
-          languages: [],
+          languages: '[]', // Store as JSON string
           ...profileData,
         },
       });
@@ -433,9 +436,36 @@ export const resolvers = {
     },
   },
 
+  // Profile field resolvers
+  Profile: {
+    languages: (profile: { languages: string }) => {
+      try {
+        return JSON.parse(profile.languages);
+      } catch {
+        return [];
+      }
+    },
+    budget: (profile: { budgetMin?: number; budgetMax?: number }) => {
+      if (profile.budgetMin === undefined && profile.budgetMax === undefined) {
+        return null;
+      }
+      return {
+        min: profile.budgetMin ?? null,
+        max: profile.budgetMax ?? null,
+        currency: 'USD',
+      };
+    },
+  },
+
   // Custom scalar for DateTime
   DateTime: {
     serialize: (value: Date) => value.toISOString(),
     parseValue: (value: string) => new Date(value),
+    parseLiteral: (ast: { kind: string; value: string }) => {
+      if (ast.kind === 'StringValue') {
+        return new Date(ast.value);
+      }
+      return null;
+    },
   },
 };

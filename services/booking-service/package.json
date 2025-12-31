@@ -1,5 +1,5 @@
 {
-  "name": "@niv/listing-service",
+  "name": "@niv/booking-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",

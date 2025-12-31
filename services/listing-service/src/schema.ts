@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const typeDefs = gql`
   extend schema
-    @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable", "@external", "@requires"])
+    @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@external", "@shareable", "@requires"])
 
   """
   Listing entity - a room or property available for rent
@@ -261,7 +261,7 @@ export const typeDefs = gql`
     pageInfo: PageInfo!
   }
 
-  type PageInfo {
+  type PageInfo @shareable {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
     startCursor: String
