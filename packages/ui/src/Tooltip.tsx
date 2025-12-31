@@ -19,7 +19,7 @@ export function Tooltip({
   className = '',
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

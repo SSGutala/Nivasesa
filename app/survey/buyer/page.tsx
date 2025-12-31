@@ -36,7 +36,7 @@ export default function BuyerSurveyPage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const getExtraData = () => {
+    const getExtraData = (): Record<string, unknown> | null => {
         // Validate before returning data
         if (!validateBuyerFields()) {
             return null;
@@ -72,7 +72,7 @@ export default function BuyerSurveyPage() {
                     userType="buyer"
                     title="Home Buyer"
                     subtitle="Connect with realtors who speak your language and understand your needs."
-                    onExtraData={getExtraData}
+                    onExtraData={getExtraData as () => Record<string, unknown>}
                 >
                     {/* Buyer-specific fields */}
                     <div className={styles.fullWidth}>

@@ -10,6 +10,7 @@ export interface Listing {
     availability: 'available' | 'in_discussion' | 'waitlist_open';
     images: string[];
     badges: string[];
+    tags: string[]; // Added tags field
     preferences: {
         diet: 'Vegetarian' | 'Mixed' | 'No preference';
         cooking: 'No pork' | 'No beef' | 'No restrictions';
@@ -37,6 +38,7 @@ export const MOCK_LISTINGS: Listing[] = [
         availability: 'available',
         images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
         badges: ['Vegetarian household', 'Tamil / Hindi spoken', 'No pork cooked'],
+        tags: ['Vegetarian', 'Professional', 'Quiet'],
         preferences: {
             diet: 'Vegetarian',
             cooking: 'No pork',
@@ -62,6 +64,7 @@ export const MOCK_LISTINGS: Listing[] = [
         availability: 'in_discussion',
         images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80&w=800'],
         badges: ['Working professionals', 'Telugu / Kannada spoken', 'No beef cooked'],
+        tags: ['Professional', 'Active', 'Flexible'],
         preferences: {
             diet: 'Mixed',
             cooking: 'No beef',
@@ -87,6 +90,7 @@ export const MOCK_LISTINGS: Listing[] = [
         availability: 'available',
         images: ['https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&q=80&w=800'],
         badges: ['Vegetarian household', 'Gujarati spoken', 'Indian family'],
+        tags: ['Vegetarian', 'Family-friendly', 'Traditional'],
         preferences: {
             diet: 'Vegetarian',
             cooking: 'No restrictions',
