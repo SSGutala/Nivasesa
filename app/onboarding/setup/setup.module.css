@@ -4,22 +4,22 @@
     align-items: center;
     justify-content: center;
     background-color: var(--color-bg-base);
-    padding: 20px;
+    padding: 40px 20px;
 }
 
 .setupCard {
     background: white;
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
     padding: 60px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border-subtle);
+    border-radius: 24px;
+    border: 1px solid var(--color-border);
     box-shadow: var(--shadow-md);
 }
 
 .header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 48px;
 }
 
 .icon {
@@ -28,16 +28,16 @@
 }
 
 .header h1 {
-    font-family: var(--font-serif);
     font-size: 32px;
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: 12px;
+    font-weight: 800;
+    color: var(--color-text-main);
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
 }
 
 .header p {
     color: var(--color-text-muted);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
 }
 
@@ -50,14 +50,14 @@
 .formGroup {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 .formGroup label {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
     color: var(--color-text-main);
 }
 
@@ -69,21 +69,23 @@
 
 .fieldIcon {
     position: absolute;
-    left: 14px;
-    color: var(--color-text-muted);
+    left: 16px;
+    color: var(--color-primary);
+    opacity: 0.6;
 }
 
 .inputWrapper input,
 .formGroup input {
     width: 100%;
-    padding: 14px 16px;
-    padding-left: 44px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    font-size: 15px;
+    padding: 16px;
+    padding-left: 48px;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 16px;
     outline: none;
-    transition: border-color 0.2s;
-    background: var(--color-bg-base);
+    transition: all 0.2s;
+    background: white;
+    color: var(--color-text-main);
 }
 
 .formGroup input:not(.inputWrapper input) {
@@ -93,75 +95,79 @@
 .inputWrapper input:focus,
 .formGroup input:focus {
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-bg-subtle);
 }
 
 .statusIcon {
     position: absolute;
-    right: 14px;
+    right: 16px;
 }
 
 .spinner {
     animation: rotate 2s linear infinite;
-    color: var(--color-text-muted);
+    color: var(--color-primary);
 }
 
 .available {
-    color: #16a34a;
+    color: #10b981;
 }
 
 .unavailable {
-    color: #dc2626;
+    color: #ef4444;
 }
 
 .helperTextSuccess {
-    font-size: 12px;
-    color: #16a34a;
+    font-size: 13px;
+    color: #059669;
+    font-weight: 600;
     margin-top: 4px;
 }
 
 .helperTextError {
-    font-size: 12px;
+    font-size: 13px;
     color: #dc2626;
+    font-weight: 600;
     margin-top: 4px;
 }
 
 .errorMessage {
-    padding: 12px;
-    background: #fef2f2;
-    border: 1px solid #fee2e2;
-    color: #dc2626;
+    padding: 16px;
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #e11d48;
     font-size: 14px;
-    border-radius: 4px;
+    font-weight: 600;
+    border-radius: 12px;
     text-align: center;
 }
 
 .submitBtn {
-    padding: 16px;
+    padding: 18px;
     background-color: var(--color-primary);
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 500;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(165, 148, 249, 0.3);
 }
 
-.submitBtn:hover {
-    opacity: 0.9;
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(165, 148, 249, 0.4);
+}
+
+.submitBtn:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .submitBtn:disabled {
-    background-color: #9ca3af;
+    background-color: var(--color-border);
+    color: var(--color-text-light);
     cursor: not-allowed;
-}
-
-.loading {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-serif);
+    box-shadow: none;
 }
 
 @keyframes rotate {
@@ -176,6 +182,9 @@
 
 @media (max-width: 640px) {
     .setupCard {
-        padding: 40px 24px;
+        padding: 48px 24px;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
 }

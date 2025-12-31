@@ -1,159 +1,126 @@
-.hero {
-  position: relative;
-  height: 100vh;
-  /* Full screen */
-  background-color: #1a1a1a;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2700&auto=format&fit=crop');
-  /* Placeholder Luxury Stone Texture */
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
-}
-
-.heroContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  transform: translateY(20px);
-}
-
-.the {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 24px;
-  letter-spacing: 0.1em;
-  opacity: 0.9;
-}
-
-.world {
-  font-family: var(--font-family);
-  font-size: 64px;
-  font-weight: 300;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.of {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 28px;
-  margin: -10px 0;
-  /* Overlap slightly */
-  opacity: 0.9;
-}
-
-.nivaesa {
-  font-family: var(--font-family);
-  font-size: 64px;
-  font-weight: 300;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  line-height: 1;
-  margin-bottom: 40px;
-}
-
-.ctaButton {
-  background: transparent;
-  color: white;
-  border: 1px solid white;
-  padding: 16px 40px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  font-family: var(--font-family);
-}
-
-.ctaButton:hover {
-  background: white;
-  color: black;
-}
-
-/* Keep other sections */
-/* Features Section - Gallery Feel */
-.features {
-  padding: 100px 0;
+.main {
   background-color: white;
 }
 
-.featureGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 60px;
-  /* Lots of space */
-  margin-top: 60px;
-}
-
-.featureCard {
-  text-align: left;
-  /* Editorial alignment */
-  padding: 0;
-  /* Minimal */
-}
-
-.featureIcon {
-  color: var(--color-secondary);
-  width: 32px;
-  /* Smaller, refined icons */
-  height: 32px;
-  margin-bottom: 24px;
-}
-
-.featureTitle {
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 12px;
-  color: var(--color-primary);
-}
-
-.featureDesc {
-  color: var(--color-text-muted);
-  line-height: 1.8;
-  /* Relaxed reading */
-  font-size: 16px;
-}
-
-/* Popular Cities */
-.citiesSection {
-  padding: 100px 0;
-  background-color: var(--color-bg-base);
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/Users/saigutala/.gemini/antigravity/brain/ed124a03-38ea-4954-8971-9d288813cf61/nivaesa_hero_bg_1767135615265.png');
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
   text-align: center;
+  color: white;
 }
 
-.cityGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  margin-top: 40px;
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.4) 100%);
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
   max-width: 1000px;
+  padding: 0 24px;
+}
+
+.title {
+  font-size: 80px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 24px;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 48px;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.cityCard {
-  background: white;
-  padding: 24px;
-  border: 1px solid var(--color-border);
-  /* Soft borders */
-  border-radius: var(--radius-lg);
-  font-weight: 400;
-  color: var(--color-text-main);
-  transition: all 0.2s;
-  font-size: 16px;
+.heroButtons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
-.cityCard:hover {
-  border-color: var(--color-secondary);
-  color: var(--color-secondary);
-  box-shadow: var(--shadow-sm);
+.primaryBtn {
+  background-color: white;
+  color: var(--color-text-main);
+  padding: 18px 36px;
+  border-radius: 100px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.primaryBtn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.outlineBtn {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 18px 36px;
+  border-radius: 100px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.outlineBtn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+.btnIcon {
+  transition: transform 0.3s ease;
+}
+
+.primaryBtn:hover .btnIcon {
+  transform: translateX(4px);
+}
+
+@media (max-width: 900px) {
+  .title {
+    font-size: 48px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 300px;
+    margin: 0 auto;
+  }
 }

@@ -1,6 +1,5 @@
 .container {
-    max-width: 1000px;
-    /* Wider to accommodate images */
+    max-width: 1100px;
     margin: 0 auto;
     padding: 120px 24px 80px;
     color: var(--color-text-main);
@@ -8,20 +7,18 @@
 }
 
 .heroHeading {
-    font-family: var(--font-serif);
     font-size: 64px;
-    font-weight: 400;
+    font-weight: 800;
     text-align: center;
     margin-bottom: 80px;
-    letter-spacing: -0.02em;
-    font-style: italic;
+    letter-spacing: -0.03em;
     color: var(--color-primary);
 }
 
 .introSection {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 60px;
+    gap: 80px;
     align-items: center;
     margin-bottom: 120px;
 }
@@ -31,31 +28,31 @@
 }
 
 .leadText {
-    font-family: var(--font-family);
-    font-size: 26px;
-    font-weight: 300;
-    line-height: 1.5;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.3;
     margin-bottom: 32px;
-    color: var(--color-primary);
+    color: var(--color-text-main);
 }
 
 .imageContainer {
     position: relative;
-    height: 500px;
+    height: 550px;
     width: 100%;
-    border-radius: var(--radius-lg);
+    border-radius: 32px;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.8s ease;
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .imageContainer:hover .img {
-    transform: scale(1.03);
+    transform: scale(1.05);
 }
 
 .section {
@@ -64,12 +61,12 @@
 }
 
 .sectionHeading {
-    font-family: var(--font-family);
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.1em;
     margin-bottom: 48px;
-    color: var(--color-text-muted);
+    color: var(--color-secondary);
     text-align: center;
     display: flex;
     align-items: center;
@@ -80,20 +77,19 @@
 .sectionHeading::after {
     content: "";
     display: block;
-    width: 60px;
-    height: 1px;
-    background-color: var(--color-border);
-    margin: 0 24px;
+    width: 40px;
+    height: 2px;
+    background-color: var(--color-bg-subtle);
+    margin: 0 20px;
 }
 
 .gridContent {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 0.8fr;
     gap: 80px;
     align-items: center;
 }
 
-/* Reverse order for visual variety */
 .gridContent.reverse .textCol {
     order: 2;
 }
@@ -103,11 +99,9 @@
 }
 
 .content {
-    font-family: var(--font-serif);
-    /* Switch to serif for body copy warmth */
-    font-size: 19px;
+    font-size: 18px;
     line-height: 1.8;
-    color: var(--color-text-main);
+    color: var(--color-text-muted);
 }
 
 .content p {
@@ -121,54 +115,72 @@
 }
 
 .listItem {
-    font-family: var(--font-family);
-    /* Clean sans for list items */
     font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 16px;
-    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--color-text-main);
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 .listItem::before {
-    content: "—";
-    color: var(--color-secondary);
+    content: "●";
+    color: var(--color-primary);
+    font-size: 10px;
+    margin-top: 6px;
 }
 
 .divider {
-    width: 1px;
-    height: 100px;
-    background-color: var(--color-border);
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(to bottom, var(--color-bg-subtle), var(--color-border), var(--color-bg-subtle));
     margin: 0 auto 100px;
 }
 
 .footerQuote {
     text-align: center;
-    max-width: 600px;
+    max-width: 800px;
     margin: 80px auto 0;
-    padding: 60px;
+    padding: 80px 60px;
     background-color: white;
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    border-radius: 40px;
+    box-shadow: var(--shadow-sm);
 }
 
 .quoteText {
-    font-family: var(--font-serif);
-    font-size: 36px;
-    font-style: italic;
-    margin-bottom: 32px;
+    font-size: 40px;
+    font-weight: 800;
+    margin-bottom: 40px;
+    line-height: 1.2;
     color: var(--color-primary);
+    letter-spacing: -0.02em;
 }
 
 .logoEnd {
     display: block;
-    font-family: var(--font-family);
-    font-weight: 400;
-    letter-spacing: 0.3em;
+    font-weight: 800;
+    letter-spacing: 0.4em;
     text-transform: uppercase;
-    font-size: 14px;
-    margin-top: 40px;
-    color: var(--color-text-muted);
+    font-size: 12px;
+    margin-top: 60px;
+    color: var(--color-text-light);
+}
+
+@media (max-width: 900px) {
+
+    .introSection,
+    .gridContent {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+
+    .imageContainer {
+        height: 400px;
+    }
+
+    .heroHeading {
+        font-size: 48px;
+    }
 }

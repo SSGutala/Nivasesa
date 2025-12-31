@@ -1,18 +1,18 @@
 .container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 60px 40px;
+    padding: 60px 24px;
     display: flex;
-    gap: 40px;
+    gap: 60px;
     align-items: flex-start;
 }
 
 .leftCol {
-    flex: 3;
+    flex: 2;
 }
 
 .rightCol {
-    flex: 1.2;
+    flex: 1;
     position: sticky;
     top: 40px;
 }
@@ -21,7 +21,7 @@
 .mainInfoSection {
     display: flex;
     gap: 40px;
-    margin-bottom: 60px;
+    margin-bottom: 48px;
 }
 
 .agentPhotoContainer {
@@ -29,11 +29,11 @@
 }
 
 .agentPhoto {
-    width: 280px;
-    height: 350px;
+    width: 320px;
+    height: 400px;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
 }
 
 .detailsArea {
@@ -41,27 +41,22 @@
 }
 
 .name {
-    font-family: var(--font-serif);
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 700;
-    line-height: 1.1;
-    margin: 0 0 16px 0;
-    color: #111827;
+    line-height: 1.2;
+    margin: 0 0 12px 0;
+    color: var(--color-text-main);
 }
 
 .metadata {
     font-size: 15px;
-    color: #4b5563;
+    color: var(--color-text-muted);
     line-height: 1.6;
     margin-bottom: 24px;
 }
 
 .metadata strong {
-    color: #111827;
-}
-
-.metadata span {
-    display: block;
+    color: var(--color-text-main);
 }
 
 .areaTags {
@@ -72,183 +67,76 @@
 }
 
 .areaTag {
-    background: var(--color-bg-subtle);
-    color: var(--color-text-main);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    background: #EEEBFF;
+    color: var(--color-primary);
+    font-size: 12px;
     font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 2px;
+    padding: 4px 12px;
+    border-radius: 6px;
 }
 
 .brokerageLabel {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--color-text-muted);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary);
     margin-bottom: 24px;
     display: block;
-}
-
-.priceRangeSection {
-    margin-bottom: 24px;
 }
 
 .sectionLabel {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-main);
     margin-bottom: 12px;
     display: block;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
 }
 
 .priceDisplay {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 18px;
-    font-weight: 500;
-}
-
-.priceValue {
-    border-bottom: 2px solid var(--color-secondary);
-    color: var(--color-primary);
-    padding: 2px 4px;
-}
-
-.priceTo {
-    color: var(--color-text-light);
-    font-weight: 400;
-    font-size: 14px;
-}
-
-.specialtiesList {
-    display: flex;
-    flex-wrap: wrap;
     gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-primary);
 }
 
 .specialtyTag {
-    background: transparent;
-    border: 1px solid var(--color-border-subtle);
+    background: white;
+    border: 1px solid var(--color-border);
     color: var(--color-text-muted);
     font-size: 13px;
     font-weight: 500;
     padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 8px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    display: inline-block;
 }
 
 /* BIO SECTION */
 .bioSection {
-    border-top: 1px solid var(--color-border-subtle);
+    border-top: 1px solid var(--color-border);
     padding-top: 40px;
-    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.bioSection h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .bioText {
     font-size: 17px;
     line-height: 1.8;
-    color: var(--color-text-main);
-    margin-bottom: 60px;
+    color: var(--color-text-muted);
 }
 
 /* RESULTS SECTION */
 .resultsSection {
-    border-top: 1px solid var(--color-border-subtle);
+    border-top: 1px solid var(--color-border);
     padding-top: 40px;
-}
-
-.resultsHeader {
-    font-family: var(--font-serif);
-    font-size: 32px;
-    font-weight: 500;
-    margin-bottom: 40px;
-    color: var(--color-primary);
-}
-
-.statsGrid {
-    display: flex;
-    gap: 60px;
-    align-items: center;
-}
-
-.statItem {
-    display: flex;
-    flex-direction: column;
-}
-
-.statValue {
-    font-size: 28px;
-    font-family: var(--font-serif);
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.statLabel {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
-}
-
-.ratingRow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 500;
-}
-
-.stars {
-    color: var(--color-primary);
-}
-
-.writeReviewBtn {
-    margin-left: auto;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.writeReviewBtn:hover {
-    opacity: 0.9;
-}
-
-/* RIGHT COLUMN / FORM STYLES */
-.contactCard {
-    background: var(--color-bg-element);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: 4px;
-    padding: 40px;
-    box-shadow: var(--shadow-md);
-    position: relative;
-}
-
-.contactHeader {
-    font-family: var(--font-serif);
-    font-size: 28px;
-    font-weight: 500;
-    color: var(--color-primary);
-    margin-bottom: 4px;
-    letter-spacing: -0.01em;
-}
-
-.contactName {
-    font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    display: block;
-    margin-bottom: 32px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .formGroup {
@@ -258,7 +146,7 @@
 .formGroup label {
     display: block;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-text-main);
     margin-bottom: 8px;
     letter-spacing: 0.05em;
@@ -272,29 +160,20 @@
     padding: 14px 16px;
     background-color: var(--color-bg-base);
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 15px;
     color: var(--color-text-main);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
     outline: none;
-    font-family: var(--font-sans);
-}
-
-.input::placeholder,
-.textarea::placeholder {
-    font-family: var(--font-serif);
-    font-style: normal;
-    font-weight: 400;
-    color: var(--color-text-light);
-    opacity: 0.8;
-    letter-spacing: 0.02em;
+    font-family: inherit;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-    border-color: var(--color-secondary);
+    border-color: var(--color-primary);
     background-color: white;
+    box-shadow: 0 0 0 4px var(--color-bg-subtle);
 }
 
 .textarea {
@@ -308,17 +187,17 @@
     background-color: var(--color-primary);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
     margin-top: 12px;
-    letter-spacing: 0.02em;
 }
 
 .submitBtn:hover {
-    opacity: 0.9;
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
 }
 
 .submitBtn:disabled {
@@ -328,23 +207,78 @@
 
 .confirmation {
     text-align: center;
-    padding: 40px 0;
+    padding: 20px 0;
 }
 
 .confirmation h3 {
-    font-family: var(--font-serif);
     font-size: 24px;
     color: var(--color-primary);
     margin-bottom: 12px;
 }
 
-.confirmation p {
+.resultsHeader {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: var(--color-text-main);
+}
+
+.statsGrid {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.statValue {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.statLabel {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
     color: var(--color-text-muted);
+}
+
+.activeBadge {
+    background: #E8FFEA;
+    color: #2D6A4F;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* RIGHT COLUMN / FORM STYLES */
+.contactCard {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-md);
+}
+
+.contactHeader {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    margin-bottom: 8px;
+}
+
+.contactName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 24px;
 }
 
 @media (max-width: 1024px) {
     .container {
         flex-direction: column;
+        padding: 40px 24px;
     }
 
     .rightCol {

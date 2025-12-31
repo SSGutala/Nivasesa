@@ -1,0 +1,88 @@
+.exploreWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding-top: 80px;
+}
+
+.mainContent {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.listPanel {
+    width: 45%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 32px;
+    background: white;
+}
+
+.listHeader {
+    margin-bottom: 32px;
+}
+
+.listHeader h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #000;
+}
+
+.listHeader p {
+    color: var(--color-text-muted);
+    font-size: 16px;
+}
+
+.listingGrid {
+    display: flex;
+    flex-direction: column;
+}
+
+.mapPanel {
+    width: 55%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.mobileToggle {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+.toggleBtn {
+    background: black;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+@media (max-width: 1024px) {
+    .listPanel {
+        width: 100%;
+    }
+
+    .mapPanel {
+        display: none;
+    }
+
+    .mobileToggle {
+        display: block;
+    }
+}

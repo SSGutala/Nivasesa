@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Navbar from '@/components/Navbar';
+import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: "Nivaesa | Modern Indian Real Estate",
-  description: "Find trusted Indian realtors near you. Language-matched, community-verified.",
+  title: "Nivaesa | Modern Real Estate",
+  description: "Find trusted realtors near you. Language-matched, community-verified.",
 };
 
 import { auth } from '@/auth';
@@ -21,7 +21,7 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Navbar session={session} />
+          <Header />
           <main style={{ flex: 1 }}>{children}</main>
           <Footer />
         </div>

@@ -1,42 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  /* ... existing vars ... */
-  --font-serif: 'Playfair Display', serif;
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Neutral Premium Palette */
+  --color-primary: #000000;
+  --color-primary-hover: #1a1a1a;
+  --color-secondary: #333333;
+  --color-secondary-hover: #4d4d4d;
 
-  /* Nivaesa / Nivasa.com Inspired Palette */
-  --color-primary: #222222;
-  /* Warm Charcoal - Headlines */
-  --color-primary-hover: #111111;
-
-  --color-secondary: #7C8A6A;
-  /* Soft Olive / Sage - Accent */
-  --color-secondary-hover: #5A6A4B;
-
-  --color-bg-base: #FAFAF8;
-  /* Warm Off-White */
+  --color-bg-base: #FFFFFF;
   --color-bg-element: #FFFFFF;
-  /* Clean White */
-  --color-bg-subtle: #F0F0EE;
-  /* Slightly darker warm gray for backgrounds */
+  --color-bg-subtle: #F9F9F9;
 
-  --color-text-main: #2E2E2E;
-  /* Soft Graphite */
+  --color-text-main: #000000;
   --color-text-muted: #666666;
-  /* Warmer gray */
   --color-text-light: #999999;
 
-  --color-border: #D6D3CE;
-  /* Muted Stone */
-  --color-border-subtle: #EDEDED;
-  /* Light Ash */
+  --color-border: #E5E5E5;
+  --color-border-subtle: #F0F0F0;
 
-  --color-error: #B91C1C;
-  /* Slightly muted red */
-  --color-success: #15803D;
+  --color-error: #FF3B30;
+  --color-success: #34C759;
 
-  /* Typography - Editorial Feel */
+  /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
   --font-size-h1: 48px;
@@ -48,14 +33,13 @@
   /* Spacing */
   --spacing-base: 8px;
   --container-width: 1200px;
-  --radius-md: 4px;
-  /* Minimal radius */
-  --radius-lg: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  /* Shadows - Minimal/Soft */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  /* Shadows - Neutral/Subtle */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
 * {
@@ -76,40 +60,38 @@ h1,
 h2,
 h3,
 h4 {
-  font-weight: 500;
-  /* Lighter weights for elegance */
+  font-weight: 600;
   line-height: 1.2;
-  color: var(--color-primary);
+  color: var(--color-text-main);
   margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
 }
 
 h1 {
   font-size: var(--font-size-h1);
-  letter-spacing: -0.03em;
 }
 
 h2 {
   font-size: var(--font-size-h2);
-  letter-spacing: -0.02em;
 }
 
 h3 {
   font-size: var(--font-size-h3);
-  letter-spacing: -0.01em;
 }
 
 p {
   margin-bottom: 1rem;
+  color: var(--color-text-muted);
 }
 
 a {
   color: var(--color-text-main);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 a:hover {
-  color: var(--color-secondary);
+  opacity: 0.7;
 }
 
 .container {
@@ -118,79 +100,66 @@ a:hover {
   padding: 0 24px;
 }
 
-/* Structural Utilities */
 .section {
-  padding: 100px 0;
-  /* More generous spacing */
+  padding: 80px 0;
 }
 
 .section-subtle {
   background-color: var(--color-bg-subtle);
 }
 
-/* Button System (Refined) */
+/* Button System */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 14px 28px;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
-  border-radius: var(--radius-md);
+  border-radius: 100px;
+  /* Pill style */
   transition: all 0.2s ease;
   cursor: pointer;
   border: none;
   font-family: var(--font-family);
-  letter-spacing: -0.01em;
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
-  /* Black/Charcoal */
-  color: white;
+  background-color: #000000;
+  color: #FFFFFF;
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-hover);
+  background-color: #333333;
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: var(--color-secondary);
-  /* Sage */
-  color: white;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  color: #000000;
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-secondary-hover);
+  background-color: #F9F9F9;
+  border-color: #000000;
 }
 
-.btn-outline {
-  background-color: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-primary);
-}
-
-.btn-outline:hover {
-  border-color: var(--color-primary);
-  background-color: transparent;
-}
-
-/* Card System - Nivasa style */
+/* Card System */
 .card {
   background: var(--color-bg-element);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 24px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .card:hover {
-  border-color: var(--color-text-muted);
-  /* Darker border on hover instead of shadow */
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
-/* Form Elements - Editorial/Clean */
+/* Form Elements */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -198,22 +167,22 @@ input[type="number"],
 select,
 textarea {
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 16px;
   font-size: 16px;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   margin-top: 6px;
   margin-bottom: 20px;
   color: var(--color-text-main);
   background: var(--color-bg-element);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.2s ease;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--color-secondary);
+  border-color: #000000;
 }
 
 label {
@@ -222,5 +191,4 @@ label {
   font-size: 14px;
   color: var(--color-text-main);
   margin-bottom: 6px;
-  letter-spacing: 0.01em;
 }

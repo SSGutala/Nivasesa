@@ -1,0 +1,92 @@
+.stepperContainer {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.stepWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    transition: all 0.3s ease;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    position: absolute;
+    top: 40px;
+    white-space: nowrap;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.active .circle {
+    background-color: #000000;
+    border-color: #000000;
+    color: white;
+    transform: scale(1.1);
+}
+
+.active .label {
+    color: #000000;
+    opacity: 1;
+    font-weight: 700;
+}
+
+.completed .circle {
+    background-color: #000000;
+    border-color: #000000;
+    color: white;
+}
+
+.completed .label {
+    color: var(--color-text);
+    opacity: 0.8;
+}
+
+.line {
+    flex: 1;
+    height: 2px;
+    background-color: var(--color-border);
+    margin: 0 12px;
+    transform: translateY(-12px);
+    transition: background-color 0.4s ease;
+}
+
+.lineCompleted {
+    background-color: #000000;
+}
+
+@media (max-width: 600px) {
+    .label {
+        display: none;
+        /* Hide labels on mobile to save space */
+    }
+
+    .line {
+        margin: 0 4px;
+    }
+}

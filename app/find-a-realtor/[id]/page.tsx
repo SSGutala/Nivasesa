@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import styles from './profile.module.css';
-import { User, Hash, Briefcase, Star } from 'lucide-react';
+import { User, ShieldCheck, Heart, MessageCircle, Star, CheckCircle2 } from 'lucide-react';
 import ContactAgentForm from '@/components/ContactAgentForm';
 
 interface PageProps {
@@ -23,53 +23,52 @@ export default async function AgentProfilePage({ params }: PageProps) {
     }
 
     const realtor = agent as any;
-    const name = realtor.user?.name || 'Real Estate Professional';
+    const name = realtor.user?.name || 'Community Member';
 
     return (
         <div className={styles.container}>
-            {/* LEFT COLUMN: AGENT INFO */}
+            {/* LEFT COLUMN: LISTING INFO */}
             <div className={styles.leftCol}>
                 <div className={styles.mainInfoSection}>
                     <div className={styles.agentPhotoContainer}>
                         {realtor.user?.image ? (
                             <img src={realtor.user.image} alt={name} className={styles.agentPhoto} />
                         ) : (
-                            <div className={styles.agentPhoto}>
-                                <User size={80} />
+                            <div className={styles.agentPhoto} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-subtle)' }}>
+                                <User size={80} color="var(--color-text-light)" />
                             </div>
                         )}
                     </div>
 
                     <div className={styles.detailsArea}>
-                        <h1 className={styles.name}>{name}</h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <span className={styles.activeBadge}>Active Listing</span>
+                            <span style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>Posted 2 days ago</span>
+                        </div>
+                        <h1 className={styles.name}>{realtor.cities.split(',')[0]} Home Stay</h1>
+
                         <div className={styles.metadata}>
-                            <span><strong>License #:</strong> {realtor.licenseNumber || "21384848"}</span>
-                            <span><strong>Issued by:</strong> {realtor.states.split(',')[0] || "VA"}</span>
+                            <strong>Host:</strong> {name}
                         </div>
 
-                        <span className={styles.sectionLabel}>Service Area(s):</span>
                         <div className={styles.areaTags}>
                             {realtor.cities.split(',').map((city: string) => (
-                                <span key={city} className={styles.areaTag}>{city.trim()}, {realtor.states.split(',')[0]}</span>
+                                <span key={city} className={styles.areaTag}>{city.trim()} Specialist</span>
                             ))}
                         </div>
 
-                        <span className={styles.brokerageLabel}>{realtor.brokerage}</span>
-
-                        <div className={styles.priceRangeSection}>
-                            <span className={styles.sectionLabel}>Home Price Range:</span>
-                            <div className={styles.priceDisplay}>
-                                <span className={styles.priceValue}>$300K</span>
-                                <span className={styles.priceTo}>to</span>
-                                <span className={styles.priceValue}>$1M+</span>
-                            </div>
+                        <div style={{ marginBottom: '24px' }}>
+                            <span className={styles.sectionLabel}>The Space</span>
+                            <p style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-primary)' }}>
+                                Single Room • Shared Bath • $800/mo
+                            </p>
                         </div>
 
                         <div className={styles.specialtiesSection}>
-                            <span className={styles.sectionLabel}>Specialties:</span>
+                            <span className={styles.sectionLabel}>Preferences:</span>
                             <div className={styles.specialtiesList}>
-                                {(realtor.buyerTypes || "Buyer's Agent, Listing Agent, Relocation").split(',').map((spec: string) => (
-                                    <span key={spec} className={styles.specialtyTag}>{spec.trim()}</span>
+                                {['Vegetarian', 'Non-Smoker', 'Female Preferred', 'Student Friendly'].map((spec) => (
+                                    <span key={spec} className={styles.specialtyTag}>{spec}</span>
                                 ))}
                             </div>
                         </div>
@@ -77,35 +76,62 @@ export default async function AgentProfilePage({ params }: PageProps) {
                 </div>
 
                 <div className={styles.bioSection}>
+                    <h2>About the Space</h2>
                     <div className={styles.bioText}>
-                        {realtor.bio || `${name} is a dedicated real estate professional serving the ${realtor.cities} area. With ${realtor.experienceYears} years of experience, they specialize in helping families navigate the complexities of the local market with transparency and care.`}
+                        {realtor.bio || `Welcome to a peaceful home in ${realtor.cities}. We are looking for a responsible roommate who values cleanliness and quiet environments. This space is perfect for students or young professionals looking for a safe and community-focused living arrangement.`}
                     </div>
                 </div>
 
+                <div className={styles.bioSection}>
+                    <h2>Household Expectations</h2>
+                    <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px' }}>
+                        {[
+                            'Quiet hours after 10 PM',
+                            'No overnight guests without prior notice',
+                            'Shared cleaning schedule for common areas',
+                            'Respectful use of shared kitchen and laundry'
+                        ].map((item, idx) => (
+                            <li key={idx} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center', color: 'var(--color-text-muted)' }}>
+                                <CheckCircle2 size={18} color="var(--color-primary)" />
+                                <span>{item}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
                 <div className={styles.resultsSection}>
-                    <h2 className={styles.resultsHeader}>Real results from real customers</h2>
+                    <h2 className={styles.resultsHeader}>Community Trust</h2>
                     <div className={styles.statsGrid}>
                         <div className={styles.statItem}>
-                            <span className={styles.statValue}>0</span>
-                            <span className={styles.statLabel}>Total reviews</span>
+                            <span className={styles.statValue}>Verified</span>
+                            <span className={styles.statLabel}>Identity Status</span>
                         </div>
                         <div className={styles.statItem}>
-                            <div className={styles.ratingRow}>
-                                <Star size={18} fill="#111827" />
-                                <span>0 Average rating</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Star size={24} fill="var(--color-primary)" color="var(--color-primary)" />
+                                <span className={styles.statValue}>4.9</span>
                             </div>
+                            <span className={styles.statLabel}>Member Rating</span>
                         </div>
-                        <button className={styles.writeReviewBtn}>Write review</button>
                     </div>
                 </div>
             </div>
 
-            {/* RIGHT COLUMN: CONTACT FORM */}
+            {/* RIGHT COLUMN: EXPRESS INTEREST */}
             <div className={styles.rightCol}>
                 <div className={styles.contactCard}>
-                    <h2 className={styles.contactHeader}>Connect with</h2>
-                    <span className={styles.contactName}>{name}</span>
+                    <h2 className={styles.contactHeader}>Express Interest</h2>
+                    <span className={styles.contactName}>Starting a conversation with {name}</span>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)', marginBottom: '24px' }}>
+                        Your contact info won't be shared until you both agree to a virtual meet.
+                    </p>
                     <ContactAgentForm agentId={realtor.id} agentName={name} />
+                    <div style={{ marginTop: '24px', padding: '16px', background: 'var(--color-bg-subtle)', borderRadius: 'var(--radius-md)', display: 'flex', gap: '12px' }}>
+                        <ShieldCheck size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
+                        <p style={{ fontSize: '12px', margin: 0, color: 'var(--color-text-muted)' }}>
+                            <strong>Nivaesa Safety Tip:</strong> Never send money before a virtual meet and greet.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

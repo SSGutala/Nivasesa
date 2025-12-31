@@ -8,10 +8,12 @@ import {
     Home,
     Settings,
     MessageSquare,
-    // LogOut, // Unused
     Clock,
     CheckCircle,
-    // MoreHorizontal // Unused
+    MapPin,
+    ArrowUpRight,
+    Search,
+    Download
 } from "lucide-react";
 
 export default async function RealtorDashboard() {
@@ -21,7 +23,7 @@ export default async function RealtorDashboard() {
         redirect("/login");
     }
 
-    // Fetch Realtor Profile and Referrals
+    // Fetch Realtor Profile and Connections
     const realtor = await prisma.realtorProfile.findUnique({
         where: { userId: session.user?.id },
         include: {
@@ -37,134 +39,135 @@ export default async function RealtorDashboard() {
 
     if (!realtor) {
         return (
-            <div className="container" style={{ padding: '40px 20px', textAlign: 'center' }}>
-                <h1>Access Denied</h1>
-                <p>You do not have a Realtor specific account.</p>
-                <Link href="/" className="btn btn-outline" style={{ marginTop: '1rem' }}>Go Home</Link>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: 'var(--color-bg-base)', textAlign: 'center', padding: '20px' }}>
+                <div style={{ background: 'white', padding: '48px', borderRadius: '24px', boxShadow: 'var(--shadow-md)', maxWidth: '400px' }}>
+                    <h1 style={{ color: 'var(--color-primary)', fontSize: '24px', marginBottom: '16px' }}>Expert Access Required</h1>
+                    <p style={{ color: 'var(--color-text-muted)', marginBottom: '32px' }}>This dashboard is reserved for Nivaesa Housing Experts.</p>
+                    <Link href="/" style={{ backgroundColor: 'var(--color-primary)', color: 'white', padding: '12px 32px', borderRadius: '12px', fontWeight: 700, textDecoration: 'none' }}>
+                        Return Home
+                    </Link>
+                </div>
             </div>
         );
     }
 
-    // Formatting helpers
     const formatDate = (date: Date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     const formatCurrency = (val: number | null) => val ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val) : 'N/A';
 
     return (
-        <div style={{ display: 'flex', minHeight: 'calc(100vh - 80px)', backgroundColor: 'var(--color-bg-subtle)' }}>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--color-bg-base)' }}>
             {/* Sidebar */}
-            <aside style={{
-                width: '280px',
-                backgroundColor: 'white',
-                borderRight: '1px solid var(--color-border)',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingBottom: '24px', borderBottom: '1px solid var(--color-border-subtle)' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--color-navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+            <aside style={{ width: '280px', backgroundColor: 'white', borderRight: '1px solid var(--color-border)', padding: '32px 24px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ marginBottom: '40px' }}>
+                    <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-primary)', letterSpacing: '-0.02em' }}>Nivaesa</h2>
+                    <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Expert Portal</p>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', backgroundColor: 'var(--color-bg-subtle)', borderRadius: '16px', marginBottom: '32px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '18px' }}>
                         {realtor.user.name?.charAt(0)}
                     </div>
-                    <div>
-                        <h3 style={{ fontSize: '15px', color: 'var(--color-primary)', marginBottom: '0' }}>{realtor.user.name}</h3>
-                        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '0' }}>{realtor.licenseNumber}</p>
+                    <div style={{ overflow: 'hidden' }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-main)', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{realtor.user.name}</h3>
+                        <p style={{ fontSize: '11px', color: 'var(--color-primary)', fontWeight: 600, margin: 0 }}>{realtor.licenseNumber}</p>
                     </div>
                 </div>
 
-                <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <Link href="/realtor/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '4px', backgroundColor: 'var(--color-bg-subtle)', color: 'var(--color-navy)', fontWeight: 500 }}>
-                        <Home size={18} /> Dashboard
-                    </Link>
-                    <Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '4px', color: 'var(--color-text-muted)' }}>
-                        <Users size={18} /> Leads <span style={{ marginLeft: 'auto', backgroundColor: 'var(--color-border)', fontSize: '11px', padding: '2px 8px', borderRadius: '12px' }}>{realtor.referrals.length}</span>
-                    </Link>
-                    <Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '4px', color: 'var(--color-text-muted)' }}>
-                        <MessageSquare size={18} /> Messages
-                    </Link>
-                    <Link href="#" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '4px', color: 'var(--color-text-muted)' }}>
-                        <Settings size={18} /> Settings
-                    </Link>
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                    <SidebarLink href="/realtor/dashboard" icon={<Home size={20} />} label="Overview" active />
+                    <SidebarLink href="#" icon={<Users size={20} />} label="Connections" count={realtor.referrals.length} />
+                    <SidebarLink href="#" icon={<MessageSquare size={20} />} label="Chat" />
+                    <SidebarLink href="#" icon={<Settings size={20} />} label="Expert Profile" />
                 </nav>
             </aside>
 
             {/* Main Content */}
-            <main style={{ flex: 1, padding: '40px' }}>
-                <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <main style={{ flex: 1, padding: '48px', overflowY: 'auto' }}>
+                <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                     <div>
-                        <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Lead Overview</h1>
-                        <p style={{ color: 'var(--color-text-muted)' }}>Manage your incoming referral requests.</p>
+                        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--color-text-main)', marginBottom: '8px' }}>Connection Pipeline</h1>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '18px' }}>Manage your community interest and referrals.</p>
                     </div>
-                    <button className="btn btn-primary" style={{ fontSize: '14px' }}>Download CSV</button>
+                    <button style={{ backgroundColor: 'white', border: '2px solid var(--color-border)', padding: '12px 20px', borderRadius: '12px', color: 'var(--color-text-main)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                        <Download size={18} /> Export Data
+                    </button>
                 </header>
 
-                {/* Filters (Mock) */}
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                    <input type="text" placeholder="Search by name, city..." style={{ width: '300px', margin: 0 }} />
-                    <select style={{ width: 'auto', margin: 0 }}>
-                        <option>All Statuses</option>
-                        <option>Sent</option>
-                        <option>Contacted</option>
+                {/* Utilities */}
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+                    <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }} />
+                        <input type="text" placeholder="Search by name, city, or interest..." style={{ width: '100%', padding: '14px 14px 14px 48px', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none', fontSize: '15px' }} />
+                    </div>
+                    <select style={{ padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-border)', outline: 'none', backgroundColor: 'white', color: 'var(--color-text-main)', fontWeight: 600, cursor: 'pointer' }}>
+                        <option>Status: All Activity</option>
+                        <option>New Connection</option>
+                        <option>In Progress</option>
+                        <option>Closed</option>
                     </select>
                 </div>
 
-                {/* Lead Table */}
-                <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid var(--color-border)', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                {/* Connection Table */}
+                <div style={{ backgroundColor: 'white', borderRadius: '24px', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)', overflow: 'hidden' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                         <thead>
-                            <tr style={{ backgroundColor: 'var(--color-bg-subtle)', borderBottom: '1px solid var(--color-border)' }}>
-                                <th style={{ textAlign: 'left', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Client Name</th>
-                                <th style={{ textAlign: 'left', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Location</th>
-                                <th style={{ textAlign: 'left', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Budget & Time</th>
-                                <th style={{ textAlign: 'left', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Received</th>
-                                <th style={{ textAlign: 'left', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Status</th>
-                                <th style={{ textAlign: 'right', padding: '16px', fontWeight: 600, color: 'var(--color-text-muted)' }}>Action</th>
+                            <tr style={{ backgroundColor: 'var(--color-bg-base)', borderBottom: '1px solid var(--color-border)' }}>
+                                <th style={{ textAlign: 'left', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Member Name</th>
+                                <th style={{ textAlign: 'left', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Location</th>
+                                <th style={{ textAlign: 'left', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Budget & Goals</th>
+                                <th style={{ textAlign: 'left', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Received</th>
+                                <th style={{ textAlign: 'left', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Status</th>
+                                <th style={{ textAlign: 'right', padding: '20px 24px', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em' }}>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {realtor.referrals.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                                        No active leads found.
+                                    <td colSpan={6} style={{ padding: '64px 24px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                        <div style={{ marginBottom: '16px' }}>
+                                            <Users size={48} color="var(--color-border)" style={{ margin: '0 auto' }} />
+                                        </div>
+                                        <p style={{ fontWeight: 600 }}>No active connections found yet.</p>
                                     </td>
                                 </tr>
                             ) : (
                                 realtor.referrals.map((referral: Prisma.ReferralGetPayload<{ include: { buyerRequest: true } }>) => (
-                                    <tr key={referral.id} style={{ borderBottom: '1px solid var(--color-border-subtle)' }}>
-                                        <td style={{ padding: '16px', fontWeight: 500 }}>
-                                            {referral.buyerRequest.name}
-                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: 400 }}>{referral.buyerRequest.email}</div>
+                                    <tr key={referral.id} style={{ borderBottom: '1px solid var(--color-border-subtle)', transition: 'background-color 0.2s' }}>
+                                        <td style={{ padding: '24px' }}>
+                                            <div style={{ fontWeight: 700, color: 'var(--color-text-main)', marginBottom: '4px' }}>{referral.buyerRequest.name}</div>
+                                            <div style={{ fontSize: '13px', color: 'var(--color-text-light)' }}>{referral.buyerRequest.email}</div>
                                         </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <MapPin size={14} className="text-secondary" /> {referral.buyerRequest.locations}
+                                        <td style={{ padding: '24px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)' }}>
+                                                <MapPin size={16} color="var(--color-secondary)" /> {referral.buyerRequest.locations}
                                             </div>
                                         </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div>{formatCurrency(referral.buyerRequest.budgetMax)}</div>
-                                            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>{referral.buyerRequest.timeframe}</div>
+                                        <td style={{ padding: '24px' }}>
+                                            <div style={{ color: 'var(--color-text-main)', fontWeight: 600 }}>{formatCurrency(referral.buyerRequest.budgetMax)}</div>
+                                            <div style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>{referral.buyerRequest.timeframe}</div>
                                         </td>
-                                        <td style={{ padding: '16px', color: 'var(--color-text-muted)' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <Clock size={14} /> {formatDate(referral.createdAt)}
+                                        <td style={{ padding: '24px', color: 'var(--color-text-muted)' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <Clock size={16} /> {formatDate(referral.createdAt)}
                                             </div>
                                         </td>
-                                        <td style={{ padding: '16px' }}>
+                                        <td style={{ padding: '24px' }}>
                                             <span style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                                                padding: '4px 12px',
+                                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                                padding: '6px 14px',
                                                 borderRadius: '20px',
                                                 fontSize: '12px',
-                                                fontWeight: 600,
-                                                backgroundColor: referral.status === 'SENT' ? '#DBEAFE' : '#ECFDF5',
-                                                color: referral.status === 'SENT' ? '#1E40AF' : '#047857'
+                                                fontWeight: 700,
+                                                backgroundColor: referral.status === 'SENT' ? 'var(--color-bg-subtle)' : '#ECFDF5',
+                                                color: referral.status === 'SENT' ? 'var(--color-primary)' : '#047857'
                                             }}>
-                                                {referral.status === 'SENT' ? <Clock size={12} /> : <CheckCircle size={12} />}
+                                                {referral.status === 'SENT' ? <Clock size={14} /> : <CheckCircle size={14} />}
                                                 {referral.status}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '16px', textAlign: 'right' }}>
-                                            <button className="btn btn-outline" style={{ padding: '6px 12px', fontSize: '13px' }}>
-                                                Details
+                                        <td style={{ padding: '24px', textAlign: 'right' }}>
+                                            <button style={{ backgroundColor: 'white', border: '1px solid var(--color-border)', padding: '8px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', color: 'var(--color-text-main)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                                View <ArrowUpRight size={14} />
                                             </button>
                                         </td>
                                     </tr>
@@ -178,7 +181,29 @@ export default async function RealtorDashboard() {
     );
 }
 
-// Helper component for table icons that aren't imported inside map
-function MapPin({ size, className }: { size: number, className?: string }) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-4 10-6 10s-6-4-6-10a6 6 0 0 1 12 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+function SidebarLink({ href, icon, label, active, count }: { href: string, icon: any, label: string, active?: boolean, count?: number }) {
+    return (
+        <Link href={href} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            backgroundColor: active ? 'var(--color-bg-subtle)' : 'transparent',
+            color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
+            textDecoration: 'none',
+            fontSize: '14px',
+            fontWeight: active ? 700 : 600,
+            transition: 'all 0.2s'
+        }}>
+            {icon} {label}
+            {count !== undefined && (
+                <span style={{ marginLeft: 'auto', backgroundColor: active ? 'var(--color-primary)' : 'var(--color-border)', color: active ? 'white' : 'var(--color-text-main)', fontSize: '11px', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>{count}</span>
+            )}
+        </Link>
+    );
 }
+
+// Re-using local MapPin for consistency if global one differs
+// Removing local declaration to avoid conflict with Lucide import
+
