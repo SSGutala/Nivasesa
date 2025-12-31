@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield, X, Camera, Upload } from 'lucide-react';
+import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield, X, Camera, Upload, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
     addBalanceAction,
@@ -15,6 +15,7 @@ import {
     getLeadCountAction
 } from '@/actions/dashboard';
 import { getRealtorProfileAction, uploadRealtorPhotoAction, removeRealtorPhotoAction } from '@/actions/realtor-profile';
+import { getGroupRequestsForRealtor, respondToGroupRequest } from '@/actions/groups';
 
 export default function Dashboard() {
     const [userEmail, setUserEmail] = useState('test@example.com');
@@ -70,6 +71,7 @@ export default function Dashboard() {
                     <SidebarItem icon={<Clock size={20} />} label="Inbound Leads" active={activeTab === 'inbound'} onClick={() => setActiveTab('inbound')} />
                     <SidebarItem icon={<Users size={20} />} label="My Clients" active={activeTab === 'my-leads'} onClick={() => setActiveTab('my-leads')} />
                     <SidebarItem icon={<Home size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
+                    <SidebarItem icon={<UserPlus size={20} />} label="Group Requests" active={activeTab === 'groups'} onClick={() => setActiveTab('groups')} />
                     <SidebarItem icon={<CreditCard size={20} />} label="Payments" active={activeTab === 'payments'} onClick={() => setActiveTab('payments')} />
                     <SidebarItem icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
                 </nav>
@@ -95,6 +97,7 @@ export default function Dashboard() {
                 {activeTab === 'profile' && <ProfileSection realtorData={{ ...realtorData, id: userData?.id }} />}
                 {activeTab === 'payments' && <PaymentsSection userId={userData?.id} balance={userData?.balance} onPaymentComplete={refreshData} />}
                 {activeTab === 'security' && <SecuritySection />}
+                {activeTab === 'groups' && <GroupRequestsSection />}
             </main>
         </div>
     );
@@ -785,6 +788,153 @@ function SecuritySection() {
                     <strong>Tip:</strong> Use apps like Google Authenticator, Authy, or 1Password to generate your 2FA codes.
                 </p>
             </div>
+        </div>
+    );
+}
+
+function GroupRequestsSection() {
+    const [requests, setRequests] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [responding, setResponding] = useState<string | null>(null);
+
+    useEffect(() => {
+        loadRequests();
+    }, []);
+
+    const loadRequests = async () => {
+        setLoading(true);
+        const data = await getGroupRequestsForRealtor();
+        setRequests(data);
+        setLoading(false);
+    };
+
+    const handleRespond = async (requestId: string, status: 'accepted' | 'rejected') => {
+        setResponding(requestId);
+        const result = await respondToGroupRequest(requestId, status);
+        if (result.success) {
+            loadRequests();
+        } else {
+            alert(result.message || 'Failed to respond to request');
+        }
+        setResponding(null);
+    };
+
+    if (loading) {
+        return <div style={{ padding: '40px', textAlign: 'center' }}>Loading group requests...</div>;
+    }
+
+    return (
+        <div>
+            <div style={{ marginBottom: '32px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#111827', marginBottom: '8px' }}>Group Requests</h1>
+                <p style={{ color: '#6b7280' }}>Roommate groups looking for a realtor to help them find housing.</p>
+            </div>
+
+            {requests.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '80px 0', backgroundColor: 'white', borderRadius: '12px', border: '1px dashed #d1d5db' }}>
+                    <UserPlus size={48} style={{ color: '#d1d5db', marginBottom: '16px' }} />
+                    <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#374151' }}>No pending requests</h3>
+                    <p style={{ color: '#6b7280' }}>When groups request your help, they will appear here.</p>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gap: '24px' }}>
+                    {requests.map((request) => (
+                        <div key={request.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+                                    <div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>{request.group.name}</h3>
+                                        <p style={{ fontSize: '14px', color: '#6b7280' }}>
+                                            {request.group.targetCity}, {request.group.targetState}
+                                        </p>
+                                    </div>
+                                    <span style={{
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        padding: '4px 12px',
+                                        borderRadius: '9999px',
+                                        backgroundColor: '#fef3c7',
+                                        color: '#92400e'
+                                    }}>
+                                        Pending
+                                    </span>
+                                </div>
+
+                                {request.message && (
+                                    <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '8px', fontSize: '14px', color: '#4b5563' }}>
+                                        <strong>Message:</strong> {request.message}
+                                    </div>
+                                )}
+
+                                <div style={{ marginBottom: '20px' }}>
+                                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>Group Members ({request.group.members.length})</p>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {request.group.members.map((member: any) => (
+                                            <div key={member.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', backgroundColor: '#f3f4f6', borderRadius: '9999px' }}>
+                                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600 }}>
+                                                    {member.profile.user.name?.charAt(0) || '?'}
+                                                </div>
+                                                <span style={{ fontSize: '13px', color: '#374151' }}>{member.profile.user.name}</span>
+                                                {member.role === 'admin' && (
+                                                    <span style={{ fontSize: '10px', fontWeight: 600, color: '#6b7280' }}>(Admin)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px', padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px' }}>
+                                    {request.group.targetBudgetMin && request.group.targetBudgetMax && (
+                                        <div>
+                                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Budget</p>
+                                            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+                                                ${request.group.targetBudgetMin.toLocaleString()} - ${request.group.targetBudgetMax.toLocaleString()}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {request.group.targetMoveIn && (
+                                        <div>
+                                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Move-in Date</p>
+                                            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+                                                {new Date(request.group.targetMoveIn).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {request.group.propertyType && (
+                                        <div>
+                                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Property Type</p>
+                                            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{request.group.propertyType}</p>
+                                        </div>
+                                    )}
+                                    {request.group.bedroomsNeeded && (
+                                        <div>
+                                            <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Bedrooms Needed</p>
+                                            <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{request.group.bedroomsNeeded}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        onClick={() => handleRespond(request.id, 'accepted')}
+                                        disabled={responding === request.id}
+                                        style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: '#16a34a', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', opacity: responding === request.id ? 0.5 : 1 }}
+                                    >
+                                        {responding === request.id ? 'Processing...' : 'Accept Request'}
+                                    </button>
+                                    <button
+                                        onClick={() => handleRespond(request.id, 'rejected')}
+                                        disabled={responding === request.id}
+                                        style={{ flex: 1, padding: '12px', borderRadius: '8px', backgroundColor: 'white', color: '#dc2626', border: '1px solid #dc2626', fontWeight: 600, cursor: 'pointer', opacity: responding === request.id ? 0.5 : 1 }}
+                                    >
+                                        Decline
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
