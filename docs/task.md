@@ -1,0 +1,36 @@
+# Task: Build ApnaHome - Premium Real Estate Platform
+
+- [x] Project Initialization and Planning
+    - [x] Research existing codebase
+    - [x] Create implementation plan
+- [x] Foundation & Design System
+    - [x] Define color palette and typography in `globals.css`
+    - [x] Create core UI components (Button, Input, Card, etc.)
+- [ ] Core Features [/]
+    - [/] Build Home Page (Hero, Search, Featured)
+    - [x] **Explore Page Interactions**
+    - [x] Implement selection state (`selectedListingId`) and map synchronization (panning, pin emphasis).
+    - [x] Create `ListingPreviewOverlay` component for map pins.
+    - [x] Implement "View Details" to navigate to `app/listing/[id]`.
+    - [x] Add "Contact Host" button and basic interaction.
+    - [x] Fix Middleware to allow `/listing/*` routes.
+- [x] **Documentation & Handover**
+    - [x] Generate Product Requirements Document (PRD) - *Updated to NVS-R01*.
+    - [x] Create End-to-End UX Specification Document.
+    - [x] Create Technical Specification (Schema & Architecture).
+    - [x] Build Property Detail Page
+- [ ] Authentication & User Profile [ ]
+    - [ ] Setup/Verify NextAuth integration
+    - [ ] Create Login/Signup pages (Renter vs Host roles)
+- [ ] Backend & Data [ ]
+    - [ ] Setup Prisma schemas for Properties, Users, and *Waitlists*.
+    - [ ] Implement API routes for fetching/creating properties
+- [ ] **NVS-R01 Specific Features** [ ]
+    - [ ] Implement "In Discussion" & "Unavailable" Listing States.
+    - [ ] Build Consent-Based Connection Request System.
+    - [ ] Implement Waitlist logic for high-demand listings.
+    - [ ] Integrate Video Call capability (e.g., Daily.co or Twilio).
+- [ ] Final Polish & Verification [ ]
+    - [ ] Ensure responsive design
+    - [ ] Run verification tests
+    - [ ] Create walkthrough
