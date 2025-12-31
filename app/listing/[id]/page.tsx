@@ -1,146 +1,151 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { MOCK_LISTINGS } from '@/lib/listings-data';
-import styles from './page.module.css';
-import { ChevronLeft, Share, Heart, MapPin, Users, Calendar, ShieldCheck, MessageSquare } from 'lucide-react';
-import SignupPromptModal from '@/components/explore/SignupPromptModal';
+import { ArrowLeft, MapPin, Users, Calendar, Heart, Share, Check, Info } from 'lucide-react';
+import styles from './ListingDetail.module.css';
 
 export default function ListingDetailPage() {
-    const { id } = useParams();
+    const params = useParams();
     const router = useRouter();
-    const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-    const [modalTitle, setModalTitle] = useState("Sign up to continue");
+    const { id } = params;
 
+    // Find the listing
     const listing = MOCK_LISTINGS.find(l => l.id === id);
 
+    // Mock authentication state (replace with actual auth hook later)
+    // For now, we'll assume logged out to demonstrate the gating
+    // You can toggle this to test both states or hook up next-auth
+    const isLoggedIn = false;
+
     if (!listing) {
-        return <div className={styles.notFound}>Listing not found</div>;
+        return (
+            <div className={styles.container}>
+                <div className={styles.errorState}>
+                    <h1>Listing not found</h1>
+                    <Link href="/explore" className={styles.backLink}>
+                        <ArrowLeft size={16} /> Return to Explore
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
-    const handleAction = (title: string) => {
-        setModalTitle(title);
-        setIsSignupModalOpen(true);
+    const handleExpressInterest = () => {
+        if (!isLoggedIn) {
+            // Redirect to login with callback URL
+            router.push(`/login?callbackUrl=/listing/${id}`);
+        } else {
+            // Logic for showing interest (e.g., open modal, send message)
+            console.log('Interest expressed for listing:', id);
+            alert('Interest expressed! (Mock action)');
+        }
     };
 
     return (
-        <div className={styles.wrapper}>
-            {/* Top Nav */}
-            <div className={styles.topNav}>
-                <button className={styles.backBtn} onClick={() => router.back()}>
-                    <ChevronLeft size={20} /> Back to Search
-                </button>
-                <div className={styles.topActions}>
-                    <button className={styles.iconBtn} onClick={() => handleAction("Save this listing")}><Heart size={20} /></button>
-                    <button className={styles.iconBtn}><Share size={20} /></button>
-                </div>
-            </div>
-
+        <div className={styles.pageWrapper}>
             <div className={styles.container}>
-                {/* Image Gallery */}
-                <div className={styles.gallery}>
-                    <div className={styles.mainImage}>
-                        <img src={listing.images[0]} alt={listing.title} />
-                    </div>
-                    <div className={styles.sideImages}>
-                        <div className={styles.sideImagePlaceholder} />
-                        <div className={styles.sideImagePlaceholder} />
-                    </div>
-                </div>
+                <Link href="/explore" className={styles.backNav}>
+                    <ArrowLeft size={16} /> Back to Search
+                </Link>
 
                 <div className={styles.grid}>
-                    {/* Content */}
-                    <div className={styles.content}>
-                        <section className={styles.intro}>
-                            <h1 className={styles.title}>{listing.title}</h1>
-                            <div className={styles.location}>
-                                <MapPin size={18} /> {listing.neighborhood}, {listing.city}
+                    {/* Left Column: Images & Details */}
+                    <div className={styles.mainContent}>
+                        <div className={styles.imageGallery}>
+                            <img src={listing.images[0]} alt={listing.title} className={styles.mainImage} />
+                            <div className={styles.subImages}>
+                                {listing.images.slice(1).map((img, i) => (
+                                    <img key={i} src={img} alt={`${listing.title} ${i + 2}`} className={styles.subImage} />
+                                ))}
                             </div>
-                            <div className={styles.quickStats}>
-                                <div className={styles.stat}><Users size={20} /><span>{listing.roommates} Roommates</span></div>
-                                <div className={styles.stat}><ShieldCheck size={20} /><span>Background Verified</span></div>
-                                <div className={styles.stat}><Calendar size={20} /><span>{listing.stayDuration}</span></div>
-                            </div>
-                        </section>
+                        </div>
 
-                        <hr className={styles.divider} />
+                        <div className={styles.headerMobile}>
+                            <h1 className={styles.title}>{listing.neighborhood}, {listing.city}</h1>
+                            <div className={styles.priceMobile}>${listing.price}<span>/mo</span></div>
+                        </div>
 
-                        <section className={styles.about}>
-                            <h2>Overview</h2>
-                            <div className={styles.badges}>
-                                {listing.badges.map(b => <span key={b} className={styles.badge}>{b}</span>)}
-                            </div>
-                            <p className={styles.description}>{listing.description}</p>
-                        </section>
+                        <div className={styles.section}>
+                            <h2 className={styles.sectionTitle}>About this space</h2>
+                            <p className={styles.description}>
+                                Experience comfortable living in this {listing.type.toLowerCase()} located in the heart of {listing.neighborhood}.
+                                This space is perfect for someone looking for a {listing.badges.join(', ')} environment.
+                                The apartment features modern amenities and a welcoming atmosphere.
+                            </p>
 
-                        <section className={styles.norms}>
-                            <h2>Household Norms</h2>
-                            <ul className={styles.normList}>
-                                <li><strong>Diet:</strong> {listing.preferences.diet} household</li>
-                                <li><strong>Cooking:</strong> {listing.preferences.cooking}</li>
-                                <li><strong>Languages:</strong> {listing.preferences.languages.join(', ')} spoken</li>
-                                <li><strong>Lifestyle:</strong> {listing.preferences.lifestyle.join(', ')}</li>
-                                <li><strong>Guest Policy:</strong> {listing.preferences.guestPolicy}</li>
-                            </ul>
-                        </section>
-
-                        <section className={styles.virtualMeet}>
-                            <div className={styles.alert}>
-                                <ShieldCheck size={24} />
-                                <div>
-                                    <h3>Virtual Meet & Greet Required</h3>
-                                    <p>Safety is our priority. All hosts and guests must complete a 15-minute virtual introduction before booking or visiting.</p>
+                            <div className={styles.metaGrid}>
+                                <div className={styles.metaItem}>
+                                    <Users className={styles.icon} />
+                                    <div>
+                                        <span className={styles.label}>Roommates</span>
+                                        <span className={styles.value}>{listing.roommates} people</span>
+                                    </div>
+                                </div>
+                                <div className={styles.metaItem}>
+                                    <MapPin className={styles.icon} />
+                                    <div>
+                                        <span className={styles.label}>Location</span>
+                                        <span className={styles.value}>{listing.neighborhood}</span>
+                                    </div>
+                                </div>
+                                <div className={styles.metaItem}>
+                                    <Calendar className={styles.icon} />
+                                    <div>
+                                        <span className={styles.label}>Availability</span>
+                                        <span className={styles.value}>{listing.availability.replace('_', ' ')}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </section>
+                        </div>
+
+                        <div className={styles.section}>
+                            <h2 className={styles.sectionTitle}>Household Norms</h2>
+                            <ul className={styles.amenities}>
+                                {listing.badges.map(badge => (
+                                    <li key={badge} className={styles.amenityItem}>
+                                        <Check size={16} className={styles.checkIcon} />
+                                        {badge}
+                                    </li>
+                                ))}
+                                <li className={styles.amenityItem}><Check size={16} className={styles.checkIcon} /> No smoking</li>
+                                <li className={styles.amenityItem}><Check size={16} className={styles.checkIcon} /> Clean & Tidy</li>
+                            </ul>
+                        </div>
                     </div>
 
-                    {/* Sidebar / CTA */}
+                    {/* Right Column: Sticky Action Card */}
                     <div className={styles.sidebar}>
-                        <div className={styles.stickyCard}>
-                            <div className={styles.cardPrice}>
-                                <span className={styles.amount}>${listing.price}</span>
+                        <div className={styles.actionCard}>
+                            <div className={styles.priceHeader}>
+                                <span className={styles.price}>${listing.price}</span>
                                 <span className={styles.period}>/ month</span>
                             </div>
 
-                            <div className={styles.cardDetails}>
-                                <div className={styles.detailRow}>
-                                    <span>Security Deposit</span>
-                                    <span>$200</span>
-                                </div>
-                                <div className={styles.detailRow}>
-                                    <span>Move-in Date</span>
-                                    <span>Flexible</span>
+                            <div className={styles.statusRow}>
+                                <div className={`${styles.statusBadge} ${styles[listing.availability]}`}>
+                                    {listing.availability.replace('_', ' ')}
                                 </div>
                             </div>
 
-                            <button
-                                className={styles.ctaButton}
-                                onClick={() => handleAction("Request a Virtual Meet")}
-                            >
-                                Request virtual meet & greet
+                            <button onClick={handleExpressInterest} className={styles.primaryBtn}>
+                                Express Interest
                             </button>
 
-                            <button
-                                className={styles.secondaryCta}
-                                onClick={() => handleAction("Message the host")}
-                            >
-                                <MessageSquare size={18} /> Message host
+                            <button className={styles.secondaryBtn} onClick={() => alert('Opening message dialog...')}>
+                                Contact Host
                             </button>
 
-                            <p className={styles.hint}>No payment required until after intro</p>
+                            <div className={styles.disclaimer}>
+                                <Info size={14} />
+                                <span>You won't be charged yet</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <SignupPromptModal
-                isOpen={isSignupModalOpen}
-                onClose={() => setIsSignupModalOpen(false)}
-                title={modalTitle}
-                returnUrl={`/listing/${id}`}
-            />
         </div>
     );
 }

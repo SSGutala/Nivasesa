@@ -1,0 +1,118 @@
+.wrapper {
+    position: relative;
+    z-index: 100;
+    background: white;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.searchBar {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    border-radius: 100px;
+    padding: 8px 8px 8px 24px;
+    width: 100%;
+    max-width: 800px;
+    transition: all 0.2s ease;
+}
+
+.searchBar:hover {
+    border-color: #ccc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.section {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.icon {
+    margin-right: 12px;
+    color: #666;
+}
+
+.input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-main);
+    padding: 8px 0;
+}
+
+.input:focus {
+    outline: none;
+}
+
+.divider {
+    width: 1px;
+    height: 24px;
+    background: #eee;
+    margin: 0 16px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filterBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 100px;
+    border: 1px solid #eee;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filterBtn:hover {
+    background: #f9f9f9;
+    border-color: #ccc;
+}
+
+.searchBtn {
+    background: black;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.searchBtn:hover {
+    background: #333;
+    transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+    .searchBar {
+        padding: 6px 6px 6px 16px;
+    }
+
+    .filterBtn span {
+        display: none;
+    }
+
+    .divider {
+        margin: 0 8px;
+    }
+}

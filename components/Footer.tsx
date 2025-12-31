@@ -1,8 +1,17 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styles from './Footer.module.css';
 import { Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 
 export default function Footer() {
+    const pathname = usePathname();
+
+    if (pathname.startsWith('/onboarding')) {
+        return null;
+    }
+
     return (
         <footer className={styles.footer}>
             <div className={styles.container}>
@@ -12,7 +21,7 @@ export default function Footer() {
                             N I V A E S A
                         </Link>
                         <p className={styles.tagline}>
-                            A calm, trusted space for finding home.
+                            Your premium gateway to finding a home you&apos;ll love.
                         </p>
                     </div>
 

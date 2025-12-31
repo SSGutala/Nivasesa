@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: "Nivaesa | Modern Real Estate",
-  description: "Find trusted realtors near you. Language-matched, community-verified.",
+  description: "Find your perfect home with Nivaesa. Verified listings, community insights, and premium service.",
 };
 
 import { auth } from '@/auth';
@@ -15,16 +15,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  await auth();
 
   return (
     <html lang="en">
       <body>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Header />
-          <main style={{ flex: 1 }}>{children}</main>
-          <Footer />
-        </div>
+        <Header />
+        {children}
+        <Footer />
       </body>
     </html>
   );

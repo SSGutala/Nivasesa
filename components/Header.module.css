@@ -1,12 +1,12 @@
 .header {
-    position: sticky;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
-    padding: 20px 40px;
+    padding: 30px 60px;
     background: transparent;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .lightTheme {

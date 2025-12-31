@@ -7,23 +7,17 @@ import { Listing } from '@/lib/listings-data';
 
 interface ListingCardProps {
     listing: Listing;
-    isSelected?: boolean;
     onHover?: (id: string | null) => void;
     onClick?: (id: string) => void;
 }
 
-export default function ListingCard({ listing, isSelected, onHover, onClick }: ListingCardProps) {
+export default function ListingCard({ listing, onHover, onClick }: ListingCardProps) {
     return (
         <div
-            className={`${styles.card} ${isSelected ? styles.selected : ''}`}
+            className={styles.card}
             onMouseEnter={() => onHover?.(listing.id)}
             onMouseLeave={() => onHover?.(null)}
             onClick={() => onClick?.(listing.id)}
-            ref={(el) => {
-                if (isSelected && el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }}
         >
             <div className={styles.imageContainer}>
                 <img src={listing.images[0]} alt={listing.title} className={styles.image} />
@@ -51,8 +45,8 @@ export default function ListingCard({ listing, isSelected, onHover, onClick }: L
                 </div>
 
                 <div className={styles.badges}>
-                    {listing.badges.map(badge => (
-                        <span key={badge} className={styles.badge}>{badge}</span>
+                    {listing.tags.map(tag => (
+                        <span key={tag} className={styles.badge}>{tag}</span>
                     ))}
                 </div>
 

@@ -8,25 +8,11 @@ import { Plus, Minus } from 'lucide-react';
 interface ExploreMapProps {
     listings: Listing[];
     hoveredListingId: string | null;
-    selectedListingId?: string | null;
     onPinClick: (id: string) => void;
 }
 
-export default function ExploreMap({ listings, hoveredListingId, selectedListingId, onPinClick }: ExploreMapProps) {
+export default function ExploreMap({ listings, hoveredListingId, onPinClick }: ExploreMapProps) {
     const [zoom, setZoom] = useState(1);
-    const [center, setCenter] = useState({ lat: 40.75, lng: -74.0 }); // Default center
-
-    // Effect to pan and zoom when a listing is selected
-    React.useEffect(() => {
-        if (selectedListingId) {
-            const selected = listings.find(l => l.id === selectedListingId);
-            if (selected) {
-                // Simulate smooth panning by updating center/zoom
-                // In a real map library (Leaflet/Mapbox), you'd call map.flyTo()
-                setZoom(prev => Math.max(prev, 1.2)); // Slight zoom in if zoomed out
-            }
-        }
-    }, [selectedListingId, listings]);
 
     // Simple coordinate to percentage conversion for NYC area
     // This is a simplified projection - in production you'd use a proper map library
@@ -64,7 +50,7 @@ export default function ExploreMap({ listings, hoveredListingId, selectedListing
                     return (
                         <button
                             key={listing.id}
-                            className={`${styles.pin} ${hoveredListingId === listing.id ? styles.hovered : ''} ${selectedListingId === listing.id ? styles.selected : ''}`}
+                            className={`${styles.pin} ${hoveredListingId === listing.id ? styles.hovered : ''}`}
                             style={position}
                             onClick={() => onPinClick(listing.id)}
                         >

@@ -35,6 +35,9 @@ export async function middleware(request: NextRequest) {
       '/about',
       '/find-a-realtor',
       '/join-the-network',
+      '/explore',
+      '/onboarding',
+      '/listing',
       '/api/auth',
       '/api/health',
     ]
@@ -66,6 +69,9 @@ export async function middleware(request: NextRequest) {
     '/rooms',
     '/roommates',
     '/groups',
+    '/explore',
+    '/onboarding',
+    '/listing',
     '/api/auth',
     '/api/health',
   ]

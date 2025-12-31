@@ -1,26 +1,46 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './page.module.css';
-import SearchBar from '@/components/explore/SearchBar';
-import ListingCard from '@/components/explore/ListingCard';
-import ExploreMap from '@/components/explore/ExploreMap';
-import FiltersPanel from '@/components/explore/FiltersPanel';
-import SignupPromptModal from '@/components/explore/SignupPromptModal';
-import ListingPreviewOverlay from '@/components/explore/ListingPreviewOverlay';
-import { MOCK_LISTINGS } from '@/lib/listings-data';
+import SearchBar from '@/components/browse/SearchBar';
+import ListingCard from '@/components/browse/ListingCard';
+import ExploreMap from '@/components/browse/ExploreMap';
+import FiltersPanel from '@/components/browse/FiltersPanel';
+import SignupPromptModal from '@/components/browse/SignupPromptModal';
+import { MOCK_LISTINGS, Listing } from '@/lib/listings-data';
 import { useRouter } from 'next/navigation';
 
 export default function ExplorePage() {
+    const [listings, setListings] = useState<Listing[]>(MOCK_LISTINGS);
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
     const router = useRouter();
 
-    const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+    useEffect(() => {
+        const fetchListings = async () => {
+            // Dynamic import to avoid SSR issues with Firebase
+            try {
+                const { db } = await import('@/lib/firebase');
+                const { collection, getDocs } = await import('firebase/firestore');
+
+                const querySnapshot = await getDocs(collection(db, 'listings'));
+                if (!querySnapshot.empty) {
+                    const dbListings = querySnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    })) as Listing[]; // Cast carefully in prod
+                    setListings(dbListings);
+                }
+            } catch (error) {
+                console.error("Error fetching listings:", error);
+            }
+        };
+        fetchListings();
+    }, []);
 
     const handleListingClick = (id: string) => {
-        setSelectedListingId(id);
+        router.push(`/listing/${id}`);
     };
 
     const handleAction = (e: React.MouseEvent) => {
@@ -41,11 +61,10 @@ export default function ExplorePage() {
                     </div>
 
                     <div className={styles.listingGrid}>
-                        {MOCK_LISTINGS.map(listing => (
+                        {listings.map(listing => (
                             <ListingCard
                                 key={listing.id}
                                 listing={listing}
-                                isSelected={selectedListingId === listing.id}
                                 onHover={setHoveredId}
                                 onClick={handleListingClick}
                             />
@@ -56,17 +75,10 @@ export default function ExplorePage() {
                 {/* Map Panel */}
                 <div className={styles.mapPanel}>
                     <ExploreMap
-                        listings={MOCK_LISTINGS}
+                        listings={listings}
                         hoveredListingId={hoveredId}
-                        selectedListingId={selectedListingId}
                         onPinClick={handleListingClick}
                     />
-                    {selectedListingId && (
-                        <ListingPreviewOverlay
-                            listing={MOCK_LISTINGS.find(l => l.id === selectedListingId)!}
-                            onClose={() => setSelectedListingId(null)}
-                        />
-                    )}
                 </div>
             </div>
 

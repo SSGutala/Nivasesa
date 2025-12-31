@@ -1,31 +1,26 @@
 .card {
-    display: flex;
-    flex-direction: column;
+    background: white;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 16px;
     overflow: hidden;
-    background-color: white;
-    transition: all 0.2s ease;
     cursor: pointer;
-    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    height: 240px;
+    margin-bottom: 20px;
 }
 
 .card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-    border-color: var(--color-border-subtle);
-}
-
-.selected {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1), var(--shadow-md);
-    background-color: var(--color-bg-subtle);
+    border-color: #000;
 }
 
 .imageContainer {
     position: relative;
-    height: 200px;
-    background-color: var(--color-bg-subtle);
+    width: 240px;
+    height: 100%;
 }
 
 .image {
@@ -41,14 +36,14 @@
     background: white;
     border: none;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .saveButton:hover {
@@ -60,33 +55,36 @@
     top: 12px;
     left: 12px;
     padding: 4px 10px;
-    border-radius: 100px;
-    font-size: 11px;
+    border-radius: 6px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    background-color: rgba(255, 255, 255, 0.9);
+    text-transform: capitalize;
     backdrop-filter: blur(4px);
 }
 
-.available_now {
-    color: #10B981;
+.available {
+    background: rgba(52, 199, 89, 0.9);
+    color: white;
 }
 
-.available_soon {
-    color: #F59E0B;
+.in_discussion {
+    background: rgba(255, 149, 0, 0.9);
+    color: white;
+}
+
+.waitlist_open {
+    background: rgba(0, 122, 255, 0.9);
+    color: white;
 }
 
 .content {
-    padding: 16px;
+    flex: 1;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    flex: 1;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     margin-bottom: 8px;
 }
 
@@ -97,35 +95,35 @@
 }
 
 .price {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-text-main);
 }
 
 .period {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--color-text-muted);
 }
 
 .title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: var(--color-text-main);
 }
 
 .meta {
     display: flex;
     gap: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     color: var(--color-text-muted);
+    font-size: 14px;
 }
 
 .metaItem {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
+    gap: 4px;
 }
 
 .badges {
@@ -133,36 +131,48 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 16px;
-    min-height: 26px;
-    /* Reserve space */
 }
 
 .badge {
-    font-size: 11px;
-    padding: 4px 8px;
-    background-color: var(--color-bg-subtle);
-    border-radius: 4px;
+    padding: 4px 12px;
+    background: var(--color-bg-subtle);
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
     color: var(--color-text-muted);
 }
 
 .footer {
     margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border-subtle);
     display: flex;
     justify-content: flex-end;
 }
 
 .viewDetails {
+    background: none;
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-primary);
-    background: none;
-    border: none;
     cursor: pointer;
-    padding: 0;
+    transition: all 0.2s ease;
 }
 
 .viewDetails:hover {
-    text-decoration: underline;
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+@media (max-width: 900px) {
+    .card {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .imageContainer {
+        width: 100%;
+        height: 200px;
+    }
 }

@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/Users/saigutala/.gemini/antigravity/brain/ed124a03-38ea-4954-8971-9d288813cf61/nivaesa_hero_bg_1767135615265.png');
+  background-image: url('/hero-bg.png');
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -43,6 +43,7 @@
   line-height: 1.1;
   margin-bottom: 24px;
   letter-spacing: -0.02em;
+  color: white;
 }
 
 .subtitle {
@@ -53,6 +54,7 @@
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  color: white;
 }
 
 .heroButtons {
@@ -123,4 +125,78 @@
     max-width: 300px;
     margin: 0 auto;
   }
+}
+
+/* Featured Section */
+.featured {
+  padding-top: 100px;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 32px;
+}
+
+.propertyImagePlaceholder {
+  width: 100%;
+  height: 240px;
+  background-color: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.propertyImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.card:hover .propertyImage {
+  transform: scale(1.05);
+}
+
+.propertyTitle {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.propertyLocation {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+}
+
+.propertyFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.propertyPrice {
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-primary);
+}
+
+.viewLink {
+  font-weight: 600;
+  color: var(--color-accent);
+  font-size: 14px;
+}
+
+/* Why Choose Section */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
 }

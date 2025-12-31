@@ -8,6 +8,10 @@ export default function Header() {
     const pathname = usePathname();
     const isWhitePage = pathname.startsWith('/join') || pathname.startsWith('/login') || pathname.startsWith('/explore') || pathname.startsWith('/listing');
 
+    if (pathname.startsWith('/onboarding')) {
+        return null;
+    }
+
     return (
         <header className={`${styles.header} ${isWhitePage ? styles.lightTheme : ''}`}>
             <div className={styles.container}>
