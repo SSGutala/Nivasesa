@@ -1,0 +1,75 @@
+.cluster {
+    position: absolute;
+    background: #ff5722;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 15;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.count {
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Size variants */
+.small {
+    width: 40px;
+    height: 40px;
+}
+
+.small .count {
+    font-size: 13px;
+}
+
+.medium {
+    width: 50px;
+    height: 50px;
+}
+
+.medium .count {
+    font-size: 15px;
+}
+
+.large {
+    width: 60px;
+    height: 60px;
+}
+
+.large .count {
+    font-size: 17px;
+}
+
+/* Hover effect */
+.cluster:hover {
+    background: #e64a19;
+    transform: translate(-50%, -50%) scale(1.15);
+    z-index: 25;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* Animation on mount */
+@keyframes clusterPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    60% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.cluster {
+    animation: clusterPop 0.3s ease-out;
+}
