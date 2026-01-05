@@ -7,19 +7,22 @@ import ListingCard from '@/components/explore/ListingCard';
 import ExploreMap from '@/components/explore/ExploreMap';
 import FiltersPanel from '@/components/explore/FiltersPanel';
 import SignupPromptModal from '@/components/explore/SignupPromptModal';
-import ListingPreviewOverlay from '@/components/explore/ListingPreviewOverlay';
+
 import { MOCK_LISTINGS } from '@/lib/listings-data';
 import { useRouter } from 'next/navigation';
+
+import ListingTypeToggle from '@/components/explore/ListingTypeToggle';
 
 export default function ExplorePage() {
     const [hoveredId, setHoveredId] = useState<string | null>(null);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+    const [listingType, setListingType] = useState<'lease' | 'sublease'>('sublease');
     const router = useRouter();
 
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
-    const handleListingClick = (id: string) => {
+    const handleListingClick = (id: string | null) => {
         setSelectedListingId(id);
     };
 
@@ -27,6 +30,9 @@ export default function ExplorePage() {
         e.stopPropagation();
         setIsSignupModalOpen(true);
     };
+
+    // Filter listings based on the selected toggle type
+    const filteredListings = MOCK_LISTINGS.filter(l => l.leaseType === listingType);
 
     return (
         <div className={styles.exploreWrapper}>
@@ -36,12 +42,15 @@ export default function ExplorePage() {
                 {/* Listings Panel */}
                 <div className={styles.listPanel}>
                     <div className={styles.listHeader}>
-                        <h1>Over 300 places in Jersey City & Manhattan</h1>
+                        <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '20px' }}>
+                            <ListingTypeToggle activeType={listingType} onChange={setListingType} />
+                        </div>
+                        <h1>{filteredListings.length} places in Jersey City & Manhattan</h1>
                         <p>Select a listing to see internal household norms and details.</p>
                     </div>
 
                     <div className={styles.listingGrid}>
-                        {MOCK_LISTINGS.map(listing => (
+                        {filteredListings.map(listing => (
                             <ListingCard
                                 key={listing.id}
                                 listing={listing}
@@ -56,17 +65,12 @@ export default function ExplorePage() {
                 {/* Map Panel */}
                 <div className={styles.mapPanel}>
                     <ExploreMap
-                        listings={MOCK_LISTINGS}
+                        listings={filteredListings}
                         hoveredListingId={hoveredId}
                         selectedListingId={selectedListingId}
                         onPinClick={handleListingClick}
                     />
-                    {selectedListingId && (
-                        <ListingPreviewOverlay
-                            listing={MOCK_LISTINGS.find(l => l.id === selectedListingId)!}
-                            onClose={() => setSelectedListingId(null)}
-                        />
-                    )}
+
                 </div>
             </div>
 

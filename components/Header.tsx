@@ -8,7 +8,7 @@ export default function Header() {
     const pathname = usePathname();
     const isWhitePage = pathname.startsWith('/join') || pathname.startsWith('/login') || pathname.startsWith('/explore') || pathname.startsWith('/listing');
 
-    if (pathname.startsWith('/onboarding')) {
+    if (pathname.startsWith('/onboarding') || pathname.startsWith('/host') || pathname.startsWith('/dashboard')) {
         return null;
     }
 
@@ -23,7 +23,7 @@ export default function Header() {
                     <Link href="/login" className={styles.navLink}>
                         Log in
                     </Link>
-                    <Link href="/join/find" className={styles.signupBtn}>
+                    <Link href="/join" className={styles.signupBtn}>
                         Sign up
                     </Link>
                 </nav>

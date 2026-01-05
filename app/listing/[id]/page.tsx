@@ -4,8 +4,11 @@ import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MOCK_LISTINGS } from '@/lib/listings-data';
-import { ArrowLeft, MapPin, Users, Calendar, Heart, Share, Check, Info } from 'lucide-react';
+
+import { ArrowLeft, MapPin, Users, Calendar, Heart, Share, Check, Leaf, Ban, Utensils, Globe, CheckCircle } from 'lucide-react';
 import styles from './ListingDetail.module.css';
+
+// ... imports
 
 export default function ListingDetailPage() {
     const params = useParams();
@@ -35,14 +38,65 @@ export default function ListingDetailPage() {
 
     const handleExpressInterest = () => {
         if (!isLoggedIn) {
-            // Redirect to login with callback URL
-            router.push(`/login?callbackUrl=/listing/${id}`);
+            router.push('/join/find?returnUrl=/explore');
         } else {
             // Logic for showing interest (e.g., open modal, send message)
             console.log('Interest expressed for listing:', id);
             alert('Interest expressed! (Mock action)');
         }
     };
+
+    const handleContactHost = () => {
+        if (!isLoggedIn) {
+            router.push('/join/find?returnUrl=/explore');
+        } else {
+            console.log('Contacting host for listing:', id);
+            alert('Opening message dialog...');
+        }
+    };
+
+    // Helper to aggregate and prioritize content tags (Replicated from ListingCard)
+    const getContentTags = () => {
+        if (!listing) return [];
+        const tags: { label: string; icon?: React.ElementType; priority: number }[] = [];
+
+        // 1. Dietary & Cultural (Highest Priority for South Asians)
+        if (listing.dietary.vegetarian) tags.push({ label: 'Vegetarian', icon: Leaf, priority: 1 });
+        if (listing.dietary.jainFriendly) tags.push({ label: 'Jain Friendly', icon: Leaf, priority: 1 });
+        if (listing.dietary.halalFriendly) tags.push({ label: 'Halal', icon: CheckCircle, priority: 1 });
+        if (listing.lifestyle.includes('Shoes-Off Home')) tags.push({ label: 'Shoes-Off', priority: 1 });
+
+        if (listing.dietary.kitchen === 'Separate Kitchen Access') tags.push({ label: 'Separate Kitchen', icon: Utensils, priority: 2 });
+        if (listing.dietary.noBeef) tags.push({ label: 'No Beef', icon: Ban, priority: 2 });
+        if (listing.dietary.noPork) tags.push({ label: 'No Pork', icon: Ban, priority: 2 });
+
+        // 2. South Asian Languages (Medium Priority)
+        const southAsianLangs = ['Hindi', 'Urdu', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Gujarati', 'Punjabi', 'Bengali', 'Marathi', 'Nepali', 'Sinhala'];
+        listing.languages.forEach(lang => {
+            if (southAsianLangs.includes(lang)) {
+                tags.push({ label: lang, icon: Globe, priority: 3 });
+            }
+        });
+
+        // 3. Compatibility / Gender
+        if (listing.compatibility === 'Women-Only') tags.push({ label: 'Women Only', icon: Users, priority: 4 });
+        if (listing.compatibility === 'Men-Only') tags.push({ label: 'Men Only', icon: Users, priority: 4 });
+
+        // 4. Other Languages
+        listing.languages.forEach(lang => {
+            if (!southAsianLangs.includes(lang)) {
+                tags.push({ label: lang, icon: Globe, priority: 5 });
+            }
+        });
+
+        // 5. General Rules (Lower Priority)
+        if (listing.rules.smoking === 'No Smoking') tags.push({ label: 'No Smoking', icon: Ban, priority: 6 });
+        if (listing.lifestyle.includes('Quiet Home')) tags.push({ label: 'Quiet Home', priority: 6 });
+
+        return tags.sort((a, b) => a.priority - b.priority);
+    };
+
+    const contentTags = getContentTags();
 
     return (
         <div className={styles.pageWrapper}>
@@ -71,8 +125,8 @@ export default function ListingDetailPage() {
                         <div className={styles.section}>
                             <h2 className={styles.sectionTitle}>About this space</h2>
                             <p className={styles.description}>
-                                Experience comfortable living in this {listing.type.toLowerCase()} located in the heart of {listing.neighborhood}.
-                                This space is perfect for someone looking for a {listing.badges.join(', ')} environment.
+                                Experience comfortable living in this {listing.spaceType.toLowerCase()} located in the heart of {listing.neighborhood}.
+                                This space is perfect for someone looking for a {listing.lifestyle.join(', ')} environment.
                                 The apartment features modern amenities and a welcoming atmosphere.
                             </p>
 
@@ -102,17 +156,25 @@ export default function ListingDetailPage() {
                         </div>
 
                         <div className={styles.section}>
-                            <h2 className={styles.sectionTitle}>Household Norms</h2>
-                            <ul className={styles.amenities}>
-                                {listing.badges.map(badge => (
-                                    <li key={badge} className={styles.amenityItem}>
-                                        <Check size={16} className={styles.checkIcon} />
-                                        {badge}
-                                    </li>
+                            <h2 className={styles.sectionTitle}>Highlights & Norms</h2>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {contentTags.map((tag, index) => (
+                                    <span key={index} className={styles.amenityItem} style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '6px 12px',
+                                        backgroundColor: '#fff',
+                                        border: '1px solid #e5e7eb',
+                                        borderRadius: '100px',
+                                        fontSize: '14px',
+                                        color: '#374151'
+                                    }}>
+                                        {tag.icon && <tag.icon size={14} />}
+                                        {tag.label}
+                                    </span>
                                 ))}
-                                <li className={styles.amenityItem}><Check size={16} className={styles.checkIcon} /> No smoking</li>
-                                <li className={styles.amenityItem}><Check size={16} className={styles.checkIcon} /> Clean & Tidy</li>
-                            </ul>
+                            </div>
                         </div>
                     </div>
 
@@ -134,14 +196,11 @@ export default function ListingDetailPage() {
                                 Express Interest
                             </button>
 
-                            <button className={styles.secondaryBtn} onClick={() => alert('Opening message dialog...')}>
+                            <button className={styles.secondaryBtn} onClick={handleContactHost}>
                                 Contact Host
                             </button>
 
-                            <div className={styles.disclaimer}>
-                                <Info size={14} />
-                                <span>You won't be charged yet</span>
-                            </div>
+
                         </div>
                     </div>
                 </div>

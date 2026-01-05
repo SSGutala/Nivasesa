@@ -48,11 +48,18 @@ export async function submitRealtorApplication(prevState: any, formData: FormDat
             // Find or create a User for this agent
             const user = await prisma.user.upsert({
                 where: { email: rawData.email.toLowerCase() },
-                update: { role: 'REALTOR', name: rawData.fullName },
+                update: {
+                    role: 'REALTOR',
+                    name: rawData.fullName,
+                    username: rawData.email.toLowerCase(),
+                    password: formData.get('password') as string
+                },
                 create: {
                     email: rawData.email.toLowerCase(),
                     name: rawData.fullName,
                     role: 'REALTOR',
+                    username: rawData.email.toLowerCase(),
+                    password: formData.get('password') as string
                 }
             });
 
@@ -93,8 +100,8 @@ export async function submitRealtorApplication(prevState: any, formData: FormDat
 
         return {
             success: true,
-            message: 'Application received! Redirecting to account setup...',
-            redirectTo: `/onboarding/setup?email=${rawData.email.toLowerCase()}`
+            message: 'Application received! Redirecting to dashboard...',
+            redirectTo: `/dashboard`
         };
 
     } catch (error) {

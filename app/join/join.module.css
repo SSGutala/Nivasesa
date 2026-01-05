@@ -1,0 +1,121 @@
+.pageWrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.header {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-main);
+    text-decoration: none;
+    letter-spacing: 0.2em;
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.title {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 60px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.optionsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    width: 100%;
+}
+
+.optionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    text-decoration: none;
+    color: var(--color-text-main);
+    transition: all 0.2s ease;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.optionCard:hover {
+    border-color: var(--color-text-main);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.iconWrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.optionTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.optionDescription {
+    font-size: 16px;
+    color: var(--color-text-light);
+    line-height: 1.5;
+}
+
+.loginPrompt {
+    margin-top: 60px;
+    color: var(--color-text-light);
+    font-size: 16px;
+}
+
+.loginLink {
+    color: var(--color-text-main);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 8px;
+}
+
+.loginLink:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .optionsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .title {
+        font-size: 32px;
+        margin-bottom: 40px;
+    }
+}

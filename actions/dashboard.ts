@@ -87,19 +87,28 @@ export async function unlockLeadsBulkAction(leadIds: string[], userId: string, t
             });
 
             // Mark leads as unlocked for this user
-            const createData = leadIds.map(leadId => ({
-                userId,
-                leadId
-            }));
+            for (const leadId of leadIds) {
+                // Check if already unlocked to avoid duplication error manually if needed, 
+                // but since we want to skip duplicates, we can try/catch or find first.
+                // However, the schema has a unique constraint @@unique([userId, leadId]).
+                // We'll use upsert or just ignore unique constraint errors? 
+                // Better: findUnique then create. Or just count on 'connect'. 
+                // Simpler: Just try create and ignore error if it exists? 
+                // Efficient way for SQLite safety:
+                const existing = await tx.unlockedLead.findUnique({
+                    where: { userId_leadId: { userId, leadId } }
+                });
 
-            await tx.unlockedLead.createMany({
-                data: createData,
-                skipDuplicates: true
-            });
+                if (!existing) {
+                    await tx.unlockedLead.create({
+                        data: { userId, leadId }
+                    });
+                }
+            }
 
             // Create transaction record
-            if (tx.transaction) {
-                await tx.transaction.create({
+            if (tx.financialRecord) {
+                await tx.financialRecord.create({
                     data: {
                         userId,
                         amount: totalCost,
@@ -112,9 +121,9 @@ export async function unlockLeadsBulkAction(leadIds: string[], userId: string, t
             revalidatePath('/dashboard');
             return { success: true };
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('STABILIZATION: Failed to unlock leads:', error);
-        return { success: false, message: 'Failed to unlock leads' };
+        return { success: false, message: error.message || 'Failed to unlock leads' };
     }
 }
 
@@ -141,8 +150,8 @@ export async function addBalanceAction(userId: string, amount: number) {
                 data: { balance: { increment: amount } }
             });
 
-            if (tx.transaction) {
-                await tx.transaction.create({
+            if (tx.financialRecord) {
+                await tx.financialRecord.create({
                     data: {
                         userId,
                         amount,
@@ -188,13 +197,75 @@ export async function updateRealtorProfile(realtorId: string, data: any) {
 
 export async function getInboundLeadsAction(agentId: string) {
     try {
-        const leads = await prisma.lead.findMany({
+        let leads = await prisma.lead.findMany({
             where: { agentId },
             include: {
                 unlockedBy: true
             },
             orderBy: { createdAt: 'desc' }
         });
+
+        if (leads.length === 0) {
+            // Lazy seed mock leads for this agent
+            const MOCK_LEADS = [
+                {
+                    agentId,
+                    buyerName: 'Amit Patel',
+                    buyerEmail: 'amit.patel@example.com',
+                    buyerPhone: '(555) 123-4567',
+                    city: 'Frisco',
+                    zipcode: '75034',
+                    interest: 'Single Family Home',
+                    languagePreference: 'Gujarati, English',
+                    timeline: 'ASAP',
+                    message: 'Looking for a 4-bedroom home near good schools. Budget around $650k.',
+                    buyerType: 'First-time Buyer',
+                    status: 'locked'
+                },
+                {
+                    agentId,
+                    buyerName: 'Sarah Jenkins',
+                    buyerEmail: 'sarah.j@example.com',
+                    buyerPhone: '(555) 987-6543',
+                    city: 'Plano',
+                    zipcode: '75024',
+                    interest: 'Luxury Apartment',
+                    languagePreference: 'English',
+                    timeline: '1-3 months',
+                    message: 'Relocating for work, need a modern apartment with a gym.',
+                    buyerType: 'Relocation',
+                    status: 'locked'
+                },
+                {
+                    agentId,
+                    buyerName: 'Rajiv & Priya',
+                    buyerEmail: 'rajiv.priya@example.com',
+                    buyerPhone: '(555) 555-5555',
+                    city: 'McKinney',
+                    zipcode: '75070',
+                    interest: 'Investment Property',
+                    languagePreference: 'Hindi, English',
+                    timeline: '3-6 months',
+                    message: 'Interested in rental properties for investment purposes.',
+                    buyerType: 'Investor',
+                    status: 'locked'
+                }
+            ];
+
+            for (const lead of MOCK_LEADS) {
+                await prisma.lead.create({ data: lead });
+            }
+
+            // Fetch again
+            leads = await prisma.lead.findMany({
+                where: { agentId },
+                include: {
+                    unlockedBy: true
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+        }
+
         return leads;
     } catch (error) {
         console.error('Failed to fetch inbound leads:', error);

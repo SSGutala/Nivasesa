@@ -28,7 +28,7 @@ model User {
   buyerRequests  BuyerRequest[]
   realtorProfile RealtorProfile?
   sessions       Session[]
-  transactions   Transaction[]
+  financialRecords FinancialRecord[]
   unlockedLeads  UnlockedLead[]
 
   // Phase 2: Groups & Roommates
@@ -192,7 +192,7 @@ model UnlockedLead {
   @@unique([userId, leadId])
 }
 
-model Transaction {
+model FinancialRecord {
   id              String   @id @default(cuid())
   userId          String
   amount          Float

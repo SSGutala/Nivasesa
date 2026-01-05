@@ -1,124 +1,276 @@
-# UX Specification Document - Nivaesa
-**Version:** 3.0
-**Date:** 2025-12-30
-**Scope:** End-to-End User Experience for implemented features.
+# UI / UX Beta Specification Document
+**Project:** NVS-R01
+**Product:** Nivaesa
+**Document Type:** UI / UX Specification
+**Owner:** Sri
+**Date:** 12/30/2025
+**Version:** 2.0 (Public Beta / Launch)
 
-## 1. Information Architecture (Sitemap)
+## 1. Purpose & Scope
+This document defines the complete user interface and user experience for the Public Beta (v2.0) of Nivaesa, a peer-to-peer leasing and subleasing platform.
 
-- **Home (/)**
-    - Hero Section (Value Prop + CTA)
-    - Search Bar (Quick entry to Explore)
-    - Featured Listings
-    - Why Choose Nivaesa
-    - Footer Links
-- **Explore (/explore)**
-    - Split View (List + Map)
-    - Filters Panel
-    - Listing Preview Overlay
-- **Listing Detail (/listing/[id])**
-    - Image Gallery
-    - Property Info & Amenities
-    - Household Norms ("Vibe Check")
-    - Action Card (Rent, Availability, Contact)
-- **Host Onboarding (/onboarding/host)**
-    - Step 1: Account (Login/Signup - mocked)
-    - Step 2: Property Basic Info
-    - Step 3: Location Details
-    - Step 4: Amenities & Features
-    - Step 5: Household Rules (Norms)
-- **Renter Onboarding (/onboarding/renter)**
-    - *Planned placeholder*
+Version 2.0 represents the first monetizable, transaction-enabled release and includes:
+- Account creation and authentication
+- Map-based housing discovery
+- Lease and sublease listing types
+- Tenant, subleaser, landlord, and agent roles
+- Listing creation, verification, and lifecycle management
+- Consent-based messaging and in-platform video calls
+- Mandatory virtual meet & greet prior to transaction
+- Platform-native chat, scheduling, and video
+- Escrow-backed transactions
+- Optional agent-assisted leasing (lease-only)
 
----
+This version does include payments, escrow, and transaction enforcement, but does not include AI matching, subscriptions, or identity verification.
 
-## 2. Global UX Elements
+## 2. User Types & Roles
+### 2.1 User Types
+- **Tenant / Renter:** Users seeking leased or subleased housing.
+- **Subleaser (Host):** Users offering rooms or properties for sublease.
+- **Landlord:** Property owners offering lease-based listings.
+- **Agent (Lease-Only):** Licensed agents who access tenant leads through a paid dashboard.
+- **Admin (Internal Only):** Platform administrators responsible for moderation, support, and compliance.
 
-### **Design System**
-- **Theme:** "Premium Sapphire" (Deep Blues, Clean Whites, Slate Accents).
-- **Typography:** Modern Sans-Serif (Inter/Geist) for readability.
-- **Glassmorphism:** Used for overlays, sticky headers, and map controls to maintain context.
-- **Micro-interactions:** 
-    - Hover states on cards (Shadow lift).
-    - Button clicks (Scale down).
-    - Shimmer loading states (Skeletons).
+*A single user may hold multiple roles (e.g., renter + subleaser).*
 
-### **Navigation**
-- **Header:**
-    - Sticky on scroll.
-    - Branding: "NIVAESA".
-    - Links: Find a Home, Offer a Place, Stories (Community).
-    - Auth: "Join Node" (Sign Up) / Login.
-    - *Behavior:* Hides on Onboarding pages to reduce distraction.
-- **Footer:**
-    - Standard site links.
-    - Hides on Onboarding pages.
+## 3. Global UX Principles
+- **Trust-first, low-pressure design**
+- **Consent-based communication**
+- **Transparency over persuasion**
+- **Compatibility before conversation**
+- **Platform-native interactions** (chat, video, transactions)
+- **Calm, editorial visual language**
+- **Mobile-first, map-centric experience**
+- **Culturally aware but inclusive**
 
----
+## 4. Information Architecture
 
-## 3. Page-Level Scenarios & Flows
+### 4.1 Global Navigation (Logged Out)
+- Home
+- Explore
+- How It Works
+- Safety
+- Log In
+- Join
 
-### **A. Home Page (The "Hook")**
-**Goal:** Immediately orient the user and drive them to "Explore" or "Host".
+### 4.2 Global Navigation (Logged In – Tenant)
+- Explore
+- Saved
+- Messages
+- Trips / Applications
+- Profile
 
-1.  **Hero Section:**
-    - **Visual:** Full-width immersive background image with dark overlay.
-    - **Content:** Headline "Find a place to belong", Subhead focusing on community.
-    - **Primary Action:** "Find a Home" -> Navigates to `/explore`.
-    - **Secondary Action:** "List Your Space" -> Navigates to `/onboarding/host`.
+### 4.3 Global Navigation (Logged In – Host / Landlord)
+- Dashboard
+- My Listings
+- Messages
+- Transactions
+- Profile
 
-### **B. Explore Page (The "Hunt")**
-**Goal:** Allow users to browse inventory efficiently and find matches based on lifestyle.
+### 4.4 Agent Navigation
+- Lead Dashboard
+- Locked Leads
+- Unlocked Leads
+- Billing
+- Profile
 
-1.  **Layout:**
-    - **Desktop:** Split screen. Left = Scrollable list (60%), Right = Fixed Map (40%).
-    - **Mobile:** Tabbed view or Toggle button floating bottom-center to switch Map/List.
-2.  **Listing Card (List View):**
-    - **Thumbnail:** High-res image.
-    - **Badges:** "Vegetarian", "Pet Friendly" (Quick vibe check).
-    - **Info:** Price, Neighborhood, Roommate count.
-    - **Interaction:** Hovering highlights the corresponding pin on the map.
-3.  **Map Interaction:**
-    - **Pins:** Custom markers showing price.
-    - **Selection:** Clicking a pin opens the **Listing Preview Overlay**.
-    - **Overlay:** Mini-card floating over the map. Contains Image, Price, Address, "View Details" button.
-4.  **Filters:**
-    - "Filters" button opens a side/modal panel.
-    - Options: Price Range, Room Type, Move-in Date.
+## 5. Authentication & Onboarding
+### 5.1 Sign-Up Flow
+**Step 1: Choose Intent**
+- I’m looking for a place
+- I want to list a place
 
-### **C. Listing Detail Page (The "Vibe Check")**
-**Goal:** Provide deep details to help the user decide if they *fit* the household.
+**Step 2: Account Creation**
+- Full name
+- Email
+- Password
+- Phone number
+- Accept Terms & Privacy Policy
 
-1.  **Visual Hierarchy:**
-    - **Gallery:** Grid layout (1 Main + 2 Sub images).
-    - **Title Area:** Address, Price (Large/Bold).
-    - **The "Vibe":** Prominent "Household Norms" section (e.g., "Quiet after 10pm", "No pork cooked").
-2.  **Action Card (Sticky):**
-    - **Desktop:** Sticky right sidebar.
-    - **Mobile:** Fixed bottom bar.
-    - **Buttons:**
-        - "Express Interest" -> Triggers Auth modal if not logged in.
-        - "Contact Host" -> Opens message dialog.
+**Step 3: Role-Specific Onboarding**
+- Lightweight guided setup based on role
+- Can be skipped and completed later
 
-### **D. Host Onboarding (The "Setup")**
-**Goal:** High-conversion flow to get inventory on the platform.
+## 6. Discovery Experience (Tenants)
+### 6.1 Explore Screen (Primary Entry Point)
+- **Full-screen interactive map**
+- **Listings displayed as price-based pins**
+- **Toggle:**
+    - Lease
+    - Sublease
+- **Toggle between map and list view**
+- **Search Controls**
+    - Location (auto-detect or manual)
+    - Move-in date
+    - Filters
 
-1.  **Stepper Pattern:**
-    - Visible progress indicator (Step 1 of 5).
-    - "Back" and "Next" navigation.
-2.  **Form interactions:**
-    - **Validation:** Instant feedback on required fields.
-    - **Input Types:**
-        - Text: Address, Description.
-        - Radio/Select: Property Type.
-        - Tags: Amenities (Click to toggle).
-3.  **Completion:**
-    - Final step submits data.
-    - Success state redirects to Dashboard or Home with success toast.
+### 6.2 Filters
+- Budget
+- Lease duration
+- Furnishing
+- Availability window
+- Household norms & routines
+- Dietary preferences
+- Language comfort
+- Amenities
 
----
+## 7. Listing Cards & States
+### 7.1 Listing Card
+**Displays:**
+- Primary image
+- Price
+- Neighborhood
+- Lease or sublease badge
+- Availability state:
+    - Available
+    - In Discussion
+    - Unavailable
+- Interest count
+- Featured badge (if applicable)
 
-## 4. Accessibility (A11y) Standards
-- **Contrast:** All text meets WCAG AA standards (White text on dark buttons, Dark text on white cards).
-- **Keyboard Nav:** All interactive elements (Buttons, Inputs, Cards) are focusable and usable via Tab/Enter.
-- **Alt Text:** All listing images require `alt` descriptions.
-- **Semantic HTML:** Correct use of `<header>`, `<main>`, `<section>`, `<h1>`-`<h6>`.
+### 7.2 Listing Detail Page
+**Sections:**
+- Media gallery
+- Overview (price, duration, availability)
+- Household & space details
+- Map preview
+- Host profile preview
+- Demand indicators
+
+**Primary CTA**
+- Express Interest
+- Join Waitlist (if in discussion)
+
+## 8. Express Interest & Matching Flow
+### 8.1 Express Interest
+- Optional message input
+- System confirmation:
+    > “Your interest has been sent. You’ll be notified if the host responds.”
+- *No contact details are shared at this stage.*
+
+### 8.2 Acceptance Flow
+**When a host accepts:**
+- Chat thread is created
+- Listing enters **In Discussion** state
+- System message auto-posted:
+    > “A virtual meet & greet is required before proceeding.”
+
+## 9. Messaging & Video Communication
+### 9.1 Chat Behavior
+- Messaging enabled only after acceptance
+- Persistent system banner:
+    > “Virtual meet & greet required before proceeding.”
+
+### 9.2 Virtual Meet & Greet
+- Scheduled directly in chat
+- Hosted inside Nivaesa
+- **Supports:**
+    - Face-to-face conversation
+    - Optional virtual walkthrough
+
+### 9.3 Post-Meet Behavior
+**After meet completion:**
+- Free messaging unlocked
+- Additional video calls allowed
+- In-person visits may be scheduled
+
+## 10. Transactions & Escrow
+### 10.1 Payment Flow
+- Tenant initiates payment from chat or listing
+- Funds held in escrow
+- Host confirms move-in
+- Escrow releases payment minus platform fee
+
+### 10.2 Enforcement UX
+- Persistent reminders to complete transaction in-platform
+- Host dashboard blocks “completed” status until escrow clears
+- Messaging nudges discourage off-platform settlement
+
+## 11. Host / Landlord Experience
+### 11.1 Host Dashboard
+**Widgets:**
+- Active listings
+- New inquiries
+- Listings in discussion
+- Transactions
+- Earnings
+
+### 11.2 Create Listing
+**Required:**
+- Address & map pin
+- Lease or sublease selection
+- Pricing
+- Dates
+- Photos
+- Description
+- Filters & norms
+
+### 11.3 Listing Verification
+- Backend review
+- **Status:**
+    - Pending
+    - Approved
+    - Rejected
+- Notification sent upon completion
+
+## 12. Agent-Assisted Leasing
+### 12.1 Tenant Opt-In
+- Lease listings display:
+    > “Work with an agent (optional)”
+
+### 12.2 Agent Dashboard
+- Accessed via `agent.nivaesa.com`
+- Leads initially locked
+- Lead unlock requires payment
+- Full tenant profile revealed after unlock
+
+## 13. Waitlists & Demand Signals
+- Listings in discussion allow waitlist sign-ups
+- Waitlisted users notified if availability changes
+- Interest counts displayed publicly
+
+## 14. Notifications
+**Triggered by:**
+- Interest accepted
+- Video scheduled
+- Message received
+- Transaction update
+- Waitlist availability
+
+**Delivery:**
+- In-app
+- Email
+
+## 15. Admin Experience (Internal)
+**Admins can:**
+- Moderate listings
+- Review flagged chats
+- Manage transactions
+- Approve or revoke agents
+- View platform analytics
+
+## 16. Accessibility & Responsiveness
+- Mobile-first layouts
+- Touch-optimized map interactions
+- High-contrast typography
+- Keyboard-navigable flows
+
+## 17. Out of Scope for Version 2.0
+- AI-based matching
+- Identity verification
+- Subscriptions
+- Long-term contract management
+
+## 18. Acceptance Criteria
+- Users can browse without accounts
+- Listings render correctly on map & list
+- Express-interest → acceptance → chat flow works end-to-end
+- Video meet & greet cannot be bypassed
+- Escrow transactions complete successfully
+- Agent lead unlocks function correctly
+
+## 19. Versioning Roadmap
+- **v2.0** — Public Beta / Transactions
+- **v2.1** — Identity & trust signals
+- **v2.2** — Advanced host tools
+- **v3.0** — Intelligent matching & recommendations

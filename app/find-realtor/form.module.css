@@ -3,6 +3,10 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 60px 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .header {

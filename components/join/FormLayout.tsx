@@ -16,6 +16,8 @@ interface FormLayoutProps {
     completedSteps: number[];
     onBack?: () => void;
     returnUrl?: string | null;
+    backLabel?: string;
+    headerRight?: React.ReactNode;
 }
 
 export default function FormLayout({
@@ -28,8 +30,10 @@ export default function FormLayout({
     completedSteps,
     onBack,
     returnUrl,
+    backLabel,
+    headerRight,
 }: FormLayoutProps) {
-    const backLinkText = returnUrl ? 'Back to Listings' : 'Back to Home';
+    const backLinkText = backLabel || (returnUrl ? 'Back to Listings' : 'Back to Home');
     const backLinkHref = returnUrl || '/';
 
     return (
@@ -48,12 +52,15 @@ export default function FormLayout({
                     ) : (
                         <div className={styles.backButtonPlaceholder} />
                     )}
-                    <StepIndicator
-                        steps={steps}
-                        currentStep={currentStep}
-                        onStepClick={onStepClick}
-                        completedSteps={completedSteps}
-                    />
+                    <div style={{ flex: 1, minWidth: 0, padding: '0 16px' }}>
+                        <StepIndicator
+                            steps={steps}
+                            currentStep={currentStep}
+                            onStepClick={onStepClick}
+                            completedSteps={completedSteps}
+                        />
+                    </div>
+                    {headerRight && <div style={{ flexShrink: 0 }}>{headerRight}</div>}
                 </div>
 
                 <div className={styles.contentWrapper}>

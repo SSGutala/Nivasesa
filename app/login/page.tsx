@@ -195,6 +195,13 @@ export default function LoginPage() {
                         </ul>
                     </div>
                 </form>
+
+                <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
+                    New to Nivaesa?
+                    <Link href="/join" style={{ marginLeft: '6px', color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'none' }}>
+                        Sign up!
+                    </Link>
+                </div>
             </div>
         </div>
     );

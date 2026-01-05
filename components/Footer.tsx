@@ -8,7 +8,7 @@ import { Instagram, Facebook, Twitter, Linkedin } from 'lucide-react';
 export default function Footer() {
     const pathname = usePathname();
 
-    if (pathname.startsWith('/onboarding')) {
+    if (pathname.startsWith('/onboarding') || pathname.startsWith('/host') || pathname.startsWith('/dashboard')) {
         return null;
     }
 
@@ -21,7 +21,7 @@ export default function Footer() {
                             N I V A E S A
                         </Link>
                         <p className={styles.tagline}>
-                            Your premium gateway to finding a home you&apos;ll love.
+                            Finding homes built on understanding.
                         </p>
                     </div>
 
@@ -36,6 +36,7 @@ export default function Footer() {
                             <h4>Service</h4>
                             <Link href="/find-a-realtor" className={styles.link}>Find a Realtor</Link>
                             <Link href="/join-the-network" className={styles.link}>Join as Partner</Link>
+                            <Link href="/join-the-network" className={styles.link}>Become an agent</Link>
                         </div>
                         <div className={styles.linkGroup}>
                             <h4>Support</h4>

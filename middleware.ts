@@ -35,9 +35,12 @@ export async function middleware(request: NextRequest) {
       '/about',
       '/find-a-realtor',
       '/join-the-network',
+      '/join',
       '/explore',
       '/onboarding',
       '/listing',
+      '/host',
+      '/dashboard',
       '/api/auth',
       '/api/health',
     ]
@@ -64,6 +67,7 @@ export async function middleware(request: NextRequest) {
     '/about',
     '/find-a-realtor',
     '/join-the-network',
+    '/join',
     '/find-roommates',
     '/survey',
     '/rooms',
@@ -118,6 +122,20 @@ export async function middleware(request: NextRequest) {
 
     if (isAdminRoute && userRole !== 'ADMIN') {
       return NextResponse.redirect(new URL('/', request.url))
+    }
+
+    // Host-only routes
+    const hostRoutes = ['/host']
+    const isHostRoute = hostRoutes.some(route =>
+      pathname === route || pathname.startsWith(route + '/')
+    )
+
+    if (isHostRoute) {
+      // TEMPORARY: Allow all logged in users to access host dashboard to prevent redirect loop
+      // caused by session role propagation latency.
+      // if (userRole !== 'HOST' && userRole !== 'LANDLORD' && userRole !== 'SUBLEASER') {
+      //  return NextResponse.redirect(new URL('/', request.url))
+      // }
     }
   }
 

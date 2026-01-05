@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield, X, Camera, Upload } from 'lucide-react';
+import { Users, Home, Settings, CreditCard, Search, Lock, Unlock, CheckCircle, Clock, MapPin, Globe, Briefcase, Shield, X, Camera, Upload, Video, Send, Minimize2, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
     addBalanceAction,
@@ -23,6 +23,9 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('leads');
     const [realtorData, setRealtorData] = useState<any>({ fullName: 'Test Realtor', status: 'Active' });
+
+    const [activeLead, setActiveLead] = useState<any>(null);
+    const [chatLead, setChatLead] = useState<any>(null);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -47,55 +50,83 @@ export default function Dashboard() {
         fetchUserData();
     }, []);
 
-    const refreshData = async () => {
+    const refreshData = async (leadIdToOpen?: string) => {
         const user = await getUserBalanceAction(userEmail);
         setUserData(user);
         const unlocked = await getUnlockedLeadsAction(user?.id);
         setUnlockedLeads(unlocked);
+
+        if (leadIdToOpen) {
+            setActiveTab('my-leads');
+            const lead = unlocked.find((l: any) => l.id === leadIdToOpen);
+            if (lead) {
+                setActiveLead(lead);
+            }
+        }
+    };
+
+    const handleSignOut = async () => {
+        window.location.href = '/';
     };
 
     if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'Inter, sans-serif' }}>Loading Dashboard...</div>;
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
-            {/* Sidebar */}
-            <aside style={{ width: '260px', backgroundColor: 'white', borderRight: '1px solid #e5e7eb', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ marginBottom: '32px' }}>
-                    <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827' }}>Dashboard</h2>
-                    <p style={{ fontSize: '13px', color: '#6b7280' }}>Realtor Partner</p>
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
+            {/* Top Header */}
+            <header style={{ height: '64px', backgroundColor: 'white', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px' }}>
+                <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'black', letterSpacing: '1px', margin: 0 }}>NIVAESA</h1>
+                <button
+                    onClick={handleSignOut}
+                    style={{ fontSize: '14px', fontWeight: 600, color: '#374151', background: 'transparent', border: 'none', cursor: 'pointer' }}
+                >
+                    Sign Out
+                </button>
+            </header>
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                {/* Sidebar */}
+                <aside style={{ width: '260px', backgroundColor: 'white', borderRight: '1px solid #e5e7eb', padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ marginBottom: '32px' }}>
+                        <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111827' }}>Dashboard</h2>
+                        <p style={{ fontSize: '13px', color: '#6b7280' }}>Realtor Partner</p>
+                    </div>
 
-                <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <SidebarItem icon={<Search size={20} />} label="Marketplace" active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
-                    <SidebarItem icon={<Clock size={20} />} label="Inbound Leads" active={activeTab === 'inbound'} onClick={() => setActiveTab('inbound')} />
-                    <SidebarItem icon={<Users size={20} />} label="My Clients" active={activeTab === 'my-leads'} onClick={() => setActiveTab('my-leads')} />
-                    <SidebarItem icon={<Home size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
-                    <SidebarItem icon={<CreditCard size={20} />} label="Payments" active={activeTab === 'payments'} onClick={() => setActiveTab('payments')} />
-                    <SidebarItem icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => setActiveTab('security')} />
-                </nav>
+                    <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <SidebarItem icon={<Search size={20} />} label="Marketplace" active={activeTab === 'leads'} onClick={() => { setActiveTab('leads'); setChatLead(null); }} />
+                        <SidebarItem icon={<Clock size={20} />} label="Inbound Leads" active={activeTab === 'inbound'} onClick={() => { setActiveTab('inbound'); setChatLead(null); }} />
+                        <SidebarItem icon={<Users size={20} />} label="My Clients" active={activeTab === 'my-leads'} onClick={() => { setActiveTab('my-leads'); setChatLead(null); }} />
+                        <SidebarItem icon={<Home size={20} />} label="Profile" active={activeTab === 'profile'} onClick={() => { setActiveTab('profile'); setChatLead(null); }} />
+                        <SidebarItem icon={<CreditCard size={20} />} label="Payments" active={activeTab === 'payments'} onClick={() => { setActiveTab('payments'); setChatLead(null); }} />
+                        <SidebarItem icon={<Shield size={20} />} label="Security" active={activeTab === 'security'} onClick={() => { setActiveTab('security'); setChatLead(null); }} />
+                    </nav>
 
-                <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid #f3f4f6' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 600 }}>
-                            {realtorData?.fullName?.charAt(0) || 'R'}
-                        </div>
-                        <div style={{ overflow: 'hidden' }}>
-                            <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{realtorData?.fullName || 'Realtor'}</p>
-                            <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Balance: ${userData?.balance || 0}</p>
+                    <div style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid #f3f4f6' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#3b82f6', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 600 }}>
+                                {realtorData?.fullName?.charAt(0) || 'R'}
+                            </div>
+                            <div style={{ overflow: 'hidden' }}>
+                                <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{realtorData?.fullName || 'Realtor'}</p>
+                                <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>Balance: ${userData?.balance || 0}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </aside>
+                </aside>
 
-            {/* Main Content */}
-            <main style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
-                {activeTab === 'leads' && <LeadsSearchSection userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} />}
-                {activeTab === 'inbound' && <InboundLeadsSection agentId={realtorData?.id} userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} />}
-                {activeTab === 'my-leads' && <MyLeadsSection leads={unlockedLeads} />}
-                {activeTab === 'profile' && <ProfileSection realtorData={{ ...realtorData, id: userData?.id }} />}
-                {activeTab === 'payments' && <PaymentsSection userId={userData?.id} balance={userData?.balance} onPaymentComplete={refreshData} />}
-                {activeTab === 'security' && <SecuritySection />}
-            </main>
+                {/* Main Content */}
+                <main style={{ flex: 1, padding: '40px', overflowY: 'auto', position: 'relative' }}>
+                    {activeTab === 'leads' && <LeadsSearchSection userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} />}
+                    {activeTab === 'inbound' && <InboundLeadsSection agentId={realtorData?.id} userId={userData?.id} balance={userData?.balance} onPurchaseComplete={refreshData} onViewDetails={setActiveLead} />}
+                    {activeTab === 'my-leads' && <MyLeadsSection leads={unlockedLeads} onViewDetails={setActiveLead} onOpenChat={setChatLead} />}
+                    {activeTab === 'profile' && <ProfileSection realtorData={{ ...realtorData, id: userData?.id }} />}
+                    {activeTab === 'payments' && <PaymentsSection userId={userData?.id} balance={userData?.balance} onPaymentComplete={refreshData} />}
+                    {activeTab === 'security' && <SecuritySection />}
+                    {chatLead && <ChatWidget recipient={chatLead} onClose={() => setChatLead(null)} />}
+                </main>
+
+                {/* Overlays */}
+                {activeLead && <LeadDetailView lead={activeLead} onClose={() => setActiveLead(null)} onReachOut={() => { setChatLead(activeLead); setActiveLead(null); }} />}
+            </div>
         </div>
     );
 }
@@ -125,7 +156,7 @@ function SidebarItem({ icon, label, active, onClick }: { icon: any, label: strin
 
 // --- SECTIONS ---
 
-function LeadsSearchSection({ userId, balance, onPurchaseComplete }: { userId: string, balance: number, onPurchaseComplete: () => void }) {
+function LeadsSearchSection({ userId, balance, onPurchaseComplete }: { userId: string, balance: number, onPurchaseComplete: (id?: string) => void }) {
     const [searchZip, setSearchZip] = useState('');
     const [radius, setRadius] = useState(25);
     const [searchResult, setSearchResult] = useState<any>(null);
@@ -233,7 +264,7 @@ function LeadsSearchSection({ userId, balance, onPurchaseComplete }: { userId: s
     );
 }
 
-function MyLeadsSection({ leads }: { leads: any[] }) {
+function MyLeadsSection({ leads, onViewDetails, onOpenChat }: { leads: any[], onViewDetails: (lead: any) => void, onOpenChat: (lead: any) => void }) {
     return (
         <div>
             <div style={{ marginBottom: '32px' }}>
@@ -250,17 +281,30 @@ function MyLeadsSection({ leads }: { leads: any[] }) {
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
                     {leads.map((lead) => (
-                        <div key={lead.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                        <div
+                            key={lead.id}
+                            style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+                            onClick={() => onViewDetails(lead)}
+                        >
                             <div style={{ padding: '24px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                                     <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#16a34a', backgroundColor: '#f0fdf4', padding: '2px 8px', borderRadius: '4px' }}>{lead.buyerType}</span>
                                     <span style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(lead.createdAt).toLocaleDateString()}</span>
                                 </div>
-                                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>{lead.buyerName}</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#4b5563' }}>
-                                        <MapPin size={16} style={{ color: '#9ca3af' }} /> {lead.city}, {lead.zipcode}
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                                    <img
+                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(lead.buyerName)}&background=random&size=64`}
+                                        alt={lead.buyerName}
+                                        style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }}
+                                    />
+                                    <div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>{lead.buyerName}</h3>
+                                        <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>{lead.city}, {lead.zipcode}</p>
                                     </div>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#4b5563' }}>
                                         <Globe size={16} style={{ color: '#9ca3af' }} /> {lead.languagePreference}
                                     </div>
@@ -268,9 +312,19 @@ function MyLeadsSection({ leads }: { leads: any[] }) {
                                         <Briefcase size={16} style={{ color: '#9ca3af' }} /> {lead.timeline}
                                     </div>
                                 </div>
-                                <div style={{ padding: '16px', backgroundColor: '#f3f4f6', borderRadius: '8px' }}>
-                                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase' }}>Contact Info</p>
-                                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#111827' }}>{lead.buyerContact}</p>
+
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onOpenChat(lead); }}
+                                        style={{ flex: 1, padding: '10px', borderRadius: '6px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        Reach Out
+                                    </button>
+                                    <button
+                                        style={{ flex: 1, padding: '10px', borderRadius: '6px', backgroundColor: 'white', color: '#374151', border: '1px solid #d1d5db', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        Details
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -281,7 +335,7 @@ function MyLeadsSection({ leads }: { leads: any[] }) {
     );
 }
 
-function PaymentsSection({ userId, balance, onPaymentComplete }: { userId: string, balance: number, onPaymentComplete: () => void }) {
+function PaymentsSection({ userId, balance, onPaymentComplete }: { userId: string, balance: number, onPaymentComplete: (id?: string) => void }) {
     const [paying, setPaying] = useState<number | null>(null);
 
     const handleAddFunds = async (amount: number) => {
@@ -502,7 +556,7 @@ function ProfileSection({ realtorData }: { realtorData: any }) {
         </div>
     );
 }
-function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: { agentId: string, userId: string, balance: number, onPurchaseComplete: () => void }) {
+function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete, onViewDetails }: { agentId: string, userId: string, balance: number, onPurchaseComplete: (leadId?: string) => void, onViewDetails: (lead: any) => void }) {
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [unlocking, setUnlocking] = useState<string | null>(null);
@@ -520,17 +574,24 @@ function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: {
     }, [agentId]);
 
     const handleUnlock = async (leadId: string) => {
-        if (balance < 30) {
-            alert('Insufficient balance. Please add funds.');
+        if (!userId) {
+            alert('User ID is missing. Please refresh the page.');
             return;
         }
+
+        if (balance < 30) {
+            alert('Insufficient balance. Please add funds in the Payments tab.');
+            return;
+        }
+
+        if (!confirm('Unlock this lead? $30 will be deducted from your balance.')) return;
 
         setUnlocking(leadId);
         const res = await unlockLeadsBulkAction([leadId], userId, 30);
         if (res.success) {
-            onPurchaseComplete();
+            onPurchaseComplete(leadId);
             fetchLeads();
-            alert('Lead unlocked! You can now view contact details in "My Clients".');
+            // Alert removed as we auto-navigate now
         } else {
             alert(res.message);
         }
@@ -539,7 +600,12 @@ function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: {
 
     if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading inquiries...</div>;
 
-    const lockedLeads = leads.filter(l => !l.unlockedBy.some((u: any) => u.userId === userId));
+    // Show ALL inbound leads here (user request: "Have certain leads showing in inbound leads")
+    // Differentiate by status
+    const processedLeads = leads.map(l => {
+        const isUnlocked = l.unlockedBy.some((u: any) => u.userId === userId);
+        return { ...l, isUnlocked };
+    });
 
     return (
         <div>
@@ -548,7 +614,7 @@ function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: {
                 <p style={{ color: '#6b7280' }}>Buyers who reached out specifically to you through your profile.</p>
             </div>
 
-            {lockedLeads.length === 0 ? (
+            {processedLeads.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '80px 0', backgroundColor: 'white', borderRadius: '12px', border: '1px dashed #d1d5db' }}>
                     <MessageSquare size={48} style={{ color: '#d1d5db', marginBottom: '16px' }} />
                     <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#374151' }}>No new inquiries</h3>
@@ -556,27 +622,60 @@ function InboundLeadsSection({ agentId, userId, balance, onPurchaseComplete }: {
                 </div>
             ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-                    {lockedLeads.map((lead) => (
-                        <div key={lead.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                    {processedLeads.map((lead) => (
+                        <div
+                            key={lead.id}
+                            style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden', cursor: lead.isUnlocked ? 'pointer' : 'default', transition: 'transform 0.2s' }}
+                            onClick={() => lead.isUnlocked && onViewDetails(lead)}
+                        >
                             <div style={{ padding: '24px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#3b82f6', backgroundColor: '#eff6ff', padding: '2px 8px', borderRadius: '4px' }}>{lead.interest || 'New Lead'}</span>
+                                    {lead.isUnlocked ? (
+                                        <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#16a34a', backgroundColor: '#f0fdf4', padding: '2px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={12} /> Unlocked</span>
+                                    ) : (
+                                        <span style={{ fontSize: '12px', fontWeight: 600, textTransform: 'uppercase', color: '#d97706', backgroundColor: '#fffbeb', padding: '2px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} /> Locked</span>
+                                    )}
                                     <span style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(lead.createdAt).toLocaleDateString()}</span>
                                 </div>
-                                <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>Interested Buyer in {lead.zipcode}</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
-                                    <p style={{ fontSize: '14px', color: '#6b7280' }}>
-                                        A buyer is interested in <strong>{lead.interest?.toLowerCase()}</strong> in the {lead.city} area. Unlock to see their contact info and full message.
-                                    </p>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                                    <img
+                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(lead.buyerName)}&background=random&size=64`}
+                                        alt={lead.buyerName}
+                                        style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', filter: lead.isUnlocked ? 'none' : 'blur(4px)' }}
+                                    />
+                                    <div>
+                                        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: 0 }}>
+                                            {lead.isUnlocked ? lead.buyerName : 'Interested Buyer'}
+                                        </h3>
+                                        <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>{lead.city}, {lead.zipcode}</p>
+                                    </div>
                                 </div>
 
-                                <button
-                                    onClick={() => handleUnlock(lead.id)}
-                                    disabled={!!unlocking}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                >
-                                    {unlocking === lead.id ? 'Unlocking...' : <><Lock size={16} /> Unlock for $30</>}
-                                </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#4b5563' }}>
+                                        <Home size={16} style={{ color: '#9ca3af' }} /> {lead.interest || 'Looking for property'}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: '#4b5563' }}>
+                                        <Globe size={16} style={{ color: '#9ca3af' }} /> {lead.languagePreference}
+                                    </div>
+                                </div>
+
+                                {!lead.isUnlocked ? (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleUnlock(lead.id); }}
+                                        disabled={!!unlocking}
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#111827', color: 'white', border: 'none', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    >
+                                        {unlocking === lead.id ? 'Unlocking...' : <><Lock size={16} /> Unlock for $30</>}
+                                    </button>
+                                ) : (
+                                    <button
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: 'white', color: '#374151', border: '1px solid #d1d5db', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                        View Details
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -785,6 +884,186 @@ function SecuritySection() {
                     <strong>Tip:</strong> Use apps like Google Authenticator, Authy, or 1Password to generate your 2FA codes.
                 </p>
             </div>
+        </div>
+    );
+}
+
+
+function LeadDetailView({ lead, onClose, onReachOut }: { lead: any, onClose: () => void, onReachOut: () => void }) {
+    if (!lead) return null;
+
+    return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0 }}>Lead Details</h2>
+                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={24} color="#6b7280" /></button>
+                </div>
+
+                <div style={{ padding: '32px' }}>
+                    <div style={{ display: 'flex', gap: '24px', marginBottom: '32px' }}>
+                        <img
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(lead.buyerName)}&background=random&size=128`}
+                            alt={lead.buyerName}
+                            style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <div>
+                            <h3 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>{lead.buyerName}</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '14px' }}>
+                                <MapPin size={16} /> {lead.city}, {lead.zipcode}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '14px', marginTop: '4px' }}>
+                                <Briefcase size={16} /> {lead.timeline}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                        <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                            <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Interest</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500, color: '#111827' }}>{lead.interest}</p>
+                        </div>
+                        <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                            <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Budget (Est.)</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500, color: '#111827' }}>$450k - $600k</p>
+                        </div>
+                        <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                            <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Language</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500, color: '#111827' }}>{lead.languagePreference}</p>
+                        </div>
+                        <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '12px' }}>
+                            <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Type</p>
+                            <p style={{ fontSize: '16px', fontWeight: 500, color: '#111827' }}>{lead.buyerType}</p>
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>Message</h4>
+                        <div style={{ padding: '20px', backgroundColor: '#f3f4f6', borderRadius: '12px', color: '#4b5563', lineHeight: '1.6' }}>
+                            "{lead.message || "Hi, I'm interested in viewing properties in this area. Please contact me if you have any listings that match my criteria."}"
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: '32px' }}>
+                        <h4 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>Contact Information</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                                <p style={{ fontSize: '12px', color: '#6b7280' }}>Email</p>
+                                <p style={{ fontWeight: 500 }}>{lead.buyerEmail || 'Not provided'}</p>
+                            </div>
+                            <div style={{ padding: '12px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+                                <p style={{ fontSize: '12px', color: '#6b7280' }}>Phone</p>
+                                <p style={{ fontWeight: 500 }}>{lead.buyerPhone || lead.buyerContact || 'Not provided'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => { onClose(); onReachOut(); }}
+                        style={{ width: '100%', padding: '16px', backgroundColor: '#111827', color: 'white', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}
+                    >
+                        <MessageCircle size={20} /> Reach Out via Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ChatWidget({ recipient, onClose }: { recipient: any, onClose: () => void }) {
+    const [messages, setMessages] = useState<any[]>([
+        { id: 1, sender: 'agent', text: `Hi ${recipient.buyerName}, thanks for connecting! I see you're looking for a home in ${recipient.city}. How can I help you?`, time: 'Now' }
+    ]);
+    const [input, setInput] = useState('');
+
+    const handleSend = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        setMessages([...messages, { id: Date.now(), sender: 'agent', text: input, time: 'Now' }]);
+        setInput('');
+    };
+
+    const handleVideoCall = () => {
+        alert('Starting video call integration...');
+        setMessages([...messages, { id: Date.now(), sender: 'system', text: 'Started a video meeting.', isCall: true, time: 'Now' }]);
+    };
+
+    return (
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', display: 'flex', flexDirection: 'column', zIndex: 40, borderLeft: '1px solid #e5e7eb' }}>
+            {/* Header */}
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', color: '#111827' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <img
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(recipient.buyerName)}&background=random&size=64`}
+                            alt={recipient.buyerName}
+                            style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <div style={{ position: 'absolute', bottom: 0, right: 0, width: '12px', height: '12px', backgroundColor: '#10b981', borderRadius: '50%', border: '2px solid white' }}></div>
+                    </div>
+                    <div>
+                        <h4 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{recipient.buyerName}</h4>
+                        <p style={{ fontSize: '13px', margin: 0, color: '#6b7280' }}>Active Now • Interested in {recipient.city}</p>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <button style={{ background: 'transparent', border: 'none', color: '#6b7280', cursor: 'pointer', padding: '8px' }} onClick={onClose}><X size={24} /></button>
+                </div>
+            </div>
+
+            {/* Messages */}
+            <div style={{ flex: 1, padding: '32px', overflowY: 'auto', backgroundColor: '#f9fafb', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {messages.map(msg => (
+                    <div key={msg.id} style={{ alignSelf: msg.sender === 'agent' ? 'flex-end' : 'flex-start', maxWidth: '60%' }}>
+                        {msg.isCall ? (
+                            <div style={{ backgroundColor: '#e0e7ff', padding: '16px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px', color: '#4338ca', fontWeight: 600, fontSize: '16px' }}>
+                                <Video size={24} /> Video Call Started
+                            </div>
+                        ) : (
+                            <div style={{
+                                backgroundColor: msg.sender === 'agent' ? '#3b82f6' : 'white',
+                                color: msg.sender === 'agent' ? 'white' : '#111827',
+                                padding: '16px 24px',
+                                borderRadius: '16px',
+                                boxShadow: msg.sender !== 'agent' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                                fontSize: '15px',
+                                lineHeight: '1.6',
+                                border: msg.sender !== 'agent' ? '1px solid #e5e7eb' : 'none'
+                            }}>
+                                {msg.text}
+                            </div>
+                        )}
+                        <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '6px', textAlign: msg.sender === 'agent' ? 'right' : 'left' }}>{msg.time}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Actions Area */}
+            <div style={{ padding: '16px 32px', borderTop: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                    onClick={handleVideoCall}
+                    style={{ padding: '10px 20px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', color: '#1d4ed8', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}
+                >
+                    <Video size={18} /> Start Virtual Meet-up
+                </button>
+            </div>
+
+            {/* Input */}
+            <form onSubmit={handleSend} style={{ padding: '24px 32px', backgroundColor: 'white', display: 'flex', gap: '16px' }}>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    placeholder="Type a message..."
+                    style={{ flex: 1, padding: '16px 24px', borderRadius: '12px', border: '1px solid #d1d5db', outline: 'none', fontSize: '15px', backgroundColor: '#f9fafb' }}
+                />
+                <button
+                    type="submit"
+                    style={{ width: '56px', height: '56px', borderRadius: '12px', backgroundColor: '#111827', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'opacity 0.2s' }}
+                >
+                    <Send size={20} />
+                </button>
+            </form>
         </div>
     );
 }
