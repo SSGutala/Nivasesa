@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Payment {
+  id              String    @id @default(cuid())
+  bookingId       String
+  payerId         String    // User ID making the payment
+  recipientId     String?   // User ID receiving the payment (for peer-to-peer)
+  amount          Int       // Amount in cents
+  currency        String    @default("USD")
+  status          String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
+
+  // Stripe references
+  stripePaymentId String?   @unique
+  stripeChargeId  String?
+
+  // Metadata
+  description     String?
+  metadata        String?   // JSON object stored as string
+
+  // Refund info
+  refundedAt      DateTime?
+  refundAmount    Int?      // Amount refunded in cents
+  refundReason    String?
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  completedAt     DateTime?
+
+  @@index([bookingId])
+  @@index([payerId])
+  @@index([recipientId])
+  @@index([status])
+}
+
+model PaymentMethod {
+  id              String    @id @default(cuid())
+  userId          String
+
+  // Card details (last4 only for security)
+  type            String    // CARD, BANK_ACCOUNT, UPI
+  brand           String?   // visa, mastercard, amex, etc.
+  last4           String
+  expiryMonth     Int?
+  expiryYear      Int?
+
+  // Stripe reference
+  stripePaymentMethodId String @unique
+
+  // Status
+  isDefault       Boolean   @default(false)
+  isVerified      Boolean   @default(false)
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Payout {
+  id              String    @id @default(cuid())
+  userId          String    // User receiving the payout
+
+  amount          Int       // Amount in cents
+  currency        String    @default("USD")
+  status          String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+
+  // Stripe references
+  stripePayoutId  String?   @unique
+  stripeAccountId String?   // Connected account ID
+
+  // Metadata
+  description     String?
+  metadata        String?   // JSON object
+
+  // Failure info
+  failureCode     String?
+  failureMessage  String?
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  completedAt     DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Transaction {
+  id              String    @id @default(cuid())
+  userId          String
+
+  type            String    // PAYMENT, REFUND, PAYOUT, FEE
+  amount          Int       // Amount in cents (positive for credit, negative for debit)
+  currency        String    @default("USD")
+
+  // Related entities
+  paymentId       String?
+  payoutId        String?
+
+  description     String?
+  metadata        String?   // JSON object
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([paymentId])
+  @@index([payoutId])
+}

@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  image         String?
+  role          String    @default("RENTER") // RENTER, LANDLORD, AGENT, ADMIN
+  phone         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  profile       Profile?
+  verification  Verification?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Profile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bio               String?
+  occupation        String?
+  company           String?
+  languages         String    @default("[]") // JSON array stored as string
+  dietaryPreference String?
+  smokingAllowed    Boolean?
+  petsAllowed       Boolean?
+  partyFriendly     Boolean?
+  location          String?
+  moveInDate        DateTime?
+  budgetMin         Int?
+  budgetMax         Int?
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Verification {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Identity verification
+  identityStatus      String    @default("NOT_STARTED")
+  identityProvider    String?
+  identityVerifiedAt  DateTime?
+  identityDocType     String?
+  identityExternalId  String?
+
+  // Background check
+  backgroundStatus      String    @default("NOT_STARTED")
+  backgroundProvider    String?
+  backgroundCompletedAt DateTime?
+  backgroundResult      String?
+  backgroundReportId    String?
+  backgroundPackage     String?
+
+  // Visa verification
+  visaStatus          String?
+  visaType            String?
+  visaVerifiedAt      DateTime?
+  visaExpiresAt       DateTime?
+  visaDocuments       String?   // JSON array
+  visaEVerifyCase     String?
+
+  // License verification (for agents)
+  licenseStatus       String?
+  licenseNumber       String?
+  licenseState        String?
+  licenseVerifiedAt   DateTime?
+  licenseExpiresAt    DateTime?
+
+  // Trust score
+  trustScore          Int       @default(0)
+  trustScoreUpdatedAt DateTime  @default(now())
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionToken String   @unique
+  expiresAt    DateTime
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
