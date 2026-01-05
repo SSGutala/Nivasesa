@@ -1,6 +1,6 @@
 'use client';
 import ExploreView from '@/components/explore/ExploreView';
 
-export default function ExplorePage() {
+export default function LoggedInExplorePage() {
     return <ExploreView />;
 }

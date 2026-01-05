@@ -23,7 +23,18 @@ if (isConfigValid) {
     auth = getAuth(app);
     db = getFirestore(app);
 } else {
-    console.warn("Firebase configuration is missing. Some features may not work.");
+    console.warn("Firebase configuration is missing. Using mock instances.");
+    // Mock Auth
+    auth = {
+        currentUser: null,
+        signOut: async () => { },
+        onAuthStateChanged: (cb: any) => () => { },
+    } as any;
+
+    // Mock DB
+    db = {
+        type: 'firestore',
+    } as any;
 }
 
 export { auth, db };

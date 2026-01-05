@@ -18,7 +18,7 @@ export default function JoinPage() {
                 <h1 className={styles.title}>Are you signing up to find a place or host a place?</h1>
 
                 <div className={styles.optionsGrid}>
-                    <Link href="/join/find" className={styles.optionCard}>
+                    <Link href="/tenant/onboarding/start" className={styles.optionCard}>
                         <div className={styles.iconWrapper}>
                             <Search size={32} color="#1a1a1a" />
                         </div>
@@ -28,7 +28,7 @@ export default function JoinPage() {
                         </p>
                     </Link>
 
-                    <Link href="/onboarding/host" className={styles.optionCard}>
+                    <Link href="/host/onboarding/start" className={styles.optionCard}>
                         <div className={styles.iconWrapper}>
                             <Home size={32} color="#1a1a1a" />
                         </div>

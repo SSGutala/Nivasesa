@@ -22,7 +22,7 @@ export default function Home() {
             <Link href="/explore" className={styles.primaryBtn}>
               Find a Place to Belong <ArrowRight size={20} className={styles.btnIcon} />
             </Link>
-            <Link href="/onboarding/host" className={styles.outlineBtn}>
+            <Link href="/host/onboarding/start" className={styles.outlineBtn}>
               Offer a Place to Stay
             </Link>
           </div>

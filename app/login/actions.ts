@@ -83,3 +83,7 @@ export async function doLoginWith2FA(email: string, password: string) {
         throw error;
     }
 }
+
+export async function doGoogleLogin() {
+    await signIn("google", { redirectTo: "/host/dashboard" });
+}

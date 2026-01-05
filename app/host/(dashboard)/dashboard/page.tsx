@@ -8,14 +8,83 @@ import styles from './dashboard.module.css';
 import { HOST_KPI_STATS, HOST_LISTINGS, HOST_MESSAGES, HOST_TRANSACTIONS, HOST_PROFILE } from '@/lib/host-demo-data';
 import { Plus, Edit2, Eye, MoreHorizontal, Video, AlertCircle } from 'lucide-react';
 
+import { auth, db } from '@/lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+
 export default function HostDashboardPage() {
     const router = useRouter();
+    const [realListings, setRealListings] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     // Mock User Data (would come from auth)
-    // Using HOST_PROFILE to match the other pages
     const firstName = HOST_PROFILE.name.split(' ')[0];
     const user = { firstName: firstName, role: 'Landlord' };
-    const hasListings = HOST_LISTINGS.length > 0;
+
+    useEffect(() => {
+        const fetchListings = async (uid: string) => {
+            if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+                // Mock Mode: Check localStorage for draft
+                try {
+                    const localDraft = localStorage.getItem('host-onboarding-draft');
+                    if (localDraft) {
+                        const parsed = JSON.parse(localDraft);
+                        if (parsed && Object.keys(parsed).length > 0) {
+                            const mockDraft = {
+                                id: 'draft-local',
+                                image: parsed.photos?.[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                                title: parsed.listingContent?.title || 'Untitled Draft',
+                                status: parsed.status === 'pending_verification' ? 'Under Verification' : 'In Progress',
+                                type: parsed.propertyType || 'Apartment',
+                                location: parsed.location ? `${parsed.location.city}, ${parsed.location.state}` : 'Unknown Location'
+                            };
+                            setRealListings([mockDraft]);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error reading local draft:", err);
+                }
+                setLoading(false);
+                return;
+            }
+            try {
+                const q = query(collection(db, 'listings'), where('hostId', '==', uid));
+                const querySnapshot = await getDocs(q);
+                const fetched = querySnapshot.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        id: doc.id,
+                        image: d.photos?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+                        title: d.listingContent?.title || 'Untitled Draft',
+                        status: d.status === 'Draft' ? 'In Progress' : d.status, // Map Draft to In Progress if preferred
+                        type: d.propertyType || 'Apartment',
+                        location: d.location ? `${d.location.city}, ${d.location.state}` : 'Unknown Location'
+                    };
+                });
+                setRealListings(fetched);
+            } catch (e) {
+                console.error("Error fetching listings:", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        const unsubscribe = onAuthStateChanged(auth, (u) => {
+            if (u) {
+                fetchListings(u.uid);
+            } else {
+                // In mock mode without auth, we might want to simulate a fetched draft?
+                // For now, let's just allow empty real listings if not auth.
+                setLoading(false);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
+
+    // Merge Real with Mock
+    const allListings = [...realListings, ...HOST_LISTINGS];
+    const hasListings = allListings.length > 0;
 
     return (
         <div>
@@ -34,18 +103,12 @@ export default function HostDashboardPage() {
                         <button className={styles.secondaryBtn}>Complete Profile</button>
                     </Link>
                     <Link href="/host/listings/new">
-                        <button className={styles.primaryBtn}>
-                            <Plus size={16} style={{ marginRight: '6px', verticalAlign: 'text-bottom' }} />
+                        <button className={styles.primaryBtn} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Plus size={18} strokeWidth={2.5} />
                             Create Listing
                         </button>
                     </Link>
-                    <button
-                        className={styles.secondaryBtn}
-                        onClick={() => signOut({ callbackUrl: '/' })}
-                        style={{ border: 'none', color: '#ef4444' }}
-                    >
-                        Sign Out
-                    </button>
+
                 </div>
             </header>
 
@@ -119,17 +182,18 @@ export default function HostDashboardPage() {
                             <Link href="/host/listings" className={styles.link}>View all listings</Link>
                         </div>
                         <div className={styles.card}>
-                            {HOST_LISTINGS.length === 0 ? (
+                            {allListings.length === 0 ? (
                                 <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>No listings found.</div>
                             ) : (
-                                HOST_LISTINGS.slice(0, 3).map(listing => (
+                                allListings.slice(0, 3).map(listing => (
                                     <div key={listing.id} className={styles.listingRow}>
                                         <img src={listing.image} alt={listing.title} className={styles.listingThumb} />
                                         <div className={styles.listingInfo}>
                                             <span className={styles.listingTitle}>{listing.title}</span>
                                             <div className={styles.listingMeta}>
                                                 <span className={`${styles.statusBadge} ${listing.status === 'Available' ? styles.statusAvailable :
-                                                    listing.status === 'In Discussion' ? styles.statusDiscussion : styles.statusDraft
+                                                    listing.status === 'In Discussion' ? styles.statusDiscussion :
+                                                        listing.status === 'Under Verification' ? styles.statusDiscussion : styles.statusDraft
                                                     }`}>
                                                     {listing.status}
                                                 </span>

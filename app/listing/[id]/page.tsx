@@ -38,7 +38,7 @@ export default function ListingDetailPage() {
 
     const handleExpressInterest = () => {
         if (!isLoggedIn) {
-            router.push('/join/find?returnUrl=/explore');
+            router.push('/tenant/onboarding/start');
         } else {
             // Logic for showing interest (e.g., open modal, send message)
             console.log('Interest expressed for listing:', id);
@@ -48,7 +48,7 @@ export default function ListingDetailPage() {
 
     const handleContactHost = () => {
         if (!isLoggedIn) {
-            router.push('/join/find?returnUrl=/explore');
+            router.push('/tenant/onboarding/start');
         } else {
             console.log('Contacting host for listing:', id);
             alert('Opening message dialog...');

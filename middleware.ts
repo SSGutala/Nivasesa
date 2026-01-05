@@ -40,7 +40,9 @@ export async function middleware(request: NextRequest) {
       '/onboarding',
       '/listing',
       '/host',
+      '/tenant',
       '/dashboard',
+      '/logged-in',
       '/api/auth',
       '/api/health',
     ]
@@ -76,6 +78,7 @@ export async function middleware(request: NextRequest) {
     '/explore',
     '/onboarding',
     '/listing',
+    '/tenant',
     '/api/auth',
     '/api/health',
   ]

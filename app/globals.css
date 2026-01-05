@@ -2,6 +2,10 @@
 @import '../styles/responsive.css';
 @import '../styles/accessibility.css';
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* Premium Sapphire Palette */
   --color-primary: #0F172A;
@@ -203,6 +207,7 @@ label {
   color: var(--color-text-main);
   margin-bottom: 6px;
 }
+
 /* Glassmorphism Utilities */
 .glass {
   background: var(--glass-bg);
@@ -221,8 +226,15 @@ label {
 
 /* Animation Utilities */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
