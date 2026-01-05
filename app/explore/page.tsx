@@ -1,91 +1,41 @@
-'use client';
-
-import React, { useState } from 'react';
-import styles from './page.module.css';
-import SearchBar from '@/components/explore/SearchBar';
-import ListingCard from '@/components/explore/ListingCard';
-import ExploreMap from '@/components/explore/ExploreMap';
-import FiltersPanel from '@/components/explore/FiltersPanel';
-import SignupPromptModal from '@/components/explore/SignupPromptModal';
-import ListingPreviewOverlay from '@/components/explore/ListingPreviewOverlay';
+import { getExploreListings } from '@/actions/explore';
 import { MOCK_LISTINGS } from '@/lib/listings-data';
-import { useRouter } from 'next/navigation';
+import ExploreClient from './ExploreClient';
 
-export default function ExplorePage() {
-    const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-    const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-    const router = useRouter();
+// Server Component - fetches data
+export default async function ExplorePage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+    const params = await searchParams;
 
-    const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-
-    const handleListingClick = (id: string) => {
-        setSelectedListingId(id);
+    // Build filters from URL params
+    const filters = {
+        city: typeof params.city === 'string' ? params.city : undefined,
+        state: typeof params.state === 'string' ? params.state : undefined,
+        minPrice: params.minPrice ? parseInt(params.minPrice as string) : undefined,
+        maxPrice: params.maxPrice ? parseInt(params.maxPrice as string) : undefined,
+        roomType: params.roomType as 'Entire place' | 'Private room' | 'Shared room' | undefined,
+        diet: params.diet as 'Vegetarian' | 'Mixed' | 'No preference' | undefined,
     };
 
-    const handleAction = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsSignupModalOpen(true);
-    };
+    // Fetch real listings from database
+    let listings = await getExploreListings(filters);
+
+    // Fall back to mock data if no real listings exist
+    if (listings.length === 0) {
+        listings = MOCK_LISTINGS;
+    }
+
+    // Build dynamic title based on filters
+    const cityText = filters.city || 'Jersey City & Manhattan';
+    const listingCount = listings.length > 50 ? 'Over 50' : listings.length.toString();
 
     return (
-        <div className={styles.exploreWrapper}>
-            <SearchBar onFilterClick={() => setIsFiltersOpen(true)} />
-
-            <div className={styles.mainContent}>
-                {/* Listings Panel */}
-                <div className={styles.listPanel}>
-                    <div className={styles.listHeader}>
-                        <h1>Over 300 places in Jersey City & Manhattan</h1>
-                        <p>Select a listing to see internal household norms and details.</p>
-                    </div>
-
-                    <div className={styles.listingGrid}>
-                        {MOCK_LISTINGS.map(listing => (
-                            <ListingCard
-                                key={listing.id}
-                                listing={listing}
-                                isSelected={selectedListingId === listing.id}
-                                onHover={setHoveredId}
-                                onClick={handleListingClick}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Map Panel */}
-                <div className={styles.mapPanel}>
-                    <ExploreMap
-                        listings={MOCK_LISTINGS}
-                        hoveredListingId={hoveredId}
-                        selectedListingId={selectedListingId}
-                        onPinClick={handleListingClick}
-                    />
-                    {selectedListingId && (
-                        <ListingPreviewOverlay
-                            listing={MOCK_LISTINGS.find(l => l.id === selectedListingId)!}
-                            onClose={() => setSelectedListingId(null)}
-                        />
-                    )}
-                </div>
-            </div>
-
-            {/* Mobile Map Toggle */}
-            <div className={styles.mobileToggle}>
-                <button className={styles.toggleBtn}>
-                    Map View
-                </button>
-            </div>
-
-            <FiltersPanel
-                isOpen={isFiltersOpen}
-                onClose={() => setIsFiltersOpen(false)}
-            />
-
-            <SignupPromptModal
-                isOpen={isSignupModalOpen}
-                onClose={() => setIsSignupModalOpen(false)}
-            />
-        </div>
+        <ExploreClient
+            initialListings={listings}
+            title={`${listingCount} places in ${cityText}`}
+        />
     );
 }
