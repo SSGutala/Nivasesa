@@ -1,0 +1,107 @@
+.mapContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #e8e8e8;
+    overflow: hidden;
+}
+
+.mapBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #d4e4f7 0%, #e8f0f7 100%);
+}
+
+.mapOverlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.waterArea {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(90deg, #a8d5f7 0%, #c8e4f7 100%);
+    opacity: 0.6;
+}
+
+.landArea {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 50px, rgba(0, 0, 0, 0.03) 50px, rgba(0, 0, 0, 0.03) 51px),
+        repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0, 0, 0, 0.03) 50px, rgba(0, 0, 0, 0.03) 51px);
+}
+
+.pin {
+    position: absolute;
+    padding: 8px 14px;
+    background: white;
+    border-radius: 100px;
+    border: 2px solid #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+}
+
+.pinPrice {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    white-space: nowrap;
+}
+
+.pin:hover,
+.pin.hovered {
+    background: var(--color-primary);
+    border-color: var(--color-primary-hover);
+    transform: translate(-50%, -50%) scale(1.15);
+    z-index: 20;
+    box-shadow: 0 6px 20px rgba(189, 178, 255, 0.4);
+}
+
+.pin:hover .pinPrice,
+.pin.hovered .pinPrice {
+    color: white;
+}
+
+.controls {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 30;
+}
+
+.controlBtn {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.controlBtn:hover {
+    background: #f9f9f9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

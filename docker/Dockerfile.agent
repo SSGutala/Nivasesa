@@ -1,0 +1,32 @@
+# Agent Dockerfile for branch-isolated Claude Code sessions
+# Each agent gets its own workspace with a specific branch checked out
+
+FROM node:20-slim
+
+# Install essential tools
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    jq \
+    openssh-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Create agent user
+RUN useradd -m -s /bin/bash agent
+USER agent
+
+# Set up workspace
+WORKDIR /workspace
+
+# Copy entrypoint script
+COPY --chown=agent:agent docker/agent-entrypoint.sh /home/agent/entrypoint.sh
+RUN chmod +x /home/agent/entrypoint.sh
+
+# Expose dev server port
+EXPOSE 3000
+
+ENTRYPOINT ["/home/agent/entrypoint.sh"]
+CMD ["claude", "--dangerously-skip-permissions"]

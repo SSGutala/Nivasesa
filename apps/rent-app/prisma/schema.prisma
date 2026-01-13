@@ -1,0 +1,815 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("RENT_DATABASE_URL")
+}
+
+// =============================================================================
+// PHASE 0: Pre-launch validation survey responses
+// =============================================================================
+
+model PreLaunchSurveyResponse {
+  id String @id @default(cuid())
+
+  // User Type: "roommate_seeker", "host", "buyer", "seller", "agent"
+  userType String
+
+  // Contact Info
+  email String
+  phone String?
+  name  String?
+
+  // Location
+  city    String?
+  state   String?
+  zipcode String?
+
+  // Timeline: "ASAP", "1-3 months", "3-6 months", "6+ months"
+  timeline String?
+
+  // Languages (CSV)
+  languages String?
+
+  // Pain Points (open text)
+  biggestChallenge String?
+  currentSolution  String?
+
+  // User-type specific fields (JSON blob for flexibility)
+  surveyData String?
+
+  // Follow-up tracking
+  calledAt      DateTime?
+  callNotes     String?
+  interviewedAt DateTime?
+  // Status: "new", "contacted", "scheduled", "interviewed", "converted"
+  status        String    @default("new")
+
+  // Referral source: "google", "facebook", "friend", "other"
+  referralSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// POST-INTERACTION SURVEYS (for video calls and bookings)
+// =============================================================================
+
+model Survey {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String // "video_call", "booking", "general"
+  questions   String // JSON array of question objects
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  responses SurveyResponse[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model SurveyResponse {
+  id              String   @id @default(cuid())
+  surveyId        String
+  survey          Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  userId          String // References auth DB User.id
+  userRole        String // "renter", "host", "realtor"
+  interactionId   String? // video call or booking ID
+  interactionType String? // "video_call" or "booking"
+  answers         String // JSON array of {questionId, answer} objects
+  rating          Int? // Overall rating 1-5
+  feedback        String? // Open text feedback
+  createdAt       DateTime @default(now())
+
+  @@index([surveyId])
+  @@index([userId])
+  @@index([interactionId])
+  @@index([interactionType])
+}
+
+// =============================================================================
+// ALPHA INTAKE SUBMISSIONS (Pre-launch Survey)
+// =============================================================================
+
+model HostIntakeSubmission {
+  id String @id @default(cuid())
+
+  // Contact Information
+  fullName               String
+  email                  String  @unique
+  phoneNumber            String?
+  preferredContactMethod String // "Email", "Text", "WhatsApp"
+
+  // Listing Context
+  city                  String
+  state                 String
+  zipCode               String
+  typeOfSpaceOffered    String // "Private room", "Entire apartment/home", "Shared room"
+  stayDurationsOffered  String // CSV: "Temporary 1–4 weeks", "Short-term 1–3 months", "Long-term 6+ months"
+  currentAvailability   String // "Available now", "Available soon", "Not yet / just exploring"
+  earliestAvailableDate DateTime?
+
+  // Additional Context
+  additionalNotes String?
+
+  // Referral System
+  referralCode   String  @unique
+  referredByCode String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  referralsGiven    Referral[] @relation("ReferrerHost")
+  referralsReceived Referral[] @relation("ReferredHost")
+}
+
+model RenterIntakeSubmission {
+  id String @id @default(cuid())
+
+  // Contact Information
+  fullName               String
+  email                  String  @unique
+  phoneNumber            String?
+  preferredContactMethod String // "Email", "Text", "WhatsApp"
+
+  // Search Context
+  targetCity           String
+  targetState          String
+  targetZipCode        String?
+  moveInTimeframe      String // "ASAP", "2–4 weeks", "1–3 months", "Just browsing"
+  intendedStayDuration String // "Temporary 1–4 weeks", "Short-term 1–3 months", "Long-term 6+ months"
+  lookingFor           String // "A room", "A roommate to co-lease", "Either"
+
+  // Optional Context
+  preferSimilarCulture String? // "Yes", "No", "Not sure"
+  additionalNotes      String?
+
+  // Referral System
+  referralCode   String  @unique
+  referredByCode String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  referralsGiven    Referral[] @relation("ReferrerRenter")
+  referralsReceived Referral[] @relation("ReferredRenter")
+}
+
+model Referral {
+  id String @id @default(cuid())
+
+  // Referrer Info
+  referrerUserId   String
+  referrerUserType String // "host" or "renter"
+  referrerEmail    String
+  referralCode     String
+
+  // Referred Info
+  referredUserId    String
+  referredUserType  String // "host" or "renter"
+  referredUserEmail String
+
+  // Boost Configuration
+  referrerBoostDays Int @default(14)
+  referredBoostDays Int @default(7)
+
+  // Status
+  rewardStatus String @default("pending") // "pending" or "applied"
+
+  createdAt DateTime @default(now())
+
+  // Relations (polymorphic - either host or renter)
+  referrerHost   HostIntakeSubmission? @relation("ReferrerHost", fields: [referrerHostId], references: [id], onDelete: Cascade)
+  referrerHostId String?
+
+  referredHost   HostIntakeSubmission? @relation("ReferredHost", fields: [referredHostId], references: [id], onDelete: Cascade)
+  referredHostId String?
+
+  referrerRenter   RenterIntakeSubmission? @relation("ReferrerRenter", fields: [referrerRenterId], references: [id], onDelete: Cascade)
+  referrerRenterId String?
+
+  referredRenter   RenterIntakeSubmission? @relation("ReferredRenter", fields: [referredRenterId], references: [id], onDelete: Cascade)
+  referredRenterId String?
+
+  @@index([referralCode])
+  @@index([referrerUserId])
+  @@index([referredUserId])
+}
+
+// =============================================================================
+// PHASE 2: Groups & Roommate Profiles
+// =============================================================================
+
+model RoommateProfile {
+  id     String @id @default(cuid())
+  userId String @unique // References auth DB User.id
+
+  // Location preferences
+  preferredCities String // CSV: "Frisco, Plano, Irving"
+  preferredStates String // CSV: "TX, CA, NJ"
+  maxBudget       Int
+  minBudget       Int?
+
+  // Dietary Preferences
+  dietaryPreference String // "Strict Vegetarian", "Vegetarian", "Jain", "Pescatarian",
+  // "Chicken & Fish", "All Meat", "Halal", "No Preference"
+
+  // Substance Preferences
+  smokingPreference   String // "No Smoking", "Cigarettes OK", "Outside Only", "No Preference"
+  cannabisPreference  String // "Cannabis Friendly", "420 Friendly", "No Cannabis", "Outside Only", "No Preference"
+  alcoholPreference   String // "Alcohol Friendly", "Social Drinking", "No Alcohol", "No Preference"
+  substancePreference String? // "420+ Friendly", "Sober Friendly", "No Preference"
+
+  // Identity & Lifestyle
+  lgbtqFriendly      String // "LGBTQ+ Friendly", "LGBTQ+ Household", "No Preference"
+  relationshipStatus String? // "Single", "Coupled (visits)", "Coupled (lives here)"
+  guestPolicy        String? // "Occasional OK", "Frequent OK", "No Overnight", "No Preference"
+
+  // Living Style
+  cleanlinessLevel String // "Very Clean", "Clean", "Average", "Relaxed"
+  sleepSchedule    String // "Early Bird", "Night Owl", "Flexible"
+  workStyle        String // "Work From Home", "Hybrid", "Office"
+  noiseLevel       String? // "Quiet", "Social", "Very Social"
+
+  // Pets
+  petsPreference String // "No Pets", "Cats OK", "Dogs OK", "All Pets", "I Have Pets", "Allergies"
+  hasPets        String? // Description if they have pets
+
+  // Demographics
+  gender     String?
+  ageRange   String? // "18-24", "25-30", "31-40", "40+"
+  occupation String?
+
+  // Languages spoken
+  languages String // CSV: "Hindi, Telugu, Tamil, English"
+
+  // Status
+  isLookingForRoom     Boolean   @default(true)
+  isLookingForRoommate Boolean   @default(false)
+  moveInDate           DateTime?
+  leaseDuration        String? // "3 months", "6 months", "12 months", "Flexible"
+
+  bio       String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  groupMemberships GroupMember[]
+  roomApplications RoomApplication[]
+}
+
+model Group {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  // Housing Preferences
+  targetCity      String
+  targetState     String
+  targetBudgetMin Int?
+  targetBudgetMax Int?
+  targetMoveIn    DateTime?
+  propertyType    String? // "Apartment", "House", "Condo", "Any"
+  bedroomsNeeded  Int?
+
+  // Group status
+  status     String  @default("forming") // "forming", "searching", "matched", "closed"
+  isPublic   Boolean @default(true)
+  maxMembers Int     @default(4)
+
+  // Realtor Connection (references auth DB RealtorProfile.id)
+  assignedRealtorId String?
+
+  // Audit (references auth DB User.id)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members         GroupMember[]
+  realtorRequests GroupRealtorRequest[]
+}
+
+model GroupMember {
+  id        String          @id @default(cuid())
+  groupId   String
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   RoommateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  role     String   @default("member") // "admin", "member"
+  status   String   @default("active") // "active", "pending", "left"
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, profileId])
+}
+
+model GroupRealtorRequest {
+  id        String @id @default(cuid())
+  groupId   String
+  group     Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  realtorId String // References auth DB RealtorProfile.id
+
+  message   String?
+  status    String   @default("pending") // "pending", "accepted", "rejected"
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, realtorId])
+}
+
+// =============================================================================
+// PHASE 4: Room Listings & Freedom Score
+// =============================================================================
+
+model RoomListing {
+  id      String @id @default(cuid())
+  ownerId String // References auth DB User.id
+
+  // Location
+  city         String
+  state        String
+  zipcode      String
+  neighborhood String?
+  address      String? // Optional, shown after application
+
+  // Room Details
+  title          String
+  description    String
+  roomType       String // "Private Room", "Shared Room", "Master Bedroom", "Studio"
+  propertyType   String // "Apartment", "House", "Condo", "Townhouse"
+  totalBedrooms  Int
+  totalBathrooms Float
+
+  // Amenities
+  furnished     Boolean @default(false)
+  parking       Boolean @default(false)
+  laundryInUnit Boolean @default(false)
+  utilities     String? // CSV of included utilities: "Water, Electricity, Internet"
+  amenities     String? // CSV: "AC, Dishwasher, Gym, Pool"
+
+  // Pricing
+  rent              Int // Monthly rent
+  deposit           Int? // Security deposit
+  utilitiesIncluded Boolean @default(false)
+
+  // === FREEDOM SCORE FACTORS ===
+  // Guests & Visitors (max 20 points)
+  overnightGuests        String @default("No Preference") // "No Overnight", "Occasional", "Regular", "Anytime OK"
+  extendedStays          String @default("Not Allowed") // "Not Allowed", "Up to 1 week", "Up to 2 weeks", "Up to 1 month", "Flexible"
+  oppositeGenderVisitors String @default("No Preference") // "Not Comfortable", "Daytime Only", "Anytime OK"
+
+  // Romantic Partners (max 20 points)
+  partnerVisits         String  @default("No Preference") // "Not Allowed", "Occasional OK", "Regular OK", "Overnight OK", "Anytime OK"
+  unmarriedCouplesOk    Boolean @default(true)
+  sameSexCouplesWelcome Boolean @default(true)
+
+  // Social Life (max 20 points)
+  partiesAllowed   String  @default("Small OK") // "No Parties", "Small OK", "Medium OK", "Large OK"
+  curfew           String? // null = no curfew, or "10pm", "11pm", "12am"
+  nightOwlFriendly Boolean @default(true)
+
+  // Substances (max 20 points)
+  smokingPolicy  String @default("No Smoking") // "No Smoking", "Outside Only", "Smoking OK"
+  cannabisPolicy String @default("No Cannabis") // "No Cannabis", "Outside Only", "420 Friendly"
+  alcoholPolicy  String @default("No Preference") // "No Alcohol", "Social OK", "No Preference"
+
+  // Diet & Cooking (max 10 points)
+  dietaryPreference   String  @default("No Preference") // "Vegetarian Only", "Halal Only", "No Preference"
+  beefPorkCookingOk   Boolean @default(true)
+  noSmellRestrictions Boolean @default(true)
+  fullKitchenAccess   Boolean @default(true)
+
+  // Independence (max 10 points)
+  landlordOnSite  Boolean @default(false)
+  privateEntrance Boolean @default(false)
+  nonJudgmental   Boolean @default(true)
+
+  // Calculated Freedom Score (0-100)
+  freedomScore Int @default(50)
+
+  // === END FREEDOM SCORE ===
+
+  // Household preferences
+  lgbtqFriendly Boolean @default(true)
+  petsPolicy    String  @default("No Pets") // "No Pets", "Cats OK", "Dogs OK", "All Pets"
+
+  // Demographics
+  preferredGender String? // "Male", "Female", "Non-Binary", "Any"
+  preferredAge    String? // "Students", "Young Professionals", "Any"
+
+  // Languages spoken in household
+  languages String? // CSV: "Hindi, Telugu"
+
+  // Availability
+  availableFrom DateTime
+  minLease      String? // "3 months", "6 months", "12 months"
+
+  // Status & Metrics
+  status    String   @default("AVAILABLE") // ListingStatus: AVAILABLE, IN_DISCUSSION, UNAVAILABLE
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  applications       RoomApplication[]
+  availability       Availability[]
+  bookings           Booking[]
+  connectionRequests ConnectionRequest[]
+  waitlistEntries    WaitlistEntry[]
+}
+
+model RoomApplication {
+  id          String          @id @default(cuid())
+  listingId   String
+  listing     RoomListing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   RoommateProfile @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  message   String?
+  status    String   @default("pending") // "pending", "accepted", "rejected", "withdrawn"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, applicantId])
+}
+
+model ConnectionRequest {
+  id      String  @id @default(cuid())
+  status  String  @default("PENDING") // RequestStatus: PENDING, ACCEPTED, DECLINED, WAITLISTED, WITHDRAWN
+  message String? // Initial intro note from requester
+
+  // Relations
+  userId    String // Renter/requester
+  listingId String // Room listing
+  listing   RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, listingId]) // One request per user per listing
+  @@index([userId])
+  @@index([listingId])
+  @@index([status])
+}
+
+// Waitlist for listings that become unavailable - users can subscribe to be notified
+model WaitlistEntry {
+  id        String @id @default(cuid())
+  userId    String // User who wants to be notified
+  listingId String // Listing they're interested in
+
+  // Notification preferences
+  notifyByEmail Boolean @default(true)
+  notifyInApp   Boolean @default(true)
+
+  // Status: ACTIVE, NOTIFIED, EXPIRED
+  status String @default("ACTIVE")
+
+  createdAt  DateTime  @default(now())
+  notifiedAt DateTime?
+
+  listing RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([listingId])
+  @@index([status])
+}
+
+// =============================================================================
+// MESSAGING SYSTEM
+// =============================================================================
+
+model Conversation {
+  id             String @id @default(cuid())
+  participant1Id String // References auth DB User.id
+  participant2Id String // References auth DB User.id
+
+  // Context for the conversation (optional)
+  contextType String? // "lead", "referral", "room_application", "group"
+  contextId   String? // ID of the related entity
+
+  lastMessageAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  messages Message[]
+
+  @@unique([participant1Id, participant2Id])
+  @@index([participant1Id])
+  @@index([participant2Id])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String // References auth DB User.id
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+// =============================================================================
+// VIDEO CALL SYSTEM
+// =============================================================================
+
+model VideoCall {
+  id             String @id @default(cuid())
+  conversationId String
+  hostId         String // User who initiated/scheduled the call
+  guestId        String // User who was invited
+
+  // Daily.co room details
+  roomName String @unique
+  roomUrl  String
+
+  // Scheduling
+  scheduledAt DateTime
+  duration    Int      @default(30) // Duration in minutes
+
+  // Status: SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW
+  status String @default("SCHEDULED")
+
+  // Tracking
+  startedAt DateTime?
+  endedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([conversationId])
+  @@index([hostId])
+  @@index([guestId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+// =============================================================================
+// AVAILABILITY & CALENDAR SYSTEM
+// =============================================================================
+
+model Availability {
+  id            String      @id @default(cuid())
+  listingId     String
+  listing       RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  date          DateTime
+  available     Boolean     @default(true)
+  priceOverride Int?
+  minStay       Int?
+  note          String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([listingId, date])
+  @@index([listingId, date])
+}
+
+// =============================================================================
+// BOOKING SYSTEM
+// =============================================================================
+
+model Booking {
+  id                 String      @id @default(cuid())
+  listingId          String
+  listing            RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  guestId            String // References auth DB User.id
+  hostId             String // References auth DB User.id
+  checkIn            DateTime
+  checkOut           DateTime
+  status             String      @default("INQUIRY") // BookingStatus: INQUIRY, PENDING, CONFIRMED, ACTIVE, COMPLETED, DECLINED, CANCELLED, EXPIRED
+  totalPrice         Float
+  serviceFee         Float
+  depositAmount      Float?
+  paymentIntentId    String?
+  guestMessage       String?
+  hostResponse       String?
+  cancellationReason String?
+  declineReason      String?
+  expiresAt          DateTime? // For PENDING status (48h timeout)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  // Relations
+  escrowPayment EscrowPayment?
+
+  @@index([listingId])
+  @@index([guestId])
+  @@index([hostId])
+  @@index([status])
+}
+
+// =============================================================================
+// ESCROW PAYMENT SYSTEM
+// =============================================================================
+
+model EscrowPayment {
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  // Parties
+  renterId String // References auth DB User.id (payer)
+  hostId   String // References auth DB User.id (recipient)
+
+  // Amounts in cents
+  amount            Int // Total amount held in escrow
+  platformFeeAmount Int // Platform fee to be deducted
+  hostAmount        Int // Amount host will receive after fee
+
+  // Stripe references
+  stripePaymentIntentId String @unique
+
+  // Status: authorized, captured, cancelled, refunded, disputed
+  status String @default("authorized")
+
+  // Timestamps
+  authorizedAt DateTime  @default(now())
+  capturedAt   DateTime?
+  cancelledAt  DateTime?
+  refundedAt   DateTime?
+
+  // Metadata
+  cancellationReason String?
+  refundReason       String?
+  disputeReason      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([renterId])
+  @@index([hostId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+}
+
+// =============================================================================
+// BOOST & RANKING SYSTEM
+// =============================================================================
+
+model Boost {
+  id       String @id @default(cuid())
+  type     String // "profile" or "listing"
+  targetId String // userId for profile, listingId for listing
+  tier     String // "basic", "premium", "featured"
+
+  // Duration
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  // Payment
+  price Int // cents paid
+
+  // Status
+  status String @default("active") // "active", "expired", "cancelled"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, targetId])
+  @@index([endDate])
+  @@index([status])
+}
+
+model Badge {
+  id          String @id @default(cuid())
+  name        String @unique // "early_adopter", "super_host", "verified_agent"
+  displayName String
+  description String
+  icon        String // icon name or URL
+  category    String // "achievement", "milestone", "special"
+
+  createdAt DateTime @default(now())
+
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String // References auth DB User.id
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+// =============================================================================
+// REVIEW SYSTEM (Bidirectional)
+// =============================================================================
+
+model Review {
+  id         String   @id @default(cuid())
+  bookingId  String
+  reviewerId String // User who wrote the review (references auth DB User.id)
+  revieweeId String // User being reviewed (references auth DB User.id)
+  rating     Int // 1-5 stars
+  comment    String?
+  type       String // "host_to_renter" or "renter_to_host"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([bookingId, reviewerId])
+  @@index([revieweeId])
+  @@index([bookingId])
+  @@index([type])
+}
+
+// =============================================================================
+// TRUST & SAFETY SYSTEM
+// =============================================================================
+
+model UserVerification {
+  id            String    @id @default(cuid())
+  userId        String    @unique // References auth DB User.id
+  emailVerified Boolean   @default(false)
+  phoneVerified Boolean   @default(false)
+  idVerified    Boolean   @default(false)
+  idDocumentUrl String?
+  verifiedAt    DateTime?
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Report {
+  id          String    @id @default(cuid())
+  reporterId  String // References auth DB User.id
+  targetType  String // "user", "listing", "message"
+  targetId    String
+  reason      String // "spam", "harassment", "fraud", "inappropriate"
+  description String?
+  status      String    @default("pending") // pending, reviewed, resolved
+  createdAt   DateTime  @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String? // References auth DB User.id
+
+  @@index([targetType, targetId])
+  @@index([reporterId])
+  @@index([status])
+}
+
+model UserBlock {
+  id        String   @id @default(cuid())
+  blockerId String // References auth DB User.id
+  blockedId String // References auth DB User.id
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+// =============================================================================
+// NOTIFICATION SYSTEM
+// =============================================================================
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String // References auth DB User.id
+
+  type  String // "booking", "message", "review", "system", "waitlist", "connection"
+  title String
+  body  String
+  link  String? // URL to navigate to
+
+  read Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id     String @id @default(cuid())
+  userId String @unique // References auth DB User.id
+
+  // Email notification preferences
+  emailBookings  Boolean @default(true)
+  emailMessages  Boolean @default(true)
+  emailReviews   Boolean @default(true)
+  emailMarketing Boolean @default(false)
+
+  // In-app notification preferences
+  inAppBookings Boolean @default(true)
+  inAppMessages Boolean @default(true)
+  inAppReviews  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,44 @@
+# Docker Compose for parallel branch-based agent work
+# Each agent works on its own branch in an isolated container
+#
+# Usage:
+#   ./scripts/spawn-agent.sh feature-auth agent-1
+#   ./scripts/spawn-agent.sh feature-search agent-2
+#
+# Or manually:
+#   BRANCH=feature-auth AGENT_ID=agent-1 docker-compose -f docker/docker-compose.agents.yml up -d
+
+version: '3.8'
+
+services:
+  agent:
+    container_name: nivasesa-${AGENT_ID:-agent-1}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.agent
+    volumes:
+      # Each agent gets its own workspace (NOT shared)
+      - agent-${AGENT_ID:-agent-1}-workspace:/workspace
+      # Mount Claude config (read-only)
+      - ~/.claude:/home/agent/.claude:ro
+      # Mount SSH keys for git push (read-only)
+      - ~/.ssh:/home/agent/.ssh:ro
+    environment:
+      - NODE_ENV=development
+      - AGENT_ID=${AGENT_ID:-agent-1}
+      - BRANCH=${BRANCH:-main}
+      - REPO_URL=${REPO_URL:-https://github.com/your-org/nivasesa.git}
+      - DATABASE_URL=file:./prisma/dev.db
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+volumes:
+  agent-agent-1-workspace:
+  agent-agent-2-workspace:
+  agent-agent-3-workspace:
+  agent-agent-4-workspace:

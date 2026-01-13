@@ -1,0 +1,400 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+}
+
+/* Header */
+.header {
+    margin-bottom: 32px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 16px;
+}
+
+.breadcrumb a {
+    color: var(--color-primary, #2563eb);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.title {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 4px;
+}
+
+.location {
+    font-size: 16px;
+    color: var(--color-text-muted, #6b7280);
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.status {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+
+.status.forming {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status.searching {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status.matched {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status.closed {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.memberBadge {
+    font-size: 13px;
+    font-weight: 500;
+    color: #16a34a;
+    background: #f0fdf4;
+    padding: 6px 12px;
+    border-radius: 16px;
+}
+
+/* Error */
+.error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+/* Content Layout */
+.content {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+}
+
+@media (max-width: 900px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Main Content */
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.section {
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 16px;
+}
+
+.section p {
+    color: var(--color-text, #1f2937);
+    line-height: 1.6;
+}
+
+/* Preferences Grid */
+.preferencesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.preference {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.prefLabel {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-muted, #6b7280);
+    text-transform: uppercase;
+}
+
+.prefValue {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+}
+
+/* Members List */
+.membersList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.memberCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background: var(--color-background-subtle, #f9fafb);
+    border-radius: 8px;
+}
+
+.memberAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary-light, #eff6ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.memberAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.memberAvatar span {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-primary, #2563eb);
+}
+
+.memberInfo {
+    flex: 1;
+}
+
+.memberName {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.adminBadge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #7c3aed;
+    background: #f5f3ff;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.memberDetails {
+    font-size: 13px;
+    color: var(--color-text-muted, #6b7280);
+    display: flex;
+    gap: 8px;
+}
+
+.removeButton {
+    font-size: 13px;
+    color: #dc2626;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.removeButton:hover {
+    text-decoration: underline;
+}
+
+/* Realtor Card */
+.realtorCard {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f0fdf4;
+    border-radius: 8px;
+}
+
+.realtorAvatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #dcfce7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.realtorAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.realtorAvatar span {
+    font-size: 20px;
+    font-weight: 600;
+    color: #16a34a;
+}
+
+.realtorName {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+}
+
+.realtorLanguages {
+    font-size: 14px;
+    color: var(--color-text-muted, #6b7280);
+}
+
+/* Sidebar */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.actionCard {
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.memberMessage {
+    text-align: center;
+    color: #16a34a;
+    font-weight: 500;
+}
+
+.joinMessage {
+    text-align: center;
+    color: var(--color-text-muted, #6b7280);
+}
+
+.fullMessage {
+    text-align: center;
+    color: #b45309;
+    font-weight: 500;
+}
+
+.primaryButton {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    background: #16a34a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.primaryButton:hover {
+    background: #15803d;
+}
+
+.primaryButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.leaveButton {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #dc2626;
+    background: white;
+    border: 1px solid #dc2626;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.leaveButton:hover {
+    background: #fef2f2;
+}
+
+/* Share Card */
+.shareCard {
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.shareCard h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.shareCard p {
+    font-size: 14px;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 16px;
+}
+
+.copyButton {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-primary, #2563eb);
+    background: var(--color-primary-light, #eff6ff);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.copyButton:hover {
+    background: #dbeafe;
+}

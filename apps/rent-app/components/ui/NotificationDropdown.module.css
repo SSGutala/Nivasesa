@@ -1,0 +1,269 @@
+.container {
+  position: relative;
+}
+
+.trigger {
+  position: relative;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.trigger:hover {
+  background: var(--bg-secondary, #f5f5f5);
+  color: var(--text-primary, #333);
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--color-danger, #dc3545);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 1rem;
+  min-width: 1.125rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 400px;
+  max-width: 90vw;
+  background: white;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.markAllButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-primary, #007bff);
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.markAllButton:hover {
+  background: var(--bg-secondary, #f5f5f5);
+}
+
+.content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--bg-secondary, #f5f5f5);
+  border-top-color: var(--color-primary, #007bff);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1rem;
+  color: var(--text-secondary, #666);
+}
+
+.empty p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background: var(--bg-secondary, #f5f5f5);
+}
+
+.unread {
+  background: var(--bg-highlight, #f0f7ff);
+}
+
+.unread:hover {
+  background: #e6f2ff;
+}
+
+.read {
+  opacity: 0.7;
+}
+
+.icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.details {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.body {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #999);
+}
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+.markReadButton,
+.deleteButton {
+  padding: 0.375rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+  color: var(--text-secondary, #666);
+}
+
+.markReadButton:hover {
+  background: var(--color-success-light, #d4edda);
+  color: var(--color-success, #28a745);
+}
+
+.deleteButton:hover {
+  background: var(--color-danger-light, #f8d7da);
+  color: var(--color-danger, #dc3545);
+}
+
+.footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+  text-align: center;
+}
+
+.footer a {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: var(--color-primary, #007bff);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dropdown {
+    width: 100vw;
+    max-width: 100vw;
+    right: -1rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+  }
+
+  .content {
+    max-height: 60vh;
+  }
+}

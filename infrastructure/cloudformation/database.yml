@@ -1,0 +1,242 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'RDS PostgreSQL databases for Nivasesa applications'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - production
+      - staging
+    Description: Environment name
+
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC for RDS instances
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet::Id
+    Description: First private subnet for RDS
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet::Id
+    Description: Second private subnet for RDS
+
+  MasterUsername:
+    Type: String
+    Default: nivasesaadmin
+    Description: Master username for RDS
+
+  MasterPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 16
+    Description: Master password for RDS (min 16 chars)
+
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    AllowedValues:
+      - db.t3.micro
+      - db.t3.small
+      - db.t3.medium
+      - db.r6g.large
+    Description: RDS instance class
+
+  AllocatedStorage:
+    Type: Number
+    Default: 20
+    MinValue: 20
+    MaxValue: 1000
+    Description: Allocated storage in GB
+
+Resources:
+  # Security Group for RDS
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${Environment}-nivasesa-rds-sg'
+      GroupDescription: Security group for Nivasesa RDS instances
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.0.0.0/16
+          Description: PostgreSQL access from VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-rds-sg'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # DB Subnet Group
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub '${Environment}-nivasesa-db-subnet-group'
+      DBSubnetGroupDescription: Subnet group for Nivasesa RDS instances
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-db-subnet-group'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # RDS Instance for rent-app
+  RentAppDBInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub '${Environment}-nivasesa-rent-app-db'
+      Engine: postgres
+      EngineVersion: '15.5'
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: !Ref AllocatedStorage
+      StorageType: gp3
+      StorageEncrypted: true
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterPassword
+      DBName: rentapp
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'mon:04:00-mon:05:00'
+      MultiAZ: !If [IsProduction, true, false]
+      EnableCloudwatchLogsExports:
+        - postgresql
+      DeletionProtection: !If [IsProduction, true, false]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-rent-app-db'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: rent-app
+
+  # RDS Instance for lead-gen
+  LeadGenDBInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub '${Environment}-nivasesa-lead-gen-db'
+      Engine: postgres
+      EngineVersion: '15.5'
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: !Ref AllocatedStorage
+      StorageType: gp3
+      StorageEncrypted: true
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterPassword
+      DBName: leadgen
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'mon:04:00-mon:05:00'
+      MultiAZ: !If [IsProduction, true, false]
+      EnableCloudwatchLogsExports:
+        - postgresql
+      DeletionProtection: !If [IsProduction, true, false]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-lead-gen-db'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: lead-gen
+
+  # Secrets Manager for rent-app DB credentials
+  RentAppDBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${Environment}/nivasesa/rent-app/database'
+      Description: Database credentials for rent-app
+      SecretString: !Sub |
+        {
+          "username": "${MasterUsername}",
+          "password": "${MasterPassword}",
+          "host": "${RentAppDBInstance.Endpoint.Address}",
+          "port": ${RentAppDBInstance.Endpoint.Port},
+          "dbname": "rentapp",
+          "engine": "postgres"
+        }
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: rent-app
+
+  # Secrets Manager for lead-gen DB credentials
+  LeadGenDBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${Environment}/nivasesa/lead-gen/database'
+      Description: Database credentials for lead-gen
+      SecretString: !Sub |
+        {
+          "username": "${MasterUsername}",
+          "password": "${MasterPassword}",
+          "host": "${LeadGenDBInstance.Endpoint.Address}",
+          "port": ${LeadGenDBInstance.Endpoint.Port},
+          "dbname": "leadgen",
+          "engine": "postgres"
+        }
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: lead-gen
+
+Conditions:
+  IsProduction: !Equals [!Ref Environment, 'production']
+
+Outputs:
+  RentAppDBEndpoint:
+    Description: Rent App database endpoint
+    Value: !GetAtt RentAppDBInstance.Endpoint.Address
+    Export:
+      Name: !Sub '${Environment}-RentAppDBEndpoint'
+
+  RentAppDBPort:
+    Description: Rent App database port
+    Value: !GetAtt RentAppDBInstance.Endpoint.Port
+    Export:
+      Name: !Sub '${Environment}-RentAppDBPort'
+
+  RentAppDBConnectionString:
+    Description: Rent App database connection string
+    Value: !Sub 'postgresql://${MasterUsername}:${MasterPassword}@${RentAppDBInstance.Endpoint.Address}:${RentAppDBInstance.Endpoint.Port}/rentapp'
+
+  LeadGenDBEndpoint:
+    Description: Lead Gen database endpoint
+    Value: !GetAtt LeadGenDBInstance.Endpoint.Address
+    Export:
+      Name: !Sub '${Environment}-LeadGenDBEndpoint'
+
+  LeadGenDBPort:
+    Description: Lead Gen database port
+    Value: !GetAtt LeadGenDBInstance.Endpoint.Port
+    Export:
+      Name: !Sub '${Environment}-LeadGenDBPort'
+
+  LeadGenDBConnectionString:
+    Description: Lead Gen database connection string
+    Value: !Sub 'postgresql://${MasterUsername}:${MasterPassword}@${LeadGenDBInstance.Endpoint.Address}:${LeadGenDBInstance.Endpoint.Port}/leadgen'
+
+  RentAppDBSecretArn:
+    Description: ARN of rent-app database secret
+    Value: !Ref RentAppDBSecret
+    Export:
+      Name: !Sub '${Environment}-RentAppDBSecretArn'
+
+  LeadGenDBSecretArn:
+    Description: ARN of lead-gen database secret
+    Value: !Ref LeadGenDBSecret
+    Export:
+      Name: !Sub '${Environment}-LeadGenDBSecretArn'

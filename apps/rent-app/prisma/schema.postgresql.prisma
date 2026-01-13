@@ -1,0 +1,544 @@
+// PostgreSQL production schema
+// Copy this to schema.prisma when deploying to production
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String?
+  username       String?         @unique
+  email          String          @unique
+  emailVerified  DateTime?
+  password       String?
+  image          String?
+  role           String          @default("BUYER") // BUYER | REALTOR | ADMIN
+  balance        Float           @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  // Two-Factor Authentication
+  twoFactorEnabled Boolean       @default(false)
+  twoFactorSecret  String?       // Encrypted TOTP secret
+
+  accounts        Account[]
+  buyerRequests   BuyerRequest[]
+  realtorProfile  RealtorProfile?
+  sessions        Session[]
+  transactions    Transaction[]
+  unlockedLeads   UnlockedLead[]
+  refundRequests  RefundRequest[]
+
+  // Phase 2: Groups & Roommates
+  roommateProfile RoommateProfile?
+  createdGroups   Group[]
+
+  // Phase 4: Room Listings
+  roomListings    RoomListing[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model RealtorProfile {
+  id              String     @id @default(cuid())
+  userId          String     @unique
+  licenseNumber   String
+  brokerage       String
+  languages       String
+  experienceYears Int
+  states          String
+  cities          String
+  buyerTypes      String?
+  propertyTypes   String?
+  bio             String?
+  isVerified      Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  priceRange      String?
+  leads           Lead[]
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals       Referral[]
+
+  // Phase 2: Groups
+  acceptsGroups   Boolean              @default(true)
+  assignedGroups  Group[]
+  groupRequests   GroupRealtorRequest[]
+
+  @@index([isVerified])
+  @@index([cities])
+  @@index([states])
+}
+
+model BuyerRequest {
+  id        String     @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  phone     String
+  budgetMin Int?
+  budgetMax Int?
+  timeframe String?
+  locations String
+  languages String?
+  createdAt DateTime   @default(now())
+  user      User?      @relation(fields: [userId], references: [id])
+  referrals Referral[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Referral {
+  id             String         @id @default(cuid())
+  buyerRequestId String
+  realtorId      String
+  status         String         @default("SENT")
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  realtor        RealtorProfile @relation(fields: [realtorId], references: [id])
+  buyerRequest   BuyerRequest   @relation(fields: [buyerRequestId], references: [id])
+
+  @@index([status])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model RealtorApplication {
+  id                      String   @id @default(cuid())
+  fullName                String
+  email                   String
+  phone                   String
+  preferredContactMethod  String?
+  brokerageName           String
+  licenseNumber           String
+  statesLicensed          String
+  experienceYears         String
+  primaryMarkets          String
+  acceptingNewClients     String?
+  buyerSpecializations    String
+  languages               String
+  otherLanguage           String?
+  referralAcknowledgement Boolean
+  additionalContext       String?  @db.Text
+  status                  String   @default("pending")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([status])
+  @@index([email])
+}
+
+model Lead {
+  id                 String          @id @default(cuid())
+  agentId            String?
+  buyerName          String
+  buyerEmail         String?
+  buyerPhone         String?
+  buyerContact       String?
+  message            String?         @db.Text
+  city               String
+  zipcode            String
+  lat                Float?
+  lng                Float?
+  buyerType          String?
+  interest           String?
+  languagePreference String?
+  timeline           String?
+  price              Float           @default(30)
+  status             String          @default("locked")
+  createdAt          DateTime        @default(now())
+  agent              RealtorProfile? @relation(fields: [agentId], references: [id])
+  unlockedBy         UnlockedLead[]
+
+  @@index([city])
+  @@index([zipcode])
+  @@index([status])
+  @@index([agentId])
+  @@index([createdAt])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  realtorId String
+  amount    Float
+  purpose   String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  @@index([realtorId])
+  @@index([status])
+}
+
+model UnlockedLead {
+  id        String   @id @default(cuid())
+  userId    String
+  leadId    String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, leadId])
+  @@index([userId])
+  @@index([leadId])
+}
+
+model Transaction {
+  id              String          @id @default(cuid())
+  userId          String
+  amount          Float
+  type            String
+  stripeSessionId String?
+  status          String          @default("completed")
+  createdAt       DateTime        @default(now())
+  user            User            @relation(fields: [userId], references: [id])
+  refundRequest   RefundRequest?
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model RefundRequest {
+  id            String      @id @default(cuid())
+  transactionId String      @unique
+  userId        String
+  reason        String      @db.Text
+  status        String      @default("pending") // pending, approved, rejected
+  createdAt     DateTime    @default(now())
+  processedAt   DateTime?
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Phase 0: Pre-launch validation survey responses
+model SurveyResponse {
+  id String @id @default(cuid())
+
+  // User Type: "roommate_seeker", "host", "buyer", "seller", "agent"
+  userType String
+
+  // Contact Info
+  email String
+  phone String?
+  name  String?
+
+  // Location
+  city    String?
+  state   String?
+  zipcode String?
+
+  // Timeline: "ASAP", "1-3 months", "3-6 months", "6+ months"
+  timeline String?
+
+  // Languages (CSV)
+  languages String?
+
+  // Pain Points (open text)
+  biggestChallenge String? @db.Text
+  currentSolution  String? @db.Text
+
+  // User-type specific fields (JSON blob for flexibility)
+  surveyData String? @db.Text
+
+  // Follow-up tracking
+  calledAt      DateTime?
+  callNotes     String?   @db.Text
+  interviewedAt DateTime?
+  // Status: "new", "contacted", "scheduled", "interviewed", "converted"
+  status        String    @default("new")
+
+  // Referral source: "google", "facebook", "friend", "other"
+  referralSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userType])
+  @@index([email])
+  @@index([status])
+}
+
+// =============================================================================
+// PHASE 2: Groups & Roommate Profiles
+// =============================================================================
+
+model RoommateProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Location preferences
+  preferredCities   String   // CSV: "Frisco, Plano, Irving"
+  preferredStates   String   // CSV: "TX, CA, NJ"
+  maxBudget         Int
+  minBudget         Int?
+
+  // Dietary Preferences
+  dietaryPreference String
+
+  // Substance Preferences
+  smokingPreference   String
+  cannabisPreference  String
+  alcoholPreference   String
+  substancePreference String?
+
+  // Identity & Lifestyle
+  lgbtqFriendly      String
+  relationshipStatus String?
+  guestPolicy        String?
+
+  // Living Style
+  cleanlinessLevel String
+  sleepSchedule    String
+  workStyle        String
+  noiseLevel       String?
+
+  // Pets
+  petsPreference String
+  hasPets        String?
+
+  // Demographics
+  gender     String?
+  ageRange   String?
+  occupation String?
+
+  // Languages spoken
+  languages String
+
+  // Status
+  isLookingForRoom     Boolean   @default(true)
+  isLookingForRoommate Boolean   @default(false)
+  moveInDate           DateTime?
+  leaseDuration        String?
+
+  bio      String? @db.Text
+  isActive Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  groupMemberships GroupMember[]
+  roomApplications RoomApplication[]
+
+  @@index([preferredCities])
+  @@index([isActive])
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+
+  // Housing Preferences
+  targetCity      String
+  targetState     String
+  targetBudgetMin Int?
+  targetBudgetMax Int?
+  targetMoveIn    DateTime?
+  propertyType    String?
+  bedroomsNeeded  Int?
+
+  // Group status
+  status    String  @default("forming")
+  isPublic  Boolean @default(true)
+  maxMembers Int    @default(4)
+
+  // Realtor Connection
+  assignedRealtorId String?
+  assignedRealtor   RealtorProfile? @relation(fields: [assignedRealtorId], references: [id])
+
+  // Audit
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members         GroupMember[]
+  realtorRequests GroupRealtorRequest[]
+
+  @@index([targetCity])
+  @@index([targetState])
+  @@index([status])
+}
+
+model GroupMember {
+  id        String          @id @default(cuid())
+  groupId   String
+  group     Group           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  profileId String
+  profile   RoommateProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  role     String   @default("member")
+  status   String   @default("active")
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, profileId])
+  @@index([groupId])
+  @@index([profileId])
+}
+
+model GroupRealtorRequest {
+  id        String         @id @default(cuid())
+  groupId   String
+  group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  realtorId String
+  realtor   RealtorProfile @relation(fields: [realtorId], references: [id])
+
+  message   String?  @db.Text
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, realtorId])
+  @@index([realtorId])
+  @@index([status])
+}
+
+// =============================================================================
+// PHASE 4: Room Listings & Freedom Score
+// =============================================================================
+
+model RoomListing {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Location
+  city        String
+  state       String
+  zipcode     String
+  neighborhood String?
+  address     String?
+
+  // Room Details
+  title       String
+  description String   @db.Text
+  roomType    String
+  propertyType String
+  totalBedrooms Int
+  totalBathrooms Float
+
+  // Amenities
+  furnished   Boolean  @default(false)
+  parking     Boolean  @default(false)
+  laundryInUnit Boolean @default(false)
+  utilities   String?
+  amenities   String?
+
+  // Pricing
+  rent        Int
+  deposit     Int?
+  utilitiesIncluded Boolean @default(false)
+
+  // === FREEDOM SCORE FACTORS ===
+  overnightGuests    String  @default("No Preference")
+  extendedStays      String  @default("Not Allowed")
+  oppositeGenderVisitors String @default("No Preference")
+  partnerVisits      String  @default("No Preference")
+  unmarriedCouplesOk Boolean @default(true)
+  sameSexCouplesWelcome Boolean @default(true)
+  partiesAllowed     String  @default("Small OK")
+  curfew             String?
+  nightOwlFriendly   Boolean @default(true)
+  smokingPolicy      String  @default("No Smoking")
+  cannabisPolicy     String  @default("No Cannabis")
+  alcoholPolicy      String  @default("No Preference")
+  dietaryPreference  String  @default("No Preference")
+  beefPorkCookingOk  Boolean @default(true)
+  noSmellRestrictions Boolean @default(true)
+  fullKitchenAccess  Boolean @default(true)
+  landlordOnSite     Boolean @default(false)
+  privateEntrance    Boolean @default(false)
+  nonJudgmental      Boolean @default(true)
+  freedomScore       Int     @default(50)
+
+  // Household preferences
+  lgbtqFriendly    Boolean @default(true)
+  petsPolicy       String  @default("No Pets")
+  preferredGender  String?
+  preferredAge     String?
+  languages        String?
+
+  // Availability
+  availableFrom    DateTime
+  minLease         String?
+
+  // Status & Metrics
+  status           String   @default("active")
+  viewCount        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  applications     RoomApplication[]
+
+  @@index([city])
+  @@index([state])
+  @@index([status])
+  @@index([freedomScore])
+  @@index([rent])
+}
+
+model RoomApplication {
+  id          String      @id @default(cuid())
+  listingId   String
+  listing     RoomListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   RoommateProfile @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  message     String?     @db.Text
+  status      String      @default("pending")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([listingId, applicantId])
+  @@index([listingId])
+  @@index([applicantId])
+  @@index([status])
+}

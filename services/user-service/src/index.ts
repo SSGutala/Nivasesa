@@ -48,8 +48,8 @@ async function startServer() {
 
   console.log(`🚀 User Service ready at ${url}`);
   console.log('\nAvailable operations:');
-  console.log('  Queries: me, user, users, emailAvailable');
-  console.log('  Mutations: register, login, updateProfile, changePassword');
+  console.log('  Queries: me, user, userByEmail, users, emailAvailable');
+  console.log('  Mutations: register, login, updateProfile, updateUserRole, verifyEmail, changePassword');
   console.log('\nTo use with gateway, start the gateway service:\n');
   console.log('  pnpm --filter @niv/gateway dev\n');
 }

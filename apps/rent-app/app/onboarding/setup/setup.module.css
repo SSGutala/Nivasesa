@@ -1,0 +1,190 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-base);
+    padding: 40px 20px;
+}
+
+.setupCard {
+    background: white;
+    width: 100%;
+    max-width: 520px;
+    padding: 60px;
+    border-radius: 24px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.icon {
+    color: var(--color-primary);
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--color-text-main);
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+}
+
+.header p {
+    color: var(--color-text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.formGroup label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-main);
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.fieldIcon {
+    position: absolute;
+    left: 16px;
+    color: var(--color-primary);
+    opacity: 0.6;
+}
+
+.inputWrapper input,
+.formGroup input {
+    width: 100%;
+    padding: 16px;
+    padding-left: 48px;
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.2s;
+    background: white;
+    color: var(--color-text-main);
+}
+
+.formGroup input:not(.inputWrapper input) {
+    padding-left: 16px;
+}
+
+.inputWrapper input:focus,
+.formGroup input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px var(--color-bg-subtle);
+}
+
+.statusIcon {
+    position: absolute;
+    right: 16px;
+}
+
+.spinner {
+    animation: rotate 2s linear infinite;
+    color: var(--color-primary);
+}
+
+.available {
+    color: #10b981;
+}
+
+.unavailable {
+    color: #ef4444;
+}
+
+.helperTextSuccess {
+    font-size: 13px;
+    color: #059669;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.helperTextError {
+    font-size: 13px;
+    color: #dc2626;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.errorMessage {
+    padding: 16px;
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #e11d48;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.submitBtn {
+    padding: 18px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(165, 148, 249, 0.3);
+}
+
+.submitBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(165, 148, 249, 0.4);
+}
+
+.submitBtn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.submitBtn:disabled {
+    background-color: var(--color-border);
+    color: var(--color-text-light);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 640px) {
+    .setupCard {
+        padding: 48px 24px;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+}

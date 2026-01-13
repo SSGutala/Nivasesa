@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model IdentityVerification {
+  id               String    @id @default(cuid())
+  userId           String
+  status           String    @default("NOT_STARTED") // NOT_STARTED, PENDING, IN_REVIEW, VERIFIED, FAILED, EXPIRED
+  provider         String    @default("PERSONA") // PERSONA, ONFIDO, etc.
+  personaInquiryId String?   @unique
+  documentType     String? // PASSPORT, DRIVERS_LICENSE, etc.
+  documentNumber   String?
+  verifiedAt       DateTime?
+  expiresAt        DateTime?
+  failureReason    String?
+  metadata         String? // JSON for additional provider data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model BackgroundCheck {
+  id             String    @id @default(cuid())
+  userId         String
+  status         String    @default("NOT_STARTED") // NOT_STARTED, PENDING, IN_REVIEW, VERIFIED, FAILED, EXPIRED
+  provider       String    @default("CHECKR") // CHECKR, STERLING, etc.
+  checkrReportId String?   @unique
+  package        String? // BASIC, STANDARD, PREMIUM
+  result         String? // CLEAR, CONSIDER, SUSPENDED
+  completedAt    DateTime?
+  expiresAt      DateTime?
+  consentGivenAt DateTime?
+
+  // Detailed results
+  criminalRecords     Boolean?
+  sexOffenderRegistry Boolean?
+  globalWatchlist     Boolean?
+  ssnTrace            Boolean?
+
+  failureReason String?
+  metadata      String? // JSON for additional provider data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model VisaVerification {
+  id         String    @id @default(cuid())
+  userId     String
+  visaType   String // H1B, F1, L1, O1, E2, GREEN_CARD, CITIZEN
+  status     String    @default("NOT_STARTED") // NOT_STARTED, PENDING, IN_REVIEW, VERIFIED, FAILED, EXPIRED
+  verifiedAt DateTime?
+  expiresAt  DateTime?
+
+  // E-Verify integration
+  eVerifyCase   String?
+  eVerifyStatus String?
+
+  // Documents
+  documentUrls String? // JSON array of document URLs
+  i94Number    String?
+  sevisId      String? // For F1 students
+
+  failureReason String?
+  metadata      String? // JSON for additional data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model LicenseVerification {
+  id            String    @id @default(cuid())
+  userId        String
+  licenseType   String // REALTOR, BROKER, PROPERTY_MANAGER
+  licenseNumber String
+  state         String // TX, NJ, CA, etc.
+  status        String    @default("NOT_STARTED") // NOT_STARTED, PENDING, IN_REVIEW, VERIFIED, FAILED, EXPIRED
+  verifiedAt    DateTime?
+  expiresAt     DateTime?
+
+  // License details
+  issueDate           DateTime?
+  boardName           String? // e.g., "Texas Real Estate Commission"
+  disciplinaryActions Boolean   @default(false)
+
+  failureReason String?
+  metadata      String? // JSON for additional data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, licenseNumber, state])
+  @@index([userId])
+}
+
+model VerificationAuditLog {
+  id               String  @id @default(cuid())
+  userId           String
+  verificationType String // IDENTITY, BACKGROUND, VISA, LICENSE
+  action           String // INITIATED, SUBMITTED, APPROVED, REJECTED, EXPIRED
+  performedBy      String? // Admin user ID who performed the action
+  previousStatus   String?
+  newStatus        String
+  reason           String?
+  metadata         String? // JSON for additional context
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([verificationType])
+}
+
+model Verification {
+  id          String    @id @default(cuid())
+  userId      String
+  type        String // EMAIL, PHONE, IDENTITY, BACKGROUND, VISA
+  status      String    @default("PENDING") // PENDING, IN_PROGRESS, VERIFIED, FAILED, EXPIRED
+  provider    String? // Email service, SMS provider, Persona, Checkr, etc.
+  providerRef String? // Reference ID from provider
+  verifiedAt  DateTime?
+  expiresAt   DateTime?
+  metadata    String? // JSON for additional data (token, OTP, etc.)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+}

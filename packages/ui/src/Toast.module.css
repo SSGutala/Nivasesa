@@ -1,0 +1,177 @@
+.container {
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  width: 100%;
+  padding: 16px;
+  pointer-events: none;
+}
+
+/* Position variants */
+.topright {
+  top: 0;
+  right: 0;
+}
+
+.topleft {
+  top: 0;
+  left: 0;
+}
+
+.bottomright {
+  bottom: 0;
+  right: 0;
+}
+
+.bottomleft {
+  bottom: 0;
+  left: 0;
+}
+
+.topcenter {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bottomcenter {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+  pointer-events: auto;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.message {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #9ca3af;
+  transition: color 0.15s, background 0.15s;
+}
+
+.closeButton:hover {
+  color: #374151;
+  background: #f3f4f6;
+}
+
+/* Variant colors */
+.info {
+  border-left: 3px solid #3b82f6;
+}
+
+.info .icon {
+  color: #3b82f6;
+}
+
+.info .title {
+  color: #1e40af;
+}
+
+.success {
+  border-left: 3px solid #22c55e;
+}
+
+.success .icon {
+  color: #22c55e;
+}
+
+.success .title {
+  color: #166534;
+}
+
+.warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.warning .icon {
+  color: #f59e0b;
+}
+
+.warning .title {
+  color: #92400e;
+}
+
+.error {
+  border-left: 3px solid #ef4444;
+}
+
+.error .icon {
+  color: #ef4444;
+}
+
+.error .title {
+  color: #991b1b;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .container {
+    max-width: 100%;
+    padding: 8px;
+  }
+
+  .topcenter,
+  .bottomcenter {
+    left: 0;
+    transform: none;
+  }
+}

@@ -1,0 +1,167 @@
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 8px;
+}
+
+.header p {
+    color: var(--color-text-muted, #6b7280);
+}
+
+.error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.section {
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 6px;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 8px;
+    background: white;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    outline: none;
+    border-color: var(--color-primary, #2563eb);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.field select:disabled {
+    background: #f9fafb;
+    cursor: not-allowed;
+}
+
+.fieldRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 600px) {
+    .fieldRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 12px 0;
+}
+
+.checkboxLabel input {
+    width: 18px;
+    height: 18px;
+}
+
+.checkboxLabel span {
+    font-size: 14px;
+    color: var(--color-text, #1f2937);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.cancelButton {
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text-muted, #6b7280);
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.cancelButton:hover {
+    background: var(--color-background-subtle, #f9fafb);
+}
+
+.submitButton {
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    background: #16a34a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.submitButton:hover {
+    background: #15803d;
+}
+
+.submitButton:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}

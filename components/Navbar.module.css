@@ -1,0 +1,202 @@
+.header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: transparent;
+    /* Default transparent */
+    padding-top: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Home Theme: White Text */
+.headerHome {
+    color: white;
+}
+
+.headerHome .logo {
+    color: white;
+}
+
+.headerHome .navLink {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.headerHome .navLink:hover {
+    color: white;
+}
+
+.headerHome .topRow {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Light Theme (Our Story, etc.): Black Text */
+.headerLight {
+    color: var(--color-primary);
+    /* Dark Charcoal */
+    position: relative;
+    /* Not absolute on other pages to push content down? Or absolute + padding */
+    /* User requested "Style as home page" so likely absolute overlay or just same layout. 
+     If absolute, page content needs top padding. Our Story has 120px paddingTop so absolute works. */
+}
+
+.headerLight .logo {
+    color: var(--color-primary);
+}
+
+.headerLight .logo:hover {
+    color: black;
+    /* "Turn black on hover" - technically it's already dark, but maybe darker? */
+}
+
+.headerLight .navLink {
+    color: var(--color-text-muted);
+}
+
+.headerLight .navLink:hover {
+    color: var(--color-primary);
+}
+
+.headerLight .topRow {
+    border-bottom: 1px solid var(--color-border);
+}
+
+
+/* Shared Layout */
+.topRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    height: 60px;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: var(--font-family);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: color 0.2s;
+}
+
+.userActions {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+}
+
+.actionIcon {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.actionIcon:hover {
+    opacity: 0.7;
+}
+
+/* Profile Wrapper & Dropdown */
+.profileWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    margin: -10px 0;
+}
+
+.profileIconLink {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.profileIconLink:hover {
+    opacity: 0.7;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: -12px;
+    background: white;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 4px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    padding: 12px 0;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Subtle triangle pointer */
+.dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 14px;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-top: 1px solid var(--color-border-subtle);
+    border-left: 1px solid var(--color-border-subtle);
+    transform: rotate(45deg);
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dropdownItem:hover {
+    background-color: var(--color-bg-subtle);
+}
+
+.dropdownItem svg {
+    color: var(--color-text-muted);
+}
+
+.signOutForm {
+    border-top: 1px solid var(--color-border-subtle);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.navRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    height: 50px;
+}
+
+.navLink {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: color 0.2s;
+}

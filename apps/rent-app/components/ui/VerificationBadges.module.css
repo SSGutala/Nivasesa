@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Size variants */
+.small .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.small .label {
+  font-size: 0.75rem;
+}
+
+.medium .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.medium .label {
+  font-size: 0.875rem;
+}
+
+.large .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.large .label {
+  font-size: 1rem;
+}

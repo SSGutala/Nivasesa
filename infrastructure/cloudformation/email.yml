@@ -1,0 +1,257 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS SES configuration for Nivasesa email services'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - production
+      - staging
+    Description: Environment name
+
+  RentAppDomain:
+    Type: String
+    Default: nivasesa.com
+    Description: Domain name for rent-app
+
+  LeadGenDomain:
+    Type: String
+    Default: leads.nivasesa.com
+    Description: Domain name for lead-gen
+
+  AdminEmail:
+    Type: String
+    Description: Admin email address for SES notifications
+
+Resources:
+  # SES Domain Identity for rent-app
+  RentAppDomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref RentAppDomain
+      DkimSigningAttributes:
+        NextSigningKeyLength: RSA_2048_BIT
+      MailFromAttributes:
+        MailFromDomain: !Sub 'mail.${RentAppDomain}'
+        BehaviorOnMxFailure: USE_DEFAULT_VALUE
+
+  # SES Domain Identity for lead-gen
+  LeadGenDomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref LeadGenDomain
+      DkimSigningAttributes:
+        NextSigningKeyLength: RSA_2048_BIT
+      MailFromAttributes:
+        MailFromDomain: !Sub 'mail.${LeadGenDomain}'
+        BehaviorOnMxFailure: USE_DEFAULT_VALUE
+
+  # SES Configuration Set for rent-app
+  RentAppConfigSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: !Sub '${Environment}-nivasesa-rent-app'
+      ReputationOptions:
+        ReputationMetricsEnabled: true
+      SendingOptions:
+        SendingEnabled: true
+      SuppressionOptions:
+        SuppressedReasons:
+          - BOUNCE
+          - COMPLAINT
+
+  # SES Configuration Set for lead-gen
+  LeadGenConfigSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: !Sub '${Environment}-nivasesa-lead-gen'
+      ReputationOptions:
+        ReputationMetricsEnabled: true
+      SendingOptions:
+        SendingEnabled: true
+      SuppressionOptions:
+        SuppressedReasons:
+          - BOUNCE
+          - COMPLAINT
+
+  # SNS Topic for bounce/complaint notifications (rent-app)
+  RentAppSESNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${Environment}-nivasesa-rent-app-ses-notifications'
+      DisplayName: Rent App SES Notifications
+      Subscription:
+        - Endpoint: !Ref AdminEmail
+          Protocol: email
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-rent-app-ses-notifications'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # SNS Topic for bounce/complaint notifications (lead-gen)
+  LeadGenSESNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${Environment}-nivasesa-lead-gen-ses-notifications'
+      DisplayName: Lead Gen SES Notifications
+      Subscription:
+        - Endpoint: !Ref AdminEmail
+          Protocol: email
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-lead-gen-ses-notifications'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # SNS Topic Policy (rent-app)
+  RentAppSESNotificationTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref RentAppSESNotificationTopic
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowSESPublish
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action:
+              - SNS:Publish
+            Resource: !Ref RentAppSESNotificationTopic
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+
+  # SNS Topic Policy (lead-gen)
+  LeadGenSESNotificationTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref LeadGenSESNotificationTopic
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowSESPublish
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action:
+              - SNS:Publish
+            Resource: !Ref LeadGenSESNotificationTopic
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+
+  # Event Destination for bounces (rent-app)
+  RentAppBounceEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref RentAppConfigSet
+      EventDestination:
+        Name: bounce-events
+        Enabled: true
+        MatchingEventTypes:
+          - bounce
+        SnsDestination:
+          TopicARN: !Ref RentAppSESNotificationTopic
+
+  # Event Destination for complaints (rent-app)
+  RentAppComplaintEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref RentAppConfigSet
+      EventDestination:
+        Name: complaint-events
+        Enabled: true
+        MatchingEventTypes:
+          - complaint
+        SnsDestination:
+          TopicARN: !Ref RentAppSESNotificationTopic
+
+  # Event Destination for bounces (lead-gen)
+  LeadGenBounceEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref LeadGenConfigSet
+      EventDestination:
+        Name: bounce-events
+        Enabled: true
+        MatchingEventTypes:
+          - bounce
+        SnsDestination:
+          TopicARN: !Ref LeadGenSESNotificationTopic
+
+  # Event Destination for complaints (lead-gen)
+  LeadGenComplaintEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: !Ref LeadGenConfigSet
+      EventDestination:
+        Name: complaint-events
+        Enabled: true
+        MatchingEventTypes:
+          - complaint
+        SnsDestination:
+          TopicARN: !Ref LeadGenSESNotificationTopic
+
+  # IAM Role for SES sending
+  SESServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${Environment}-nivasesa-ses-service-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-ses-service-role'
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  RentAppDomainIdentity:
+    Description: SES domain identity for rent-app
+    Value: !Ref RentAppDomain
+    Export:
+      Name: !Sub '${Environment}-RentAppSESDomain'
+
+  RentAppConfigSetName:
+    Description: SES configuration set name for rent-app
+    Value: !Ref RentAppConfigSet
+    Export:
+      Name: !Sub '${Environment}-RentAppSESConfigSet'
+
+  RentAppFromEmail:
+    Description: Default from email for rent-app
+    Value: !Sub 'noreply@${RentAppDomain}'
+
+  LeadGenDomainIdentity:
+    Description: SES domain identity for lead-gen
+    Value: !Ref LeadGenDomain
+    Export:
+      Name: !Sub '${Environment}-LeadGenSESDomain'
+
+  LeadGenConfigSetName:
+    Description: SES configuration set name for lead-gen
+    Value: !Ref LeadGenConfigSet
+    Export:
+      Name: !Sub '${Environment}-LeadGenSESConfigSet'
+
+  LeadGenFromEmail:
+    Description: Default from email for lead-gen
+    Value: !Sub 'noreply@${LeadGenDomain}'
+
+  SESServiceRoleArn:
+    Description: ARN of SES service role
+    Value: !GetAtt SESServiceRole.Arn
+    Export:
+      Name: !Sub '${Environment}-SESServiceRoleArn'

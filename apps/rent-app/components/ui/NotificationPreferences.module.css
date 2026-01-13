@@ -1,0 +1,140 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--bg-secondary, #f5f5f5);
+  border-top-color: var(--color-primary, #007bff);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.section h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.description {
+  margin: 0 0 1.5rem;
+  color: var(--text-secondary, #666);
+  font-size: 0.875rem;
+}
+
+.preferences {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #f5f5f5);
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.preference:hover {
+  background: #ebebeb;
+}
+
+.info {
+  flex: 1;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+
+.detail {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.4;
+}
+
+.toggle {
+  position: relative;
+  width: 3rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+
+.toggleOff {
+  background: #ccc;
+}
+
+.toggleOn {
+  background: var(--color-primary, #007bff);
+}
+
+.toggleSlider {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggleOn .toggleSlider {
+  transform: translateX(1.25rem);
+}
+
+.footer {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .preference {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .toggle {
+    align-self: flex-start;
+  }
+}

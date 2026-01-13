@@ -55,6 +55,13 @@ export const resolvers = {
       });
     },
 
+    userByEmail: async (_: unknown, { email }: { email: string }) => {
+      return prisma.user.findUnique({
+        where: { email },
+        include: { profile: true, verification: true },
+      });
+    },
+
     users: async (
       _: unknown,
       {
@@ -205,11 +212,16 @@ export const resolvers = {
     ) => {
       const userId = requireAuth(context);
 
-      // Update user name if provided
-      if (input.name) {
+      // Update user fields (name, avatarUrl, phone)
+      const userData: Record<string, unknown> = {};
+      if (input.name !== undefined) userData.name = input.name;
+      if (input.avatarUrl !== undefined) userData.image = input.avatarUrl;
+      if (input.phone !== undefined) userData.phone = input.phone;
+
+      if (Object.keys(userData).length > 0) {
         await prisma.user.update({
           where: { id: userId },
-          data: { name: input.name as string },
+          data: userData,
         });
       }
 
@@ -237,15 +249,17 @@ export const resolvers = {
         profileData.budgetMax = input.budgetMax;
       }
 
-      await prisma.profile.upsert({
-        where: { userId },
-        update: profileData,
-        create: {
-          userId,
-          languages: '[]', // Store as JSON string
-          ...profileData,
-        },
-      });
+      if (Object.keys(profileData).length > 0) {
+        await prisma.profile.upsert({
+          where: { userId },
+          update: profileData,
+          create: {
+            userId,
+            languages: '[]', // Store as JSON string
+            ...profileData,
+          },
+        });
+      }
 
       return prisma.user.findUnique({
         where: { id: userId },
@@ -310,10 +324,47 @@ export const resolvers = {
     },
 
     verifyEmail: async (_: unknown, { token }: { token: string }) => {
-      // TODO: Implement email verification
-      throw new GraphQLError('Email verification not yet implemented', {
-        extensions: { code: 'NOT_IMPLEMENTED' },
+      // Look up verification token
+      const verificationToken = await prisma.verificationToken.findUnique({
+        where: { token },
       });
+
+      if (!verificationToken) {
+        throw new GraphQLError('Invalid or expired verification token', {
+          extensions: { code: 'BAD_USER_INPUT' },
+        });
+      }
+
+      // Check if token is expired
+      if (verificationToken.expires < new Date()) {
+        throw new GraphQLError('Verification token has expired', {
+          extensions: { code: 'BAD_USER_INPUT' },
+        });
+      }
+
+      // Find user by email (identifier)
+      const user = await prisma.user.findUnique({
+        where: { email: verificationToken.identifier },
+      });
+
+      if (!user) {
+        throw new GraphQLError('User not found', {
+          extensions: { code: 'NOT_FOUND' },
+        });
+      }
+
+      // Update user's emailVerified status
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() },
+      });
+
+      // Delete the used token
+      await prisma.verificationToken.delete({
+        where: { token },
+      });
+
+      return true;
     },
 
     requestPhoneVerification: async (
@@ -372,9 +423,47 @@ export const resolvers = {
       });
     },
 
+    avatarUrl: (user: { image?: string }) => user.image,
+
     phoneVerified: (user: { phone?: string }) => !!user.phone,
 
     emailVerified: (user: { emailVerified?: Date }) => !!user.emailVerified,
+
+    bio: async (user: { id: string; profile?: { bio?: string } }) => {
+      if (user.profile?.bio) return user.profile.bio;
+
+      const profile = await prisma.profile.findUnique({
+        where: { userId: user.id },
+        select: { bio: true },
+      });
+
+      return profile?.bio || null;
+    },
+
+    languages: async (user: { id: string; profile?: { languages?: string } }) => {
+      if (user.profile?.languages) {
+        try {
+          return JSON.parse(user.profile.languages);
+        } catch {
+          return [];
+        }
+      }
+
+      const profile = await prisma.profile.findUnique({
+        where: { userId: user.id },
+        select: { languages: true },
+      });
+
+      if (profile?.languages) {
+        try {
+          return JSON.parse(profile.languages);
+        } catch {
+          return [];
+        }
+      }
+
+      return [];
+    },
 
     trustScore: async (user: { id: string }) => {
       const verification = await prisma.verification.findUnique({

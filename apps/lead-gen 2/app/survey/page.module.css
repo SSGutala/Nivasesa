@@ -1,0 +1,135 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+}
+
+.hero {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, var(--color-primary-light, #eff6ff) 0%, #f8fafc 100%);
+    border-radius: 16px;
+    margin-bottom: 48px;
+}
+
+.title {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: var(--color-text-muted, #6b7280);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.content {
+    margin-bottom: 64px;
+}
+
+.sectionTitle {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 32px;
+}
+
+/* Features Section */
+.features {
+    margin-bottom: 64px;
+}
+
+.featureGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.featureCard {
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.featureCard:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.featureIcon {
+    font-size: 40px;
+    margin-bottom: 16px;
+}
+
+.featureTitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    margin-bottom: 8px;
+}
+
+.featureText {
+    font-size: 14px;
+    color: var(--color-text-muted, #6b7280);
+    line-height: 1.5;
+}
+
+/* Communities Section */
+.communities {
+    text-align: center;
+    background: var(--color-background-subtle, #f9fafb);
+    padding: 48px 32px;
+    border-radius: 16px;
+}
+
+.communitiesText {
+    font-size: 16px;
+    color: var(--color-text-muted, #6b7280);
+    max-width: 600px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+
+.languageList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.languageList span {
+    padding: 8px 16px;
+    background: white;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 20px;
+    font-size: 14px;
+    color: var(--color-text, #1f2937);
+}
+
+@media (max-width: 640px) {
+    .hero {
+        padding: 40px 16px;
+    }
+
+    .featureGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .languageList {
+        gap: 8px;
+    }
+
+    .languageList span {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+}

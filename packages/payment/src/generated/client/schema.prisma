@@ -1,0 +1,89 @@
+// Payment Service Database Schema
+// This is a separate database from the main application
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("PAYMENT_DATABASE_URL")
+}
+
+// Wallet for each user (userId references User in main database)
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Float    @default(0) // Stored as cents/smallest unit
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+// All financial transactions
+model Transaction {
+  id       String @id @default(cuid())
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  type        String // DEPOSIT, WITHDRAWAL, LEAD_UNLOCK, REFUND, ESCROW_HOLD, ESCROW_RELEASE
+  amount      Float // Stored as cents/smallest unit
+  status      String  @default("PENDING") // PENDING, COMPLETED, FAILED, CANCELLED
+  description String?
+  metadata    String? // JSON string for Stripe IDs, etc
+
+  createdAt DateTime @default(now())
+
+  refundRequests RefundRequest[]
+
+  @@index([walletId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Escrow holds for booking deposits
+model EscrowHold {
+  id        String @id @default(cuid())
+  payerId   String // Tenant user ID (references User in main db)
+  payeeId   String // Host user ID (references User in main db)
+  bookingId String // References Booking in main db
+  amount    Float // Stored as cents/smallest unit
+  status    String @default("HELD") // HELD, RELEASED, REFUNDED, DISPUTED
+
+  heldAt     DateTime  @default(now())
+  releasedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([payerId])
+  @@index([payeeId])
+  @@index([bookingId])
+  @@index([status])
+}
+
+// Refund requests for transactions
+model RefundRequest {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  requesterId String // User ID who requested refund
+  amount      Float // Stored as cents/smallest unit
+  reason      String
+  status      String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  adminNote   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([transactionId])
+  @@index([requesterId])
+  @@index([status])
+}

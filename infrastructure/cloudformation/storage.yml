@@ -1,0 +1,294 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'S3 buckets and CloudFront distributions for Nivasesa'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues:
+      - production
+      - staging
+    Description: Environment name
+
+  RentAppDomain:
+    Type: String
+    Default: nivasesa.com
+    Description: Domain name for rent-app
+
+  LeadGenDomain:
+    Type: String
+    Default: leads.nivasesa.com
+    Description: Domain name for lead-gen
+
+  ACMCertificateArn:
+    Type: String
+    Description: ARN of ACM certificate for CloudFront (must be in us-east-1)
+
+Resources:
+  # S3 Bucket for rent-app assets
+  RentAppAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-nivasesa-rent-app-assets'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Sub 'https://${RentAppDomain}'
+              - !Sub 'https://www.${RentAppDomain}'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedHeaders:
+              - '*'
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-rent-app-assets'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: rent-app
+
+  # S3 Bucket for lead-gen assets
+  LeadGenAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-nivasesa-lead-gen-assets'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - !Sub 'https://${LeadGenDomain}'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedHeaders:
+              - '*'
+            MaxAge: 3000
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-lead-gen-assets'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: lead-gen
+
+  # CloudFront Origin Access Identity for rent-app
+  RentAppCloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OAI for ${Environment}-nivasesa-rent-app-assets'
+
+  # S3 Bucket Policy for rent-app (CloudFront access)
+  RentAppAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RentAppAssetsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: CloudFrontRead
+            Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt RentAppCloudFrontOAI.S3CanonicalUserId
+            Action: 's3:GetObject'
+            Resource: !Sub '${RentAppAssetsBucket.Arn}/*'
+
+  # CloudFront Origin Access Identity for lead-gen
+  LeadGenCloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OAI for ${Environment}-nivasesa-lead-gen-assets'
+
+  # S3 Bucket Policy for lead-gen (CloudFront access)
+  LeadGenAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref LeadGenAssetsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: CloudFrontRead
+            Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt LeadGenCloudFrontOAI.S3CanonicalUserId
+            Action: 's3:GetObject'
+            Resource: !Sub '${LeadGenAssetsBucket.Arn}/*'
+
+  # CloudFront Distribution for rent-app assets
+  RentAppAssetsDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub '${Environment} Nivasesa rent-app assets CDN'
+        Aliases:
+          - !Sub 'assets.${RentAppDomain}'
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt RentAppAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${RentAppCloudFrontOAI}'
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          MinTTL: 0
+          DefaultTTL: 86400
+          MaxTTL: 31536000
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateArn
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+        HttpVersion: http2
+        IPV6Enabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-rent-app-assets-cdn'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: rent-app
+
+  # CloudFront Distribution for lead-gen assets
+  LeadGenAssetsDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub '${Environment} Nivasesa lead-gen assets CDN'
+        Aliases:
+          - !Sub 'assets.${LeadGenDomain}'
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt LeadGenAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${LeadGenCloudFrontOAI}'
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          MinTTL: 0
+          DefaultTTL: 86400
+          MaxTTL: 31536000
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateArn
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+        HttpVersion: http2
+        IPV6Enabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-nivasesa-lead-gen-assets-cdn'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: lead-gen
+
+Outputs:
+  RentAppAssetsBucketName:
+    Description: S3 bucket name for rent-app assets
+    Value: !Ref RentAppAssetsBucket
+    Export:
+      Name: !Sub '${Environment}-RentAppAssetsBucket'
+
+  RentAppAssetsBucketArn:
+    Description: S3 bucket ARN for rent-app assets
+    Value: !GetAtt RentAppAssetsBucket.Arn
+    Export:
+      Name: !Sub '${Environment}-RentAppAssetsBucketArn'
+
+  RentAppAssetsDistributionId:
+    Description: CloudFront distribution ID for rent-app assets
+    Value: !Ref RentAppAssetsDistribution
+    Export:
+      Name: !Sub '${Environment}-RentAppAssetsDistributionId'
+
+  RentAppAssetsDistributionDomain:
+    Description: CloudFront distribution domain for rent-app assets
+    Value: !GetAtt RentAppAssetsDistribution.DomainName
+    Export:
+      Name: !Sub '${Environment}-RentAppAssetsDistributionDomain'
+
+  LeadGenAssetsBucketName:
+    Description: S3 bucket name for lead-gen assets
+    Value: !Ref LeadGenAssetsBucket
+    Export:
+      Name: !Sub '${Environment}-LeadGenAssetsBucket'
+
+  LeadGenAssetsBucketArn:
+    Description: S3 bucket ARN for lead-gen assets
+    Value: !GetAtt LeadGenAssetsBucket.Arn
+    Export:
+      Name: !Sub '${Environment}-LeadGenAssetsBucketArn'
+
+  LeadGenAssetsDistributionId:
+    Description: CloudFront distribution ID for lead-gen assets
+    Value: !Ref LeadGenAssetsDistribution
+    Export:
+      Name: !Sub '${Environment}-LeadGenAssetsDistributionId'
+
+  LeadGenAssetsDistributionDomain:
+    Description: CloudFront distribution domain for lead-gen assets
+    Value: !GetAtt LeadGenAssetsDistribution.DomainName
+    Export:
+      Name: !Sub '${Environment}-LeadGenAssetsDistributionDomain'

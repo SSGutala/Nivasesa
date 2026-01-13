@@ -1,0 +1,47 @@
+# Docker Compose for local PostgreSQL development
+# Usage: docker-compose -f docker/docker-compose.postgres.yml up -d
+# Then update .env: DATABASE_URL=postgresql://nivasesa:nivasesa@localhost:5432/nivasesa
+
+version: '3.8'
+
+services:
+  postgres:
+    container_name: nivasesa-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: nivasesa
+      POSTGRES_PASSWORD: nivasesa
+      POSTGRES_DB: nivasesa
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nivasesa"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional: pgAdmin for database management
+  pgadmin:
+    container_name: nivasesa-pgadmin
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@nivasesa.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - admin
+
+volumes:
+  postgres_data:
+  pgadmin_data:

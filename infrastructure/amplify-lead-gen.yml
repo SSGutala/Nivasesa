@@ -1,0 +1,73 @@
+version: 1
+applications:
+  - appRoot: apps/lead-gen
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Install pnpm
+            - npm install -g pnpm@9.15.0
+            # Install dependencies
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            # Generate Prisma client
+            - cd apps/lead-gen && pnpm db:generate
+            # Build the application
+            - cd ../.. && pnpm build:lead
+      artifacts:
+        baseDirectory: apps/lead-gen/.next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - apps/lead-gen/node_modules/**/*
+          - packages/*/node_modules/**/*
+          - .pnpm-store/**/*
+    customHeaders:
+      - pattern: '**/*'
+        headers:
+          - key: 'Strict-Transport-Security'
+            value: 'max-age=31536000; includeSubDomains'
+          - key: 'X-Frame-Options'
+            value: 'DENY'
+          - key: 'X-Content-Type-Options'
+            value: 'nosniff'
+          - key: 'Referrer-Policy'
+            value: 'strict-origin-when-cross-origin'
+          - key: 'Permissions-Policy'
+            value: 'camera=(), microphone=(), geolocation=()'
+    environmentVariables:
+      # Build-time variables
+      - name: NODE_ENV
+        value: production
+      - name: NEXT_TELEMETRY_DISABLED
+        value: '1'
+      # Database
+      - name: DATABASE_URL
+        value: '${DATABASE_URL_LEAD_GEN}'
+      # NextAuth
+      - name: AUTH_SECRET
+        value: '${AUTH_SECRET_LEAD_GEN}'
+      - name: NEXTAUTH_URL
+        value: '${NEXTAUTH_URL_LEAD_GEN}'
+      # Stripe
+      - name: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        value: '${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}'
+      - name: STRIPE_SECRET_KEY
+        value: '${STRIPE_SECRET_KEY}'
+      - name: STRIPE_WEBHOOK_SECRET
+        value: '${STRIPE_WEBHOOK_SECRET_LEAD_GEN}'
+      # AWS Services
+      - name: AWS_REGION
+        value: '${AWS_REGION}'
+      - name: AWS_S3_BUCKET
+        value: '${AWS_S3_BUCKET_LEAD_GEN}'
+      - name: AWS_SES_REGION
+        value: '${AWS_SES_REGION}'
+      - name: AWS_SES_FROM_EMAIL
+        value: '${AWS_SES_FROM_EMAIL_LEAD_GEN}'
+      # Application
+      - name: LAUNCHED
+        value: '${LAUNCHED}'

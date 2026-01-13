@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id        String @id @default(cuid())
+  listingId String
+  renterId  String
+  hostId    String
+
+  checkIn  DateTime
+  checkOut DateTime
+  status   String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+
+  totalPrice Int
+  currency   String @default("USD")
+
+  // Additional booking details
+  guestCount Int     @default(1)
+  message    String? // Initial message from renter to host
+
+  // Cancellation
+  cancelledBy        String? // userId who cancelled
+  cancelledAt        DateTime?
+  cancellationReason String?
+
+  // Review flags
+  hostReviewId   String?
+  renterReviewId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([listingId])
+  @@index([renterId])
+  @@index([hostId])
+  @@index([status])
+}

@@ -4,14 +4,29 @@ GraphQL Federation subgraph for trust and verification in the Nivasesa platform.
 
 ## Features
 
+- **Email Verification**: Token-based email verification
+- **Phone Verification**: OTP-based phone verification (SMS)
 - **Identity Verification**: Persona integration for government ID verification
 - **Background Checks**: Checkr integration for criminal records, sex offender registry, SSN trace
 - **Visa Verification**: E-Verify integration for work authorization (H1B, F1, L1, etc.)
 - **License Verification**: State board verification for realtor licenses
 - **Trust Score**: Calculated score based on completed verifications
 - **Audit Logs**: Complete history of all verification actions
+- **Dual API**: Unified simple API + detailed specialized API
 
 ## Verification Types
+
+### 0. Email Verification
+- Token-based verification
+- 24-hour token expiration
+- Mock email sending in dev mode
+- Statuses: PENDING → VERIFIED/FAILED/EXPIRED
+
+### 0.1. Phone Verification
+- OTP-based verification (6-digit code)
+- 10-minute OTP expiration
+- Mock SMS sending in dev mode
+- Statuses: PENDING → VERIFIED/FAILED/EXPIRED
 
 ### 1. Identity Verification (Persona)
 - Government-issued ID verification
@@ -79,7 +94,108 @@ The service will be available at `http://localhost:4005`.
 
 ## GraphQL Operations
 
-### Queries
+### Unified Verification API (Simple)
+
+#### Queries
+
+```graphql
+# Get a specific verification
+query GetVerification($id: ID!) {
+  verification(id: $id) {
+    id
+    userId
+    type
+    status
+    verifiedAt
+    expiresAt
+  }
+}
+
+# Get all verifications for a user
+query UserVerifications($userId: ID!) {
+  userVerifications(userId: $userId) {
+    id
+    type
+    status
+    verifiedAt
+  }
+}
+
+# Check status of specific verification type
+query CheckVerificationStatus($userId: ID!, $type: VerificationType!) {
+  verificationStatus(userId: $userId, type: $type)
+}
+
+# Get current user's verifications
+query MyVerifications {
+  myVerifications {
+    id
+    type
+    status
+    verifiedAt
+  }
+}
+```
+
+#### Mutations
+
+```graphql
+# Send email verification
+mutation SendEmailVerification {
+  sendEmailVerification {
+    id
+    status
+  }
+}
+
+# Verify email with token
+mutation VerifyEmail($token: String!) {
+  verifyEmail(token: $token) {
+    id
+    status
+    verifiedAt
+  }
+}
+
+# Send phone verification
+mutation SendPhoneVerification($phoneNumber: String!) {
+  sendPhoneVerification(phoneNumber: $phoneNumber) {
+    id
+    status
+  }
+}
+
+# Verify phone with OTP
+mutation VerifyPhone($verificationId: ID!, $otp: String!) {
+  verifyPhone(verificationId: $verificationId, otp: $otp) {
+    id
+    status
+    verifiedAt
+  }
+}
+
+# Initiate any verification type
+mutation InitiateVerification($input: InitiateVerificationInput!) {
+  initiateVerification(input: $input) {
+    id
+    type
+    status
+  }
+}
+
+# Complete verification with result
+mutation CompleteVerification($input: CompleteVerificationInput!) {
+  completeVerification(input: $input) {
+    id
+    status
+    verifiedAt
+  }
+}
+```
+
+### Detailed Verification API (Specialized)
+
+#### Queries
 
 ```graphql
 # Get verification status for a user
@@ -149,7 +265,7 @@ query PendingVerifications {
 }
 ```
 
-### Mutations
+#### Mutations
 
 ```graphql
 # Start identity verification

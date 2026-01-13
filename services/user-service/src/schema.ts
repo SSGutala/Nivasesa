@@ -12,10 +12,13 @@ export const typeDefs = gql`
     email: String!
     name: String
     image: String
+    avatarUrl: String # Alias for image field
     role: UserRole!
     phone: String
     phoneVerified: Boolean!
     emailVerified: Boolean!
+    bio: String # Quick access to profile bio
+    languages: [String!]! # Quick access to profile languages
     profile: Profile
     verification: UserVerificationSummary
     trustScore: Int!
@@ -28,6 +31,7 @@ export const typeDefs = gql`
   """
   enum UserRole {
     RENTER
+    HOST
     LANDLORD
     AGENT
     ADMIN
@@ -127,6 +131,8 @@ export const typeDefs = gql`
 
   input UpdateProfileInput {
     name: String
+    avatarUrl: String
+    phone: String
     bio: String
     occupation: String
     company: String
@@ -157,6 +163,11 @@ export const typeDefs = gql`
     Get a user by ID
     """
     user(id: ID!): User
+
+    """
+    Get a user by email address
+    """
+    userByEmail(email: String!): User
 
     """
     Search users with filters

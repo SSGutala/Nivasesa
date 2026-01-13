@@ -1,0 +1,27 @@
+# Environment Configuration
+environment = "production"
+aws_region  = "us-east-1"
+
+# VPC Configuration
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+public_subnet_cidrs  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+# Database Configuration
+db_instance_class    = "db.t3.micro"  # Use db.r6g.large for production
+db_allocated_storage = 20
+db_master_username   = "nivasesaadmin"
+db_master_password   = "CHANGE_ME_GENERATE_STRONG_PASSWORD"
+
+# Domain Configuration
+rent_app_domain     = "nivasesa.com"
+lead_gen_domain     = "leads.nivasesa.com"
+acm_certificate_arn = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
+
+# Email Configuration
+admin_email = "admin@nivasesa.com"
+
+# GitHub Configuration
+github_repository   = "https://github.com/YOUR_ORG/nivasesa"
+github_access_token = "ghp_XXXXXXXXXXXXXXXXXXXX"

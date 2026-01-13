@@ -1,0 +1,209 @@
+/* Video Call Page Styles */
+
+.callPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #0a0a0a;
+}
+
+.callContainer {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Loading & Status States */
+.loadingContainer,
+.errorContainer,
+.endedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #0a0a0a;
+  color: #fff;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loadingContainer p,
+.errorContainer p,
+.endedContainer p {
+  margin-top: 1rem;
+  color: #a0a0a0;
+}
+
+.errorContainer h2,
+.endedContainer h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #333;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.returnBtn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.returnBtn:hover {
+  background: #2563eb;
+}
+
+/* Joining Overlay */
+.joiningOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  z-index: 10;
+}
+
+.joiningOverlay p {
+  margin-top: 1rem;
+  color: #a0a0a0;
+}
+
+/* Controls Bar */
+.controlsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+}
+
+.controlsLeft,
+.controlsRight {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.controlsRight {
+  justify-content: flex-end;
+}
+
+.controlsCenter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.participantCount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #a0a0a0;
+  font-size: 0.875rem;
+}
+
+/* Control Buttons */
+.controlBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.controlBtn:hover {
+  background: #444;
+  transform: scale(1.05);
+}
+
+.controlBtn.off {
+  background: #ef4444;
+}
+
+.controlBtn.off:hover {
+  background: #dc2626;
+}
+
+.controlBtn.active {
+  background: #3b82f6;
+}
+
+.controlBtn.active:hover {
+  background: #2563eb;
+}
+
+.leaveBtn {
+  background: #ef4444;
+}
+
+.leaveBtn:hover {
+  background: #dc2626;
+}
+
+.chatBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #a0a0a0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chatBtn:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .controlsBar {
+    padding: 0.75rem 1rem;
+  }
+
+  .controlBtn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .controlsCenter {
+    gap: 0.75rem;
+  }
+
+  .participantCount {
+    font-size: 0.75rem;
+  }
+}

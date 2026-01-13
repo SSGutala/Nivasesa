@@ -1,0 +1,268 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1rem;
+}
+
+.empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px dashed #d1d5db;
+}
+
+.empty p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+.browseLink {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.browseLink:hover {
+    background: #1d4ed8;
+}
+
+.sectionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+.section {
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.sectionTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+}
+
+.bookingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.bookingCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bookingHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.bookingHeader h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+}
+
+.location {
+    color: #6b7280;
+    margin: 0;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.statusInquiry {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.statusPending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.statusConfirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.statusActive {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.statusCompleted {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.statusDeclined {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.statusCancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.statusExpired {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.bookingDetails {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.value {
+    font-weight: 600;
+}
+
+.messageBox {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+}
+
+.messageBox strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.messageBox p {
+    margin: 0;
+    color: #6b7280;
+}
+
+.bookingActions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.approveButton {
+    padding: 0.625rem 1.25rem;
+    background: #059669;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.approveButton:hover {
+    background: #047857;
+}
+
+.declineButton {
+    padding: 0.625rem 1.25rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.declineButton:hover {
+    background: #b91c1c;
+}
+
+.completeButton {
+    padding: 0.625rem 1.25rem;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.completeButton:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .section {
+        padding: 1rem;
+    }
+
+    .bookingHeader {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .bookingDetails {
+        grid-template-columns: 1fr;
+    }
+
+    .bookingActions {
+        flex-direction: column;
+    }
+
+    .approveButton,
+    .declineButton,
+    .completeButton {
+        width: 100%;
+    }
+}

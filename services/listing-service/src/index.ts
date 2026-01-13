@@ -29,19 +29,12 @@ async function startServer() {
     introspection: true,
   });
 
-  interface Request {
-    headers: {
-      'x-user-id'?: string;
-      'x-user-role'?: string;
-    };
-  }
-
   const { url } = await startStandaloneServer(server, {
     listen: { port: parseInt(process.env.PORT || '4002') },
-    context: async ({ req }: { req: Request }): Promise<ContextValue> => {
+    context: async ({ req }): Promise<ContextValue> => {
       return {
-        userId: req.headers['x-user-id'],
-        userRole: req.headers['x-user-role'],
+        userId: req.headers['x-user-id'] as string | undefined,
+        userRole: req.headers['x-user-role'] as string | undefined,
       };
     },
   });

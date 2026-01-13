@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("LEADGEN_DATABASE_URL")
+}
+
+// =============================================================================
+// REALTOR & LEAD MANAGEMENT MODELS
+// =============================================================================
+// Note: userId is a String that references User.id in the auth database
+// No direct relation since databases are separated
+
+model RealtorProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  licenseNumber   String
+  brokerage       String
+  languages       String // CSV: "Hindi, Telugu, Tamil"
+  experienceYears Int
+  states          String // CSV: "TX, CA, NJ"
+  cities          String // CSV: "Dallas, Frisco, Irving"
+  buyerTypes      String? // CSV: "First-time buyers, Investors"
+  propertyTypes   String? // CSV: "Single Family, Townhome, Condo"
+  bio             String?
+  priceRange      String? // "100000-500000"
+  isVerified      Boolean @default(false)
+
+  // Phase 2: Groups
+  acceptsGroups Boolean @default(true)
+
+  // Credit System
+  freeUnlocksRemaining Int   @default(10)
+  creditBalance        Float @default(0)
+  totalUnlocks         Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads              Lead[]
+  referrals          Referral[]
+  assignedGroups     Group[]
+  groupRequests      GroupRealtorRequest[]
+  creditTransactions CreditTransaction[]
+  subscription       AgentSubscription?
+}
+
+model BuyerRequest {
+  id        String   @id @default(cuid())
+  userId    String? // References auth DB User.id (optional - can be anonymous)
+  name      String
+  email     String
+  phone     String
+  budgetMin Int?
+  budgetMax Int?
+  timeframe String? // "ASAP", "1-3 months", "3-6 months", "6+ months"
+  locations String // CSV: "Dallas, Frisco"
+  languages String? // CSV: "Hindi, Telugu"
+  createdAt DateTime @default(now())
+
+  referrals Referral[]
+}
+
+model Lead {
+  id                 String   @id @default(cuid())
+  agentId            String? // References RealtorProfile.id
+  buyerName          String
+  buyerEmail         String?
+  buyerPhone         String?
+  buyerContact       String? // Email or phone
+  message            String?
+  city               String
+  zipcode            String
+  lat                Float?
+  lng                Float?
+  buyerType          String? // "First-time", "Investor", etc.
+  interest           String?
+  languagePreference String? // "Hindi", "Telugu", etc.
+  timeline           String? // "ASAP", "1-3 months", etc.
+  price              Float    @default(30)
+  status             String   @default("locked") // "locked", "unlocked", "contacted", "closed"
+  createdAt          DateTime @default(now())
+
+  agent      RealtorProfile? @relation(fields: [agentId], references: [id])
+  unlockedBy UnlockedLead[]
+}
+
+model Referral {
+  id             String   @id @default(cuid())
+  buyerRequestId String
+  realtorId      String
+  status         String   @default("SENT") // "SENT", "VIEWED", "CONTACTED", "CLOSED"
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  realtor      RealtorProfile @relation(fields: [realtorId], references: [id])
+  buyerRequest BuyerRequest   @relation(fields: [buyerRequestId], references: [id])
+}
+
+model UnlockedLead {
+  id        String   @id @default(cuid())
+  userId    String // References auth DB User.id
+  leadId    String
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id])
+
+  @@unique([userId, leadId])
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String // References auth DB User.id
+  amount          Float
+  type            String // "credit", "debit", "refund"
+  stripeSessionId String?
+  status          String   @default("completed") // "pending", "completed", "failed"
+  createdAt       DateTime @default(now())
+
+  refundRequests RefundRequest[]
+}
+
+model RefundRequest {
+  id            String    @id @default(cuid())
+  userId        String // References auth DB User.id
+  transactionId String
+  amount        Float
+  reason        String
+  status        String    @default("pending") // "pending", "approved", "rejected", "cancelled"
+  adminNote     String?
+  processedAt   DateTime?
+  processedBy   String? // References auth DB User.id
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  agentId     String
+  amount      Float // positive = purchase, negative = usage
+  type        String // "purchase", "unlock", "refund"
+  description String?
+  leadId      String? // if type is "unlock"
+  createdAt   DateTime @default(now())
+
+  agent RealtorProfile @relation(fields: [agentId], references: [id])
+}
+
+model RealtorApplication {
+  id                      String   @id @default(cuid())
+  fullName                String
+  email                   String
+  phone                   String
+  preferredContactMethod  String?
+  brokerageName           String
+  licenseNumber           String
+  statesLicensed          String // CSV: "TX, CA, NJ"
+  experienceYears         String
+  primaryMarkets          String // CSV: "Dallas, Austin, Houston"
+  acceptingNewClients     String?
+  buyerSpecializations    String // CSV: "First-time buyers, Investors"
+  languages               String // CSV: "Hindi, Telugu, Tamil"
+  otherLanguage           String?
+  referralAcknowledgement Boolean
+  additionalContext       String?
+  status                  String   @default("pending") // "pending", "approved", "rejected"
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+// Pre-launch validation survey responses (realtor surveys only)
+model SurveyResponse {
+  id String @id @default(cuid())
+
+  // User Type: "agent" for realtor surveys
+  userType String
+
+  // Contact Info
+  email String
+  phone String?
+  name  String?
+
+  // Location
+  city    String?
+  state   String?
+  zipcode String?
+
+  // Timeline: "ASAP", "1-3 months", "3-6 months", "6+ months"
+  timeline String?
+
+  // Languages (CSV)
+  languages String?
+
+  // Pain Points (open text)
+  biggestChallenge String?
+  currentSolution  String?
+
+  // User-type specific fields (JSON blob for flexibility)
+  surveyData String?
+
+  // Follow-up tracking
+  calledAt      DateTime?
+  callNotes     String?
+  interviewedAt DateTime?
+  // Status: "new", "contacted", "scheduled", "interviewed", "converted"
+  status        String    @default("new")
+
+  // Referral source: "google", "facebook", "friend", "other"
+  referralSource String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// PHASE 2: Groups (Realtor Connection)
+// =============================================================================
+
+model Group {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  // Housing Preferences
+  targetCity      String
+  targetState     String
+  targetBudgetMin Int?
+  targetBudgetMax Int?
+  targetMoveIn    DateTime?
+  propertyType    String? // "Apartment", "House", "Condo", "Any"
+  bedroomsNeeded  Int?
+
+  // Group status
+  status     String  @default("forming") // "forming", "searching", "matched", "closed"
+  isPublic   Boolean @default(true)
+  maxMembers Int     @default(4)
+
+  // Realtor Connection
+  assignedRealtorId String?
+  assignedRealtor   RealtorProfile? @relation(fields: [assignedRealtorId], references: [id])
+
+  // Audit
+  createdById String // References auth DB User.id
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  realtorRequests GroupRealtorRequest[]
+}
+
+model GroupRealtorRequest {
+  id        String         @id @default(cuid())
+  groupId   String
+  group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  realtorId String
+  realtor   RealtorProfile @relation(fields: [realtorId], references: [id])
+
+  message   String?
+  status    String   @default("pending") // "pending", "accepted", "rejected"
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, realtorId])
+}
+
+// =============================================================================
+// MONETIZATION: Agent Subscriptions
+// =============================================================================
+
+model AgentSubscription {
+  id                   String    @id @default(cuid())
+  agentId              String    @unique
+  tier                 String    @default("free") // "free", "starter", "pro", "enterprise"
+  stripeSubscriptionId String?   @unique
+  stripeCustomerId     String?
+  status               String    @default("active") // "active", "cancelled", "past_due", "paused"
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  monthlyLeadCredits   Int       @default(0) // credits granted per billing cycle
+  cancelAtPeriodEnd    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  agent RealtorProfile @relation(fields: [agentId], references: [id], onDelete: Cascade)
+}
