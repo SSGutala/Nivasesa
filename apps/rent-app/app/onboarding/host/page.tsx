@@ -7,6 +7,8 @@ import { auth, db } from '@/lib/firebase';
 import { US_STATES } from '@/lib/geo';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { signIn } from 'next-auth/react';
+import { createHostAccount } from '@/actions/host';
 import styles from './HostOnboarding.module.css';
 
 const STEPS = [
@@ -35,6 +37,7 @@ const INITIAL_DATA = {
     additionalInfo: '',
     newsletterConsent: false,
     username: '',
+    interestedInAgent: '',
 };
 
 export default function OfferSpacePage() {
@@ -90,6 +93,41 @@ export default function OfferSpacePage() {
 
     const handleBack = () => {
         setCurrentStep(prev => Math.max(prev - 1, 1));
+    };
+
+    const handleComplete = async () => {
+        setIsSubmitting(true);
+        try {
+            // 1. Create/Update User in DB with Host Role
+            const result = await createHostAccount(formData);
+            if (!result.success) {
+                setErrors({ submit: result.message || 'Failed to create account' });
+                setIsSubmitting(false);
+                return;
+            }
+
+            // 2. Sign In to establish NextAuth session
+            const signInResult = await signIn('credentials', {
+                email: formData.email,
+                password: formData.password,
+                redirect: false,
+            });
+
+            if (signInResult?.error) {
+                setErrors({ submit: 'Failed to sign in. Please try again.' });
+                setIsSubmitting(false);
+                return;
+            }
+
+            // 3. Redirect to Dashboard
+            console.log('Redirecting to dashboard...');
+            window.location.href = '/host/dashboard';
+
+        } catch (err) {
+            console.error(err);
+            setErrors({ submit: 'An unexpected error occurred.' });
+            setIsSubmitting(false);
+        }
     };
 
     const renderStepper = () => (
@@ -353,15 +391,38 @@ export default function OfferSpacePage() {
                 {errors.availabilityStatus && <p className={styles.errorText}>{errors.availabilityStatus}</p>}
             </div>
 
+            <div className={styles.inputGroup}>
+                <label className={styles.label}>Would you like to work with a real estate agent?</label>
+                <p className={styles.helperText} style={{ fontSize: '13px', color: '#666', marginTop: '-4px', marginBottom: '12px', lineHeight: '1.4' }}>
+                    Some hosts choose to work with real estate agents to ensure a seamless leasing experience and secure tenants aligned with their expectations.
+                </p>
+                <div className={styles.radioGroup}>
+                    {['Yes', 'No'].map(option => (
+                        <label key={option} className={styles.radioLabel}>
+                            <input
+                                type="radio"
+                                name="interestedInAgent"
+                                value={option}
+                                checked={formData.interestedInAgent === option}
+                                onChange={(e) => updateFormData({ interestedInAgent: e.target.value })}
+                            />
+                            {option}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            {errors.submit && <p style={{ color: 'red', textAlign: 'center', marginBottom: '16px' }}>{errors.submit}</p>}
+
             <div className={styles.buttonGroup}>
                 <button type="button" className={styles.backBtn} onClick={handleBack}>Back</button>
                 <button
                     type="button"
                     className={styles.continueBtn}
-                    onClick={() => console.log('Submit', formData)}
+                    onClick={handleComplete}
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? 'Submitting...' : 'Complete Setup'}
+                    {isSubmitting ? 'Finalizing...' : 'Complete Sign up'}
                 </button>
             </div>
         </div>
@@ -374,10 +435,13 @@ export default function OfferSpacePage() {
                     N I V A E S A
                 </Link>
                 <div className={styles.headerNav}>
+                    <Link href="/host/dashboard" className={styles.loginLink} style={{ color: '#ef4444', marginRight: '20px' }}>
+                        Skip to Dashboard
+                    </Link>
                     <Link href="/login" className={styles.loginLink}>
                         Log in
                     </Link>
-                    <Link href="/join/find" className={styles.signupBtn}>
+                    <Link href="/join" className={styles.signupBtn}>
                         Sign up
                     </Link>
                 </div>

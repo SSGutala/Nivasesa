@@ -1,124 +1,187 @@
+/* ListingPreviewOverlay.module.css */
 .overlay {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
-    width: 380px;
+    width: 320px;
     background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-xl);
-    padding: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    font-family: var(--font-main, sans-serif);
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 100;
+    /* Reset leaflet default styles if needed */
+    color: #1a1a1a;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Image Area */
+.imageContainer {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    background-color: #f0f0f0;
 }
 
-.header {
+.image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Overlays on Image */
+.badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+}
+
+.heartBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+    padding: 0;
+}
+
+/* Carousel Controls */
+.carouselBtn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.2s;
+}
+
+.carouselBtn:hover {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.prevBtn {
+    left: 8px;
+}
+
+.nextBtn {
+    right: 8px;
+}
+
+.dots {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    z-index: 2;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s;
+}
+
+.activeDot {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Content Area */
+.content {
+    padding: 16px;
+    cursor: pointer;
+}
+
+.content:hover {
+    background-color: #fcfcfc;
+}
+
+.headerRow {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-}
-
-.titleArea {
-    flex: 1;
-}
-
-.price {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-primary);
     margin-bottom: 4px;
 }
 
-.title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-main);
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
 }
 
 .closeBtn {
     background: none;
     border: none;
-    color: var(--color-text-muted);
+    color: #999;
     cursor: pointer;
     padding: 4px;
+    margin-right: -4px;
+    margin-top: -4px;
     border-radius: 50%;
-    transition: all 0.2s ease;
 }
 
 .closeBtn:hover {
-    background-color: var(--color-bg-subtle);
-    color: var(--color-text-main);
+    background-color: #f5f5f5;
+    color: #1a1a1a;
 }
 
-.image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-.meta {
+.keyFacts {
     display: flex;
-    gap: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.metaItem {
-    display: flex;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
     align-items: center;
-    gap: 8px;
+}
+
+.divider {
+    color: #ddd;
+}
+
+.address {
     font-size: 14px;
-    color: var(--color-text-muted);
+    color: #1a1a1a;
+    font-weight: 500;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.tag {
-    font-size: 12px;
-    padding: 4px 8px;
-    background-color: var(--color-bg-subtle);
+.hostType {
+    display: inline-block;
+    font-size: 11px;
+    color: #666;
+    background: #f5f5f5;
+    padding: 2px 6px;
     border-radius: 4px;
-    color: var(--color-text-muted);
-}
-
-.actions {
-    margin-top: 8px;
-}
-
-.viewBtn {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.viewBtn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-    background-color: #1e293b;
+    margin-top: 4px;
 }

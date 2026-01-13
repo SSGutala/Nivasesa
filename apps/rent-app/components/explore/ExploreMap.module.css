@@ -1,18 +1,93 @@
-.mapContainer {
-    position: relative;
+.mapWrapper {
     width: 100%;
     height: 100%;
-    background: #e8e8e8;
+    position: relative;
+    border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
-.mapBackground {
-    position: absolute;
-    top: 0;
-    left: 0;
+.mapLoading {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #d4e4f7 0%, #e8f0f7 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-subtle);
+    color: var(--color-text-muted);
+    gap: 12px;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.mapContainer {
+    width: 100%;
+    height: 100%;
+    /* Ensure z-index doesn't overlay overlays */
+    z-index: 0;
+}
+
+.mapBackground {
+    display: none;
+    /* Hide old static map */
+}
+
+/* Price Marker Styles */
+.priceMarker {
+    background-color: white;
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    padding: 4px 8px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    width: fit-content;
+    /* Center text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.priceMarker:hover,
+.hoveredMarker {
+    transform: scale(1.1);
+    background-color: var(--color-text-main);
+    color: white;
+    border-color: var(--color-text-main);
+    z-index: 100;
+    /* Bring to front */
+}
+
+.selectedMarker {
+    background-color: var(--color-primary);
+    /* Brand color */
+    color: white;
+    border-color: var(--color-primary);
+    transform: scale(1.15);
+    z-index: 101;
+}
+
+/* Override Leaflet's divIcon styling if needed to allow visible overflow */
+:global(.leaflet-div-icon) {
+    background: transparent !important;
+    border: none !important;
 }
 
 .mapOverlay {
@@ -105,47 +180,19 @@
     background: #f9f9f9;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
-.markersContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+/* Leaflet Popup Overrides */
+:global(.leaflet-popup-content-wrapper) {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
 }
 
-.markersContainer > * {
-    pointer-events: auto;
+:global(.leaflet-popup-content) {
+    margin: 0 !important;
+    width: auto !important;
 }
 
-.pin.selected {
-    background: #2563eb;
-    border-color: #2563eb;
-    transform: translate(-50%, -50%) scale(1.2);
-    z-index: 25;
-    box-shadow: 0 6px 24px rgba(37, 99, 235, 0.4);
-}
-
-.pin.selected .pinPrice {
-    color: white;
-}
-
-.debugInfo {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-family: monospace;
-    z-index: 30;
-    line-height: 1.6;
-    pointer-events: none;
-}
-
-.debugInfo div {
-    margin: 2px 0;
+:global(.leaflet-popup-tip-container) {
+    display: none !important;
 }
