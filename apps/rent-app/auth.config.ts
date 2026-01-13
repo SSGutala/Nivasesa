@@ -33,6 +33,7 @@ export const authConfig: NextAuthConfig = {
         '/find-roommates', '/survey', '/rooms', '/roommates', '/groups',
         '/explore', '/onboarding', '/listing', '/api/auth', '/api/health',
         '/forgot-password', '/reset-password', '/verify-email', '/auth',
+        '/host/onboarding', '/tenant/onboarding', // New user onboarding flows
       ]
 
       const isPublicRoute = publicRoutes.some(route =>

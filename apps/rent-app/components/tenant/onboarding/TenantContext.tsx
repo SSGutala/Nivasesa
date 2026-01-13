@@ -11,7 +11,7 @@ interface TenantContextType {
     nextStep: () => void;
     prevStep: () => void;
     canProceed: boolean;
-    setCanProceed: (constProceed: boolean) => void;
+    setCanProceed: (canProceed: boolean) => void;
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);

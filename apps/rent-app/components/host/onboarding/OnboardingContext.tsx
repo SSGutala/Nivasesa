@@ -11,7 +11,7 @@ interface OnboardingContextType {
     nextStep: () => void;
     prevStep: () => void;
     canProceed: boolean;
-    setCanProceed: (canProceeed: boolean) => void;
+    setCanProceed: (canProceed: boolean) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -28,11 +28,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
             try {
                 const parsed = JSON.parse(saved);
                 // Date reconstruction if needed
-                if (parsed.availability?.availableFrom) {
-                    parsed.availability.availableFrom = new Date(parsed.availability.availableFrom);
-                }
-                if (parsed.availability?.endDate) {
-                    parsed.availability.endDate = new Date(parsed.availability.endDate);
+                if (parsed.availability?.startDate) {
+                    parsed.availability.startDate = new Date(parsed.availability.startDate);
                 }
                 setData({ ...INITIAL_DATA, ...parsed });
             } catch (e) {
@@ -41,9 +38,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Save to local storage on change
+    // Save to local storage on change (excluding sensitive data)
     useEffect(() => {
-        localStorage.setItem('host-onboarding-draft', JSON.stringify(data));
+        const { credentials, ...safeData } = data;
+        localStorage.setItem('host-onboarding-draft', JSON.stringify(safeData));
     }, [data]);
 
     const updateData = (updates: Partial<HostOnboardingData>) => {

@@ -50,7 +50,7 @@ interface AgentOnboardingContextType {
     nextStep: () => void;
     prevStep: () => void;
     canProceed: boolean;
-    setCanProceed: (canProceeed: boolean) => void;
+    setCanProceed: (canProceed: boolean) => void;
 }
 
 const AgentOnboardingContext = createContext<AgentOnboardingContextType | undefined>(undefined);
@@ -73,9 +73,10 @@ export function AgentOnboardingProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    // Save to local storage on change
+    // Save to local storage on change (excluding sensitive data)
     useEffect(() => {
-        localStorage.setItem('agent-onboarding-draft', JSON.stringify(data));
+        const { password, confirmPassword, ...safeData } = data;
+        localStorage.setItem('agent-onboarding-draft', JSON.stringify(safeData));
     }, [data]);
 
     const updateData = (updates: Partial<AgentOnboardingData>) => {
